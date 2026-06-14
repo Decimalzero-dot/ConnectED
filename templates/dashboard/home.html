@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard - ConnectED{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card bg-dark text-white">
+            <div class="card-body">
+                <h3>Welcome back, {{ user.username }} 👋</h3>
+                <p class="mb-0">{{ message }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4 mb-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <h6 class="text-muted">University</h6>
+                <h5>{{ university.name|default:"Not set" }}</h5>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <h6 class="text-muted">Year of Study</h6>
+                <h5>{{ year_of_study }}</h5>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <h6 class="text-muted">Discipline</h6>
+                <h5>{{ discipline }}</h5>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-3">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Your Challenges</h5>
+                <p class="text-muted">Challenges for {{ discipline }} ({{ access_level|title }} level) will appear here once the <code>challenges</code> app is built.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

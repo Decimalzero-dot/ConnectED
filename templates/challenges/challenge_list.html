@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}Challenges - ConnectED{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Challenges</h2>
+
+<form method="get" class="mb-4">
+    <select name="discipline" class="form-select w-auto d-inline-block" onchange="this.form.submit()">
+        <option value="">All Disciplines</option>
+        {% for value, label in discipline_choices %}
+            <option value="{{ value }}" {% if selected_discipline == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+    </select>
+</form>
+
+<div class="row">
+    {% for item in challenge_data %}
+    <div class="col-md-6 mb-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <h5 class="card-title">{{ item.challenge.title }}</h5>
+                    {% if item.eligible %}
+                        <span class="badge bg-success align-self-start">Eligible</span>
+                    {% else %}
+                        <span class="badge bg-secondary align-self-start">Locked</span>
+                    {% endif %}
+                </div>
+                <p class="text-muted mb-1">
+                    {{ item.challenge.get_discipline_display }} · {{ item.challenge.get_difficulty_display }} · {{ item.challenge.points }} pts
+                </p>
+                <p class="card-text">{{ item.challenge.description|truncatewords:20 }}</p>
+                <a href="{% url 'challenges:detail' item.challenge.pk %}" class="btn btn-outline-primary btn-sm">View Details</a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <p class="text-muted">No challenges available yet.</p>
+    {% endfor %}
+</div>
+{% endblock %}

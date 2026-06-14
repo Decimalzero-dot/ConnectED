@@ -1,0 +1,7 @@
+django>=5.0
+psycopg2-binary          # PostgreSQL adapter
+django-allauth           # GitHub OAuth
+Pillow                   # image handling (avatars)
+python-dotenv            # manage secret keys via .env
+whitenoise               # serve static files in production
+gunicorn      

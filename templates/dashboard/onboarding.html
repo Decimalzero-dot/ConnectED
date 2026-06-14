@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}Complete Your Profile - ConnectED{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <h2 class="mb-3">Welcome! Let's set up your profile</h2>
+        <p class="text-muted mb-4">This helps us show you the right challenges and connect you with your campus community.</p>
+
+        <form method="post">
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="mb-3">
+                    <label class="form-label">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                        <div class="text-danger small">{{ field.errors }}</div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+            <button type="submit" class="btn btn-primary w-100">Continue to Dashboard</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

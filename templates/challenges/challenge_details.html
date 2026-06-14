@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block title %}{{ challenge.title }} - ConnectED{% endblock %}
+
+{% block content %}
+<a href="{% url 'challenges:list' %}" class="btn btn-link mb-3">&larr; Back to Challenges</a>
+
+<div class="card">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start">
+            <h2>{{ challenge.title }}</h2>
+            {% if eligible %}
+                <span class="badge bg-success">Eligible to Attempt</span>
+            {% else %}
+                <span class="badge bg-secondary">Requires {{ challenge.get_discipline_display }}, Year {{ challenge.min_year }}+</span>
+            {% endif %}
+        </div>
+        <p class="text-muted">{{ challenge.get_discipline_display }} · {{ challenge.get_difficulty_display }} · {{ challenge.points }} points</p>
+        {% if challenge.deadline %}
+            <p class="text-muted">Deadline: {{ challenge.deadline }}</p>
+        {% endif %}
+        <hr>
+        <p>{{ challenge.description }}</p>
+    </div>
+</div>
+
+{% if submission %}
+<div class="card mt-3">
+    <div class="card-body">
+        <h5>Your Submission</h5>
+        <p>Repo: <a href="{{ submission.github_repo_url }}" target="_blank">{{ submission.github_repo_url }}</a></p>
+        <p>Status:
+            {% if submission.status == 'passed' %}
+                <span class="badge bg-success">Passed</span>
+            {% elif submission.status == 'failed' %}
+                <span class="badge bg-danger">Failed</span>
+            {% else %}
+                <span class="badge bg-warning text-dark">Pending Review</span>
+            {% endif %}
+        </p>
+        {% if submission.feedback %}
+            <p class="text-muted">Feedback: {{ submission.feedback }}</p>
+        {% endif %}
+    </div>
+</div>
+{% elif eligible %}
+<div class="card mt-3">
+    <div class="card-body">
+        <h5>Submit Your Solution</h5>
+        <form method="post">
+            {% csrf_token %}
+            {% for field in form %}
+                <div class="mb-3">
+                    <label class="form-label">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                        <div class="text-danger small">{{ field.errors }}</div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+</div>
+{% else %}
+<div class="alert alert-secondary mt-3">
+    You're not eligible to attempt this challenge yet. It requires <strong>{{ challenge.get_discipline_display }}</strong> discipline and at least <strong>Year {{ challenge.min_year }}</strong>.
+</div>
+{% endif %}
+{% endblock %}
