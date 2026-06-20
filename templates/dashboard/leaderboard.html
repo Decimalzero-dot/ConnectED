@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %}Leaderboard - ConnectED{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Leaderboard</h2>
+
+<form method="get" class="row g-2 mb-4">
+    <div class="col-auto">
+        <select name="scope" class="form-select" onchange="this.form.submit()">
+            <option value="campus" {% if scope == 'campus' %}selected{% endif %}>My Campus</option>
+            <option value="discipline" {% if scope == 'discipline' %}selected{% endif %}>My Campus + Discipline</option>
+            <option value="year" {% if scope == 'year' %}selected{% endif %}>My Campus + Year</option>
+            <option value="global" {% if scope == 'global' %}selected{% endif %}>Global (All Campuses)</option>
+        </select>
+    </div>
+
+    {% if scope == 'discipline' %}
+    <div class="col-auto">
+        <select name="discipline" class="form-select" onchange="this.form.submit()">
+            {% for value, label in discipline_choices %}
+                <option value="{{ value }}" {% if discipline_filter == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    {% endif %}
+
+    {% if scope == 'year' %}
+    <div class="col-auto">
+        <select name="year" class="form-select" onchange="this.form.submit()">
+            {% for value, label in year_choices %}
+                <option value="{{ value }}" {% if year_filter|stringformat:"s" == value|stringformat:"s" %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    {% endif %}
+</form>
+
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>Rank</th>
+            <th>Student</th>
+            {% if scope == 'global' %}<th>University</th>{% endif %}
+            <th>Challenges Completed</th>
+            <th>Points</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for entry in leaderboard %}
+        <tr {% if entry.student__username == user.username %}class="table-primary"{% endif %}>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ entry.student__username }}</td>
+            {% if scope == 'global' %}<td>{{ entry.student__profile__university__name }}</td>{% endif %}
+            <td>{{ entry.challenges_completed }}</td>
+            <td><strong>{{ entry.total_points }}</strong></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="text-muted text-center">No passed submissions yet. Be the first!</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

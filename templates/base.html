@@ -15,7 +15,13 @@
                 {% if user.is_authenticated %}
                     <span class="text-light me-3">Hi, {{ user.username }}</span>
                     <a class="btn btn-outline-light btn-sm" href="{% url 'accounts:profile' %}">Profile</a>
-                    <a class="btn btn-outline-danger btn-sm" href="{% url 'accounts:logout' %}">Logout</a>
+                    <a class="btn btn-outline-light btn-sm" href="{% url 'dashboard:leaderboard' %}">Leaderboard</a>
+                    <form action="{% url 'accounts:logout' %}" method="post" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-danger btn-sm">
+                             Logout
+                        </button>
+                    </form>
                 {% else %}
                     <a class="btn btn-outline-light btn-sm" href="{% url 'accounts:login' %}">Login</a>
                     <a class="btn btn-primary btn-sm" href="{% url 'accounts:register' %}">Register</a>

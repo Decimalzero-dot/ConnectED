@@ -58,6 +58,15 @@ INSTALLED_APPS = [
     'challenges',
 ]
 
+EMAIL_BACKEND = os.getenv("EMAIL_BACKEND")
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_HOST = os.getenv("EMAIL_HOST")
+EMAIL_PORT = os.getenv("EMAIL_PORT")
+EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS") == "True"
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = f'ConnectED <{EMAIL_HOST_USER}>'
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -72,7 +81,7 @@ AUTH_USER_MODEL = 'accounts.User'
 
 ROOT_URLCONF = 'connected.urls'
 
-SITE_ID = 1
+SITE_ID = 2
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
@@ -83,7 +92,11 @@ LOGIN_URL = 'accounts:login'
 LOGIN_REDIRECT_URL = '/dashboard/onboarding/'  # after GitHub login
 ACCOUNT_EMAIL_VERIFICATION = 'none'            # skip email confirm for now
 
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
+SESSION_COOKIE_AGE = 3600
+
+SESSION_SAVE_EVERY_REQUEST = True
 
 TEMPLATES = [
     {

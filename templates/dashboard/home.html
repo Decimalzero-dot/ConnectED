@@ -45,7 +45,8 @@
         <div class="card">
             <div class="card-body">
                 <h5 class="card-title">Your Challenges</h5>
-                <p class="text-muted">Challenges for {{ discipline }} ({{ access_level|title }} level) will appear here once the <code>challenges</code> app is built.</p>
+                <p class="text-muted">Explore challenges for {{ discipline }} ({{ access_level|title }} level).</p>
+                <a href="{% url 'challenges:list' %}" class="btn btn-primary">View Challenges</a>
             </div>
         </div>
     </div>
