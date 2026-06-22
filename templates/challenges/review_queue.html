@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Review Queue - ConnectED{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Pending Submissions</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Student</th>
+            <th>Challenge</th>
+            <th>Submitted</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for sub in submissions %}
+        <tr>
+            <td>{{ sub.student.username }}</td>
+            <td>{{ sub.challenge.title }}</td>
+            <td>{{ sub.submitted_at|date:"M d, Y" }}</td>
+            <td><a href="{% url 'challenges:review_submission' sub.pk %}" class="btn btn-sm btn-primary">Review</a></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4" class="text-muted text-center">No pending submissions.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

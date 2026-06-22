@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}Review Submission - ConnectED{% endblock %}
+
+{% block content %}
+<a href="{% url 'challenges:review_queue' %}" class="btn btn-link mb-3">&larr; Back to Queue</a>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <h4>{{ submission.challenge.title }}</h4>
+        <p class="text-muted">By {{ submission.student.username }} · {{ submission.student.profile.university }}</p>
+        <p>{{ submission.challenge.description }}</p>
+        <hr>
+        <p><strong>Repo:</strong> <a href="{{ submission.github_repo_url }}" target="_blank">{{ submission.github_repo_url }}</a></p>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label class="form-label">Feedback</label>
+                <textarea name="feedback" class="form-control" rows="4" placeholder="Notes for the student...">{{ submission.feedback }}</textarea>
+            </div>
+            <button type="submit" name="decision" value="passed" class="btn btn-success">Mark Passed</button>
+            <button type="submit" name="decision" value="failed" class="btn btn-danger">Mark Failed</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
