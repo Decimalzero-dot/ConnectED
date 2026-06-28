@@ -50,10 +50,24 @@ class Profile(models.Model):
     year_of_study = models.PositiveSmallIntegerField(choices=YEAR_CHOICES, null=True, blank=True)
     discipline = models.CharField(max_length=20, choices=DISCIPLINE_CHOICES, null=True, blank=True)
     github_username = models.CharField(max_length=100, blank=True)
+    reg_number = models.CharField(
+        max_length=50,
+        blank=True,
+        null=True,
+        help_text="University registration number"
+    )
     onboarding_complete = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.user.username}'s Profile"    
+        return f"{self.user.username}'s Profile"   
+class Meta:
+    constraints = [
+        models.UniqueConstraint(
+            fields=['university', 'reg_number'],
+            condition=models.Q(reg_number__isnull=False),
+            name='unique_reg_number_per_university'
+        )
+    ]     
     
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):

@@ -2,27 +2,114 @@
 {% block title %}My Profile - ConnectED{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <h2 class="mb-4">My Profile</h2>
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="h3 fw-bold text-dark mb-1">Account Settings</h1>
+            <p class="text-muted small">Manage your platform identity, cohort allocations, and public profiles.</p>
+        </div>
+    </div>
 
-        {% if user.profile_image %}
-            <img src="{{ user.profile_image.url }}" alt="Profile" class="rounded-circle mb-3" width="100" height="100">
-        {% endif %}
-
-        <form method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            {% for field in form %}
-                <div class="mb-3">
-                    <label class="form-label">{{ field.label }}</label>
-                    {{ field }}
-                    {% if field.errors %}
-                        <div class="text-danger small">{{ field.errors }}</div>
+    <div class="row">
+        <div class="col-lg-4 mb-4">
+            <div class="card text-center p-4 shadow-sm border-0">
+                <div class="position-relative d-inline-block mx-auto mb-3">
+                    {% if user.profile_image %}
+                        <img src="{{ user.profile_image.url }}" alt="Profile Avatar" class="img-fluid rounded-circle border border-3" style="width: 110px; height: 110px; object-fit: cover; border-color: var(--brand-light) !important;">
+                    {% else %}
+                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto border border-3" style="width: 110px; height: 110px; font-size: 2rem; font-weight: 700; border-color: var(--brand-light) !important; background-color: var(--brand-primary) !important;">
+                            {{ user.username|slice:":2"|upper }}
+                        </div>
                     {% endif %}
                 </div>
-            {% endfor %}
-            <button type="submit" class="btn btn-primary">Save Changes</button>
-        </form>
+
+                <h5 class="fw-bold text-dark mb-1">{{ user.get_full_name|default:user.username }}</h5>
+                <p class="text-muted small mb-3">@{{ user.username }}</p>
+                
+                <span class="badge px-3 py-2 rounded-pill mb-4 text-capitalize" style="background-color: rgba(0, 71, 86, 0.1); color: var(--brand-darkest); font-weight: 600;">
+                    {{ user.get_user_type_display }}
+                </span>
+
+                <hr class="text-muted opacity-25">
+
+                <div class="text-start mt-3">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="p-2 rounded bg-light me-3 text-secondary" style="width: 36px; height: 36px; text-align: center;">🏛️</div>
+                        <div>
+                            <small class="text-muted d-block" style="font-size: 0.75rem;">University</small>
+                            <span class="fw-semibold text-dark small">{{ user.profile.university.name|default:"Not Linked" }}</span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="p-2 rounded bg-light me-3 text-secondary" style="width: 36px; height: 36px; text-align: center;">📚</div>
+                        <div>
+                            <small class="text-muted d-block" style="font-size: 0.75rem;">Discipline / Track</small>
+                            <span class="fw-semibold text-dark small">{{ user.profile.get_discipline_display|default:"Unassigned" }}</span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-center">
+                        <div class="p-2 rounded bg-light me-3 text-secondary" style="width: 36px; height: 36px; text-align: center;">📅</div>
+                        <div>
+                            <small class="text-muted d-block" style="font-size: 0.75rem;">Year of Study</small>
+                            <span class="fw-semibold text-dark small">{{ user.profile.get_year_of_study_display|default:"Not Configured" }}</span>
+                        </div>
+                    </div>
+                    {% if user.user_type == 'student' %}
+                    <div class="d-flex align-items-center mt-3">
+                        <div class="p-2 rounded bg-light me-3 text-secondary" style="width: 36px; height: 36px; text-align: center;">🎓</div>
+                        <div>
+                            <small class="text-muted d-block" style="font-size: 0.75rem;">Reg Number</small>
+                            <span class="fw-semibold text-dark small">{{ user.profile.reg_number|default:"Not Set" }}</span>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="card p-4 shadow-sm border-0">
+                <h4 class="fw-bold mb-4" style="color: var(--brand-darkest); font-size: 1.25rem;">Personal Metadata Profile</h4>
+                
+                <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        {% for field in form %}
+                            <div class="col-md-6 mb-3 profile-field-wrapper">
+                                <label class="form-label fw-semibold text-secondary small">{{ field.label }}</label>
+                                {{ field }}
+                                
+                                {% if field.help_text %}
+                                    <div class="form-text text-muted" style="font-size: 0.75rem;">{{ field.help_text|striptags }}</div>
+                                {% endif %}
+                                
+                                {% if field.errors %}
+                                    <div class="text-danger small mt-1 fw-medium">{{ field.errors|striptags }}</div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="mt-4 pt-2 border-top">
+                        <button type="submit" class="btn btn-primary px-4 py-2 text-white">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 </div>
+
+<script>
+    document.querySelectorAll('.profile-field-wrapper input, .profile-field-wrapper select, .profile-field-wrapper textarea').forEach(el => {
+        if (el.getAttribute('type') === 'checkbox') {
+            el.classList.add('form-check-input');
+            el.parentElement.classList.add('form-check', 'form-switch', 'mt-4');
+        } else {
+            el.classList.add('form-control');
+        }
+    });
+</script>
 {% endblock %}

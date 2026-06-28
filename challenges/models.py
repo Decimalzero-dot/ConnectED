@@ -68,3 +68,4 @@ class Submission(models.Model):
 
     def __str__(self):
         return f"{self.student.username} → {self.challenge.title} ({self.status})"
+    

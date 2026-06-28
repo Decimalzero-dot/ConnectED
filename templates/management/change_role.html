@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}Change Role — ConnectED{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Change Role: {{ target_user.username }}</h2>
+<div class="col-md-4">
+    <p>Current role: <strong>{{ target_user.user_type }}</strong></p>
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label class="form-label">New Role</label>
+            <select name="user_type" class="form-control">
+                <option value="student" {% if target_user.user_type == 'student' %}selected{% endif %}>Student</option>
+                <option value="campus_admin" {% if target_user.user_type == 'campus_admin' %}selected{% endif %}>Campus Admin</option>
+                <option value="super_admin" {% if target_user.user_type == 'super_admin' %}selected{% endif %}>Super Admin</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Save Change</button>
+        <a href="{% url 'management:all_students' %}" class="btn btn-outline-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

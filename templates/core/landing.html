@@ -1,12 +1,69 @@
 {% extends 'base.html' %}
 {% block title %}ConnectED - Build Your Tech Career{% endblock %}
 
-{% block content %}
-<div class="text-center py-5">
-    <h1>Welcome to ConnectED</h1>
-    <p class="lead">The campus talent pipeline for Kenyan university students.</p>
-    <p>Build real projects, get verified, compete with peers, get discovered.</p>
-    <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-lg me-2">Get Started</a>
-    <a href="{% url 'accounts:login' %}" class="btn btn-outline-secondary btn-lg">Login</a>
+{% block guest_content %}
+<div class="container-fluid px-0">
+    <div class="row align-items-center g-5 py-5 mx-0" style="min-height: 80vh; background-color: var(--bg-main);">
+        <div class="col-lg-6 px-4 ps-lg-5">
+            <span class="badge px-3 py-2 rounded-pill mb-3 text-uppercase fw-bold tracking-wider" style="background-color: rgba(24, 143, 159, 0.1); color: var(--brand-primary); font-size: 0.75rem;">
+                🚀 The Ultimate Campus Tech Pipeline
+            </span>
+            <h1 class="display-4 fw-extrabold text-dark lh-sm mb-3" style="letter-spacing: -1px;">
+                Where Kenyan Student Developers <span style="color: var(--brand-primary);">Get Discovered.</span>
+            </h1>
+            <p class="lead text-secondary mb-4 fs-5" style="max-width: 540px;">
+                Build real-world programming modules, out-compile your peers on the inter-university leaderboard, and present an immutable, verified code portfolio directly to top recruiters.
+            </p>
+            <div class="d-flex flex-wrap gap-3">
+                <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-lg px-4 py-3 fw-bold text-white shadow-sm" style="border-radius: 8px; font-size: 1rem;">
+                    Create Your Account
+                </a>
+                <a href="{% url 'accounts:login' %}" class="btn btn-outline-light btn-lg px-4 py-3 fw-bold" style="border-radius: 8px; font-size: 1rem; color: var(--brand-darkest); border-color: var(--brand-light);">
+                    Sign In
+                </a>
+            </div>
+        </div>
+
+        <div class="col-lg-6 px-4 pe-lg-5">
+            <div class="position-relative overflow-hidden shadow-lg border border-light" style="border-radius: 20px; height: 450px; background: linear-gradient(135deg, var(--brand-darkest) 0%, var(--brand-primary) 100%);">
+                
+                <div class="position-absolute top-50 start-50 translate-middle text-center w-75 text-white p-4">
+                    <div class="fs-1 mb-2">🏆</div>
+                    <h3 class="fw-bold mb-2">Inter-Campus Leaderboard</h3>
+                    <p class="text-white-50 small mb-0">Live syncing across major institutions. Push changes, resolve runtime test suites, and climb your department rankings securely.</p>
+                </div>
+                
+                <div class="position-absolute bottom-0 end-0 m-3 p-3 bg-white text-dark rounded-3 shadow-sm d-flex align-items-center gap-2 border border-light animate-bounce" style="max-width: 220px;">
+                    <span class="fs-4">🎯</span>
+                    <div>
+                        <small class="text-muted d-block" style="font-size: 0.65rem; font-weight:700;">ACTIVE COHORT</small>
+                        <span class="fw-bold small" style="color: var(--brand-darkest);">+4.8k Builders</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mx-0 border-top border-light-subtle bg-white text-center py-5">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="fs-2 mb-2">⚡</div>
+                    <h5 class="fw-bold text-dark">Ranked Milestones</h5>
+                    <p class="text-muted small px-lg-4">Earn verified metrics tied directly to your university affiliation and specific technology domain path track.</p>
+                </div>
+                <div class="col-md-4">
+                    <div class="fs-2 mb-2">🧱</div>
+                    <h5 class="fw-bold text-dark">Curated Sandboxes</h5>
+                    <p class="text-muted small px-lg-4">Solve real operational requirements structured dynamically according to your progression level.</p>
+                </div>
+                <div class="col-md-4">
+                    <div class="fs-2 mb-2">💼</div>
+                    <h5 class="fw-bold text-dark">Recruiter Pipeline</h5>
+                    <p class="text-muted small px-lg-4">Skip traditional recruitment gatekeepers. Let your validated score data match you with technical options.</p>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

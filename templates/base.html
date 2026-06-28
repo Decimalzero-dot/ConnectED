@@ -6,72 +6,141 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}ConnectED{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
 
 {% if user.is_authenticated %}
-<div class="d-flex">
-    <!-- Sidebar -->
-    <nav class="d-flex flex-column p-3" style="width: 220px; min-height: 100vh; background-color: #004756;">
-        <a href="{% url 'core:landing' %}" class="text-white text-decoration-none fs-4 mb-4">ConnectED</a>
-        <a href="{% url 'dashboard:home' %}" class="text-white text-decoration-none py-2">Home</a>
-        <a href="{% url 'challenges:list' %}" class="text-white text-decoration-none py-2">Challenges</a>
-        <a href="{% url 'dashboard:leaderboard' %}" class="text-white text-decoration-none py-2">Leaderboard</a>
-        {% if user.user_type == 'campus_admin' or user.user_type == 'super_admin' %}
-        <a href="{% url 'challenges:review_queue' %}" class="text-white text-decoration-none py-2">Review Queue</a>
-        {% endif %}
-        <a href="#" class="text-white text-decoration-none py-2">Settings</a>
-        <a href="#" class="text-white text-decoration-none py-2">Messages</a>
-        <a href="{% url 'accounts:profile' %}" class="text-white text-decoration-none py-2">Profile</a>
-        <a href="{% url 'notifications:list' %}" class="text-white text-decoration-none py-2">
-            Notifications
-            {% if unread_notifications %}<span class="badge bg-danger">{{ unread_notifications }}</span>{% endif %}
-        </a>
+    <header class="mobile-header d-md-none">
+        <a href="{% url 'core:landing' %}" class="text-white text-decoration-none fs-4 fw-bold">ConnectED</a>
+        <button id="mobile-sidebar-toggle" class="btn btn-outline-light btn-sm" type="button" aria-label="Toggle navigation">
+            &#9776;
+        </button>
+    </header>
 
-        <form action="{% url 'accounts:logout' %}" method="post" class="mt-auto">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-outline-light btn-sm w-100">Logout</button>
-        </form>
-    </nav>
+    <div class="app-container">
+        <nav class="sidebar">
+            <a href="{% url 'core:landing' %}" class="sidebar-brand">ConnectED</a>
 
-    <!-- Main content -->
-    <main class="flex-grow-1 p-4">
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            <ul class="sidebar-menu mt-3">
+
+                <!-- Core nav -->
+                <li><a href="{% url 'dashboard:home' %}" class="sidebar-link">Home</a></li>
+                <li><a href="{% url 'challenges:list' %}" class="sidebar-link">Challenges</a></li>
+                <li><a href="{% url 'dashboard:leaderboard' %}" class="sidebar-link">Leaderboard</a></li>
+
+                {% if user.user_type == 'campus_admin' or user.user_type == 'super_admin' %}
+                <li><a href="{% url 'challenges:review_queue' %}" class="sidebar-link">Review Queue</a></li>
+                {% endif %}
+
+                <div class="menu-divider"></div>
+
+                <!-- Account nav -->
+                <li><a href="#" class="sidebar-link">Settings</a></li>
+                <li><a href="#" class="sidebar-link">Messages</a></li>
+                <li><a href="{% url 'accounts:profile' %}" class="sidebar-link">Profile</a></li>
+                <li>
+                    <a href="{% url 'notifications:list' %}" class="sidebar-link d-flex justify-content-between align-items-center">
+                        <span>Notifications</span>
+                        {% if unread_notifications %}
+                        <span class="notification-badge {% if unread_notifications %}pulse-animation{% endif %}">
+                            {{ unread_notifications }}
+                        </span>
+                        {% endif %}
+                    </a>
+                </li>
+
+                <!-- Management nav (admin only) -->
+                {% if user.user_type == 'campus_admin' or user.user_type == 'super_admin' %}
+                <div class="menu-divider"></div>
+                <li><a href="{% url 'management:campus_dashboard' %}" class="sidebar-link">Admin Panel</a></li>
+                <li><a href="{% url 'management:challenge_create' %}" class="sidebar-link">+ Challenge</a></li>
+                <li><a href="{% url 'management:campus_students' %}" class="sidebar-link">Students</a></li>
+                {% endif %}
+
+                {% if user.user_type == 'super_admin' %}
+                <li><a href="{% url 'management:super_dashboard' %}" class="sidebar-link">Super Admin</a></li>
+                <li><a href="{% url 'management:university_list' %}" class="sidebar-link">Universities</a></li>
+                <li><a href="{% url 'management:admin_list' %}" class="sidebar-link">Admins</a></li>
+                <li><a href="{% url 'management:all_students' %}" class="sidebar-link">All Students</a></li>
+                {% endif %}
+
+            </ul>
+
+            <div class="sidebar-profile-card mx-3 my-2 text-center text-white">
+                <div class="profile-card-img-wrapper mb-2">
+                    {% if user.profile_image %}
+                        <img src="{{ user.profile_image.url }}" alt="{{ user.get_full_name|default:user.username }}" class="profile-card-img">
+                    {% else %}
+                        <div class="profile-card-avatar-fallback mx-auto">
+                            {{ user.username|slice:":2"|upper }}
+                        </div>
+                    {% endif %}
                 </div>
-            {% endfor %}
-        {% endif %}
-        {% block content %}{% endblock %}
-    </main>
-</div>
+                <h6 class="mb-0 fw-bold fs-6 text-truncate">
+                    {{ user.get_full_name|default:user.username }}
+                </h6>
+                <small class="text-white-50 d-block mb-2 text-capitalize text-truncate">
+                    {{ user.get_user_type_display }}
+                    {% if user.is_student and user.profile.year_of_study %}
+                        • Yr {{ user.profile.year_of_study }}
+                    {% endif %}
+                </small>
+                <a href="{% url 'accounts:profile' %}" class="btn btn-sm btn-light-accent w-100 py-1 fw-semibold">
+                    Open Profile
+                </a>
+            </div>
+
+            <div class="p-3">
+                <form action="{% url 'accounts:logout' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-outline-light btn-sm w-100">Logout</button>
+                </form>
+            </div>
+        </nav>
+
+        <main class="main-content">
+            {% if messages %}
+                <div class="messages-container">
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </main>
+    </div>
 
 {% else %}
-    <!-- Logged-out: simple top navbar -->
-    <nav class="navbar navbar-dark" style="background-color: #004756;">
+    <nav class="navbar navbar-dark" style="background-color: var(--brand-darkest, #004756);">
         <div class="container">
-            <a class="navbar-brand" href="{% url 'core:landing' %}">ConnectED</a>
+            <a class="navbar-brand fw-bold" href="{% url 'core:landing' %}">ConnectED</a>
             <div>
-                <a class="btn btn-outline-light btn-sm" href="{% url 'accounts:login' %}">Login</a>
+                <a class="btn btn-outline-light btn-sm me-2" href="{% url 'accounts:login' %}">Login</a>
                 <a class="btn btn-light btn-sm" href="{% url 'accounts:register' %}">Register</a>
             </div>
         </div>
     </nav>
+
     <div class="container mt-4">
         {% if messages %}
             {% for message in messages %}
                 <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
                     {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             {% endfor %}
         {% endif %}
+
         {% block guest_content %}{% endblock %}
     </div>
 {% endif %}
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{% static 'js/main.js' %}"></script>
 </body>
 </html>

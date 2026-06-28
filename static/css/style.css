@@ -1,0 +1,360 @@
+/* ==========================================================================
+   ConnectED Global Theme Variables & Resets
+   ========================================================================== */
+:root {
+    --brand-darkest: #004756;
+    --brand-primary: #006a7a;
+    --brand-secondary: #188f9f;
+    --brand-hover: #42b6c6;
+    --brand-light: #70dde9;
+    --brand-lightest: #9bffff;
+    --bg-main: #f4f6f7;
+    --bg-card: #ffffff;
+    --sidebar-width: 220px;
+    --font-stack: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+    font-family: var(--font-stack);
+    background-color: var(--bg-main);
+    color: #333333;
+    overflow-x: hidden;
+}
+
+/* ==========================================================================
+   Layout Structures (Authenticated Workspace)
+   ========================================================================== */
+/* Master Container for Auth Users */
+.app-container {
+    display: flex;
+    min-height: 100vh;
+    width: 100vw;
+}
+
+/* Sidebar Navigation */
+.sidebar {
+    width: var(--sidebar-width);
+    height: 100vh;
+    background-color: var(--brand-darkest);
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    overflow-y: auto;       
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+    z-index: 1030;
+    transition: transform 0.3s ease;
+    border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.sidebar::-webkit-scrollbar {
+    width: 4px;
+}
+.sidebar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+}
+
+.sidebar-brand {
+    padding: 1.5rem;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #ffffff;
+    text-decoration: none;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    flex-grow: 1;
+}
+
+.menu-divider {
+    height: 1px;
+    background-color: rgba(255, 255, 255, 0.1);
+    margin: 0.75rem 1.5rem;
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    color: rgba(255, 255, 255, 0.75);
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.sidebar-link:hover, 
+.sidebar-link.active {
+    color: #ffffff;
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+.sidebar-link.active {
+    border-left: 4px solid var(--brand-light);
+    padding-left: calc(1.5rem - 4px);
+}
+
+/* Sidebar Mini Profile Card */
+.sidebar-profile-card {
+    background-color: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 1rem;
+    margin: 1rem;
+}
+
+.profile-card-img-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.profile-card-img {
+    width: 52px;
+    height: 52px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid var(--brand-light);
+}
+
+.profile-card-avatar-fallback {
+    width: 52px;
+    height: 52px;
+    line-height: 48px;
+    border-radius: 50%;
+    background-color: var(--brand-primary);
+    border: 2px solid var(--brand-light);
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-align: center;
+    letter-spacing: 0.5px;
+}
+
+/* Main Content Area */
+.main-content {
+    margin-left: var(--sidebar-width); 
+    width: calc(100% - var(--sidebar-width));
+    padding: 2rem;
+    flex-grow: 1;
+    min-width: 0; /* Prevents long flex items from breaking grid containers */
+    transition: margin-left 0.3s ease;
+}
+
+/* Mobile Layout Target Headers */
+.mobile-header {
+    display: none;
+    background-color: var(--brand-darkest);
+    color: #ffffff;
+    padding: 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 1040;
+}
+
+/* ==========================================================================
+   Split Auth Layout Components (Sign In / Registration Views)
+   ========================================================================== */
+.auth-page-bg {
+    min-height: calc(100vh - 56px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--bg-main);
+    padding: 2rem 1rem;
+}
+
+.auth-split-card {
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+    max-width: 1000px;
+    width: 100%;
+    min-height: 600px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+}
+
+/* Left Brand/Art Panel */
+.auth-panel-left {
+    background: linear-gradient(135deg, var(--brand-darkest) 0%, var(--brand-primary) 100%);
+    color: #ffffff;
+    padding: 3.5rem !important; 
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+}
+
+.auth-panel-left::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-image: radial-gradient(circle at 20% 30%, rgba(155, 255, 255, 0.15) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+.auth-brand-tag {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: var(--brand-lightest);
+}
+
+.auth-panel-heading {
+    font-size: 2.25rem;
+    font-weight: 800;
+    line-height: 1.2;
+    color: #ffffff;
+}
+
+/* Right Form Panel */
+.auth-panel-right {
+    padding: 3.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background-color: #ffffff;
+}
+
+.auth-form-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--brand-darkest);
+    margin-bottom: 0.5rem;
+}
+
+/* Custom Styled Form Fields */
+.auth-panel-right .form-label {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: #555555;
+    margin-bottom: 0.4rem;
+}
+
+.auth-panel-right .form-control {
+    padding: 0.75rem 1rem;
+    border: 1px solid #dcdcdc;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+}
+
+.auth-panel-right .form-control:focus {
+    border-color: var(--brand-secondary);
+    box-shadow: 0 0 0 4px rgba(24, 143, 159, 0.15);
+    outline: none;
+}
+
+/* ==========================================================================
+   UI Components & Extensions
+   ========================================================================== */
+.card {
+    background-color: var(--bg-card);
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    margin-bottom: 1.5rem;
+}
+
+.btn-primary {
+    background-color: var(--brand-primary);
+    border-color: var(--brand-primary);
+    font-weight: 600;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.btn-primary:hover, .btn-primary:focus {
+    background-color: var(--brand-hover);
+    border-color: var(--brand-hover);
+    box-shadow: 0 0 0 0.25rem rgba(66, 182, 198, 0.25);
+}
+
+.btn-light-accent {
+    background-color: rgba(255, 255, 255, 0.15);
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    font-size: 0.75rem;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.btn-light-accent:hover {
+    background-color: var(--brand-lightest);
+    color: var(--brand-darkest) !important;
+    border-color: var(--brand-lightest);
+}
+
+/* Notification Badge Pulse */
+.notification-badge {
+    background-color: #ff4757;
+    color: white;
+    border-radius: 50%;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+
+.pulse-animation {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 71, 87, 0.7); }
+    70% { transform: scale(1.1); box-shadow: 0 0 0 6px rgba(255, 71, 87, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 71, 87, 0); }
+}
+
+/* ==========================================================================
+   Responsive Breakpoints
+   ========================================================================== */
+@media (max-width: 991.98px) {
+    .auth-split-card {
+        grid-template-columns: 1fr;
+        max-width: 520px;
+    }
+    .auth-panel-left {
+        display: none !important; /* Hides brand layout column seamlessly on mid tablets/mobile */
+    }
+    .auth-panel-right {
+        padding: 2.5rem 1.75rem;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .mobile-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .sidebar {
+        transform: translateX(-100%);
+        height: auto;
+        position: fixed;
+        width: 260px;
+    }
+    .sidebar.show {
+        transform: translateX(0);
+    }
+    .main-content {
+        width: 100%;
+        margin-left: 0;
+        padding: 1.25rem;
+    }
+    .sidebar-overlay {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0, 0, 0, 0.4);
+        z-index: 1025;
+    }
+}

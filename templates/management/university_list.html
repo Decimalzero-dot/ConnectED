@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}Universities — ConnectED{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Universities</h2>
+    <a href="{% url 'management:university_create' %}" class="btn btn-primary">+ Add University</a>
+</div>
+
+<table class="table">
+    <thead>
+        <tr><th>Name</th><th>Location</th><th>Status</th><th>Action</th></tr>
+    </thead>
+    <tbody>
+        {% for uni in universities %}
+        <tr>
+            <td>{{ uni.name }}</td>
+            <td>{{ uni.location }}</td>
+            <td>{% if uni.is_active %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-secondary">Inactive</span>{% endif %}</td>
+            <td><a href="{% url 'management:university_edit' uni.pk %}" class="btn btn-sm btn-outline-primary">Edit</a></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4" class="text-muted">No universities yet.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

@@ -28,6 +28,7 @@ urlpatterns = [
     path('dashboard/', include('dashboard.urls')),  
     path('challenges/', include('challenges.urls')),
     path('notifications/', include('notifications.urls')),
+    path('management/', include('management.urls')),
 ]
 
 if settings.DEBUG:

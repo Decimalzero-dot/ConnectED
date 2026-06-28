@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'challenges',
     'core',
     'notifications',
+    'management',
 ]
 
 EMAIL_BACKEND = os.getenv("EMAIL_BACKEND")

@@ -1,25 +1,44 @@
 {% extends 'base.html' %}
 {% block title %}Complete Your Profile - ConnectED{% endblock %}
 
-{% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <h2 class="mb-3">Welcome! Let's set up your profile</h2>
-        <p class="text-muted mb-4">This helps us show you the right challenges and connect you with your campus community.</p>
-
-        <form method="post">
-            {% csrf_token %}
-            {% for field in form %}
-                <div class="mb-3">
-                    <label class="form-label">{{ field.label }}</label>
-                    {{ field }}
-                    {% if field.errors %}
-                        <div class="text-danger small">{{ field.errors }}</div>
-                    {% endif %}
-                </div>
-            {% endfor %}
-            <button type="submit" class="btn btn-primary w-100">Continue to Dashboard</button>
-        </form>
+{% block guest_content %}
+<div class="auth-page-bg">
+    <div class="auth-split-card d-md-flex">
+        <div class="auth-panel-left col-md-6 p-0 position-relative d-none d-md-block overflow-hidden">
+            <img src="/media/2118156-1200x2250-samsung-hd-tech-background-photo.webp" alt="ConnectED Onboarding Graphic" class="w-100 h-100" style="object-fit: cover; object-position: center;">
+            <div class="position-absolute top-0 start-0 m-4 px-3 py-1 rounded shadow-sm text-white fw-bold" style="background: rgba(0, 71, 86, 0.85); backdrop-filter: blur(4px); letter-spacing: 0.5px;">
+                ConnectED Setup
+            </div>
+        </div>
+        
+        <div class="auth-panel-right col-md-6">
+            <h2 class="auth-form-title">Let's set up your profile</h2>
+            <p class="text-muted mb-4" style="font-size: 0.9rem;">This ensures your metrics align with the correct campus cohorts and tracks your assignments accurately.</p>
+            
+            <form method="post" novalidate>
+                {% csrf_token %}
+                {% for field in form %}
+                    <div class="mb-3 onboarding-field-wrapper">
+                        <label class="form-label">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.help_text %}
+                            <div class="form-text text-muted" style="font-size: 0.75rem;">{{ field.help_text|striptags }}</div>
+                        {% endif %}
+                        {% if field.errors %}
+                            <div class="text-danger small mt-1">{{ field.errors|striptags }}</div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                
+                <button type="submit" class="btn btn-primary w-100 py-2 fs-6 mt-3 text-white">Continue to Dashboard</button>
+            </form>
+        </div>
     </div>
 </div>
+
+<script>
+    document.querySelectorAll('.onboarding-field-wrapper input, .onboarding-field-wrapper select').forEach(element => {
+        element.classList.add('form-control');
+    });
+</script>
 {% endblock %}
