@@ -1,11 +1,10 @@
 from django.shortcuts import render, redirect
-
-# Create your views here.
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.http import JsonResponse
+from django.db.models import Sum, Count
 from .forms import OnboardingForm
-from django.db.models import Sum, Count, Q
-from challenges.models import Submission
+from challenges.models import Submission, Challenge
 from accounts.models import Profile
 
 
@@ -44,7 +43,6 @@ def home_view(request):
         'discipline': profile.get_discipline_display(),
     }
 
-    # Year-based access logic
     if profile.year_of_study == 1:
         context['access_level'] = 'beginner'
         context['message'] = 'Welcome! Start with beginner challenges to build your foundation.'
@@ -62,18 +60,52 @@ def home_view(request):
 
 
 @login_required
+def home_stats_api(request):
+    """JSON API — returns current user's submission stats for the dashboard."""
+    user = request.user
+
+    submissions = Submission.objects.filter(student=user)
+
+    total       = submissions.count()
+    passed      = submissions.filter(status='passed').count()
+    pending     = submissions.filter(status='pending').count()
+    failed      = submissions.filter(status='failed').count()
+    total_points = submissions.filter(status='passed').aggregate(
+        pts=Sum('challenge__points')
+    )['pts'] or 0
+
+    # Last 5 submissions for the activity feed
+    recent = submissions.select_related('challenge')[:5]
+    recent_list = [
+        {
+            'challenge': s.challenge.title,
+            'status': s.status,
+            'points': s.challenge.points if s.status == 'passed' else 0,
+            'submitted_at': s.submitted_at.strftime('%d %b %Y'),
+        }
+        for s in recent
+    ]
+
+    return JsonResponse({
+        'total': total,
+        'passed': passed,
+        'pending': pending,
+        'failed': failed,
+        'total_points': total_points,
+        'recent': recent_list,
+    })
+
+
+@login_required
 def leaderboard_view(request):
     profile = request.user.profile
 
-    # Base: only passed submissions count toward score
     passed_submissions = Submission.objects.filter(status='passed')
 
-    # Filters from query params
-    scope = request.GET.get('scope', 'campus')   # campus | discipline | year | global
+    scope             = request.GET.get('scope', 'campus')
     discipline_filter = request.GET.get('discipline', profile.discipline)
-    year_filter = request.GET.get('year', profile.year_of_study)
+    year_filter       = request.GET.get('year', profile.year_of_study)
 
-    # Always start from passed submissions, join to student profile
     queryset = passed_submissions.select_related('student__profile', 'challenge')
 
     if scope == 'campus':
@@ -88,9 +120,7 @@ def leaderboard_view(request):
             student__profile__university=profile.university,
             student__profile__year_of_study=year_filter
         )
-    # scope == 'global' → no filter, everyone counts
 
-    # Aggregate: total points + challenge count per student
     leaderboard = (
         queryset
         .values('student__id', 'student__username', 'student__profile__university__name')

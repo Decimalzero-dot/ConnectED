@@ -2,114 +2,193 @@
 {% block title %}My Profile - ConnectED{% endblock %}
 
 {% block content %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
 <div class="container-fluid py-4">
-    <div class="row mb-4">
-        <div class="col-12">
-            <h1 class="h3 fw-bold text-dark mb-1">Account Settings</h1>
-            <p class="text-muted small">Manage your platform identity, cohort allocations, and public profiles.</p>
-        </div>
+
+    <!-- Header -->
+    <div class="mb-4">
+        <h4 class="fw-bold text-dark mb-1">Account Settings</h4>
+        <p class="text-muted small mb-0">Manage your platform identity and cohort details.</p>
     </div>
 
-    <div class="row">
-        <div class="col-lg-4 mb-4">
-            <div class="card text-center p-4 shadow-sm border-0">
+    <div class="row g-4">
+
+        <!-- ================================================================
+             LEFT — Identity Card
+        ================================================================ -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm p-4 text-center" style="border-radius: 14px;">
+
+                <!-- Avatar -->
                 <div class="position-relative d-inline-block mx-auto mb-3">
                     {% if user.profile_image %}
-                        <img src="{{ user.profile_image.url }}" alt="Profile Avatar" class="img-fluid rounded-circle border border-3" style="width: 110px; height: 110px; object-fit: cover; border-color: var(--brand-light) !important;">
+                        <img src="{{ user.profile_image.url }}"
+                             alt="Profile"
+                             class="rounded-circle"
+                             style="width:100px; height:100px; object-fit:cover; border: 3px solid var(--brand-light);">
                     {% else %}
-                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto border border-3" style="width: 110px; height: 110px; font-size: 2rem; font-weight: 700; border-color: var(--brand-light) !important; background-color: var(--brand-primary) !important;">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto fw-bold"
+                             style="width:100px; height:100px; font-size:2rem; background: var(--brand-primary); color:#fff; border: 3px solid var(--brand-light);">
                             {{ user.username|slice:":2"|upper }}
                         </div>
                     {% endif %}
                 </div>
 
-                <h5 class="fw-bold text-dark mb-1">{{ user.get_full_name|default:user.username }}</h5>
+                <h5 class="fw-bold text-dark mb-0">{{ user.get_full_name|default:user.username }}</h5>
                 <p class="text-muted small mb-3">@{{ user.username }}</p>
-                
-                <span class="badge px-3 py-2 rounded-pill mb-4 text-capitalize" style="background-color: rgba(0, 71, 86, 0.1); color: var(--brand-darkest); font-weight: 600;">
-                    {{ user.get_user_type_display }}
+
+                <span class="badge rounded-pill px-3 py-2 mb-4 text-capitalize fw-semibold"
+                      style="background: rgba(0,71,86,0.08); color: var(--brand-darkest); font-size: 0.78rem;">
+                    <i class="bi bi-shield-check me-1"></i>{{ user.get_user_type_display }}
                 </span>
 
-                <hr class="text-muted opacity-25">
+                <hr class="opacity-10">
 
-                <div class="text-start mt-3">
-                    <div class="d-flex align-items-center mb-3">
-                        <div class="p-2 rounded bg-light me-3 text-secondary" style="width: 36px; height: 36px; text-align: center;">🏛️</div>
+                <!-- Cohort details -->
+                <div class="text-start mt-3 d-flex flex-column gap-3">
+
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="d-flex align-items-center justify-content-center rounded-3 flex-shrink-0"
+                             style="width:38px; height:38px; background: rgba(0,71,86,0.07);">
+                            <i class="bi bi-building" style="color: var(--brand-primary);"></i>
+                        </div>
                         <div>
-                            <small class="text-muted d-block" style="font-size: 0.75rem;">University</small>
+                            <small class="text-muted d-block" style="font-size:0.7rem;">University</small>
                             <span class="fw-semibold text-dark small">{{ user.profile.university.name|default:"Not Linked" }}</span>
                         </div>
                     </div>
 
-                    <div class="d-flex align-items-center mb-3">
-                        <div class="p-2 rounded bg-light me-3 text-secondary" style="width: 36px; height: 36px; text-align: center;">📚</div>
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="d-flex align-items-center justify-content-center rounded-3 flex-shrink-0"
+                             style="width:38px; height:38px; background: rgba(0,71,86,0.07);">
+                            <i class="bi bi-cpu" style="color: var(--brand-primary);"></i>
+                        </div>
                         <div>
-                            <small class="text-muted d-block" style="font-size: 0.75rem;">Discipline / Track</small>
+                            <small class="text-muted d-block" style="font-size:0.7rem;">Discipline Track</small>
                             <span class="fw-semibold text-dark small">{{ user.profile.get_discipline_display|default:"Unassigned" }}</span>
                         </div>
                     </div>
 
-                    <div class="d-flex align-items-center">
-                        <div class="p-2 rounded bg-light me-3 text-secondary" style="width: 36px; height: 36px; text-align: center;">📅</div>
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="d-flex align-items-center justify-content-center rounded-3 flex-shrink-0"
+                             style="width:38px; height:38px; background: rgba(0,71,86,0.07);">
+                            <i class="bi bi-calendar2-check" style="color: var(--brand-primary);"></i>
+                        </div>
                         <div>
-                            <small class="text-muted d-block" style="font-size: 0.75rem;">Year of Study</small>
+                            <small class="text-muted d-block" style="font-size:0.7rem;">Year of Study</small>
                             <span class="fw-semibold text-dark small">{{ user.profile.get_year_of_study_display|default:"Not Configured" }}</span>
                         </div>
                     </div>
+
                     {% if user.user_type == 'student' %}
-                    <div class="d-flex align-items-center mt-3">
-                        <div class="p-2 rounded bg-light me-3 text-secondary" style="width: 36px; height: 36px; text-align: center;">🎓</div>
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="d-flex align-items-center justify-content-center rounded-3 flex-shrink-0"
+                             style="width:38px; height:38px; background: rgba(0,71,86,0.07);">
+                            <i class="bi bi-card-text" style="color: var(--brand-primary);"></i>
+                        </div>
                         <div>
-                            <small class="text-muted d-block" style="font-size: 0.75rem;">Reg Number</small>
+                            <small class="text-muted d-block" style="font-size:0.7rem;">Reg Number</small>
                             <span class="fw-semibold text-dark small">{{ user.profile.reg_number|default:"Not Set" }}</span>
                         </div>
                     </div>
                     {% endif %}
+
                 </div>
             </div>
         </div>
 
+        <!-- ================================================================
+             RIGHT — Edit Form
+        ================================================================ -->
         <div class="col-lg-8">
-            <div class="card p-4 shadow-sm border-0">
-                <h4 class="fw-bold mb-4" style="color: var(--brand-darkest); font-size: 1.25rem;">Personal Metadata Profile</h4>
-                
-                <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+            <div class="card border-0 shadow-sm p-4" style="border-radius: 14px;">
+
+                <h6 class="fw-bold text-dark mb-1 text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.5px;">
+                    <i class="bi bi-pencil-square me-2" style="color: var(--brand-primary);"></i>Edit Profile
+                </h6>
+                <p class="text-muted small mb-4">Changes to username or email take effect immediately.</p>
+
+                <form method="post" enctype="multipart/form-data" novalidate>
                     {% csrf_token %}
-                    
-                    <div class="row">
-                        {% for field in form %}
-                            <div class="col-md-6 mb-3 profile-field-wrapper">
-                                <label class="form-label fw-semibold text-secondary small">{{ field.label }}</label>
-                                {{ field }}
-                                
-                                {% if field.help_text %}
-                                    <div class="form-text text-muted" style="font-size: 0.75rem;">{{ field.help_text|striptags }}</div>
-                                {% endif %}
-                                
-                                {% if field.errors %}
-                                    <div class="text-danger small mt-1 fw-medium">{{ field.errors|striptags }}</div>
-                                {% endif %}
+
+                    <div class="row g-3">
+
+                        <!-- Username -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-muted text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px;">Username</label>
+                            {{ form.username }}
+                            {% if form.username.errors %}
+                            <div class="text-danger small mt-1">{{ form.username.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Email -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-muted text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px;">Email</label>
+                            {{ form.email }}
+                            {% if form.email.errors %}
+                            <div class="text-danger small mt-1">{{ form.email.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Reg Number (students only) -->
+                        {% if user.user_type == 'student' %}
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-muted text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px;">Reg Number</label>
+                            {{ form.reg_number }}
+                            {% if form.reg_number.errors %}
+                            <div class="text-danger small mt-1">{{ form.reg_number.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        <!-- Profile Image -->
+                        <div class="col-12">
+                            <label class="form-label fw-semibold text-muted text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px;">
+                                <i class="bi bi-camera me-1"></i>Profile Photo
+                            </label>
+                            {{ form.profile_image }}
+                            <div class="form-text text-muted" style="font-size: 0.75rem;">
+                                JPG, PNG or GIF. Displayed in sidebar and leaderboard.
                             </div>
-                        {% endfor %}
+                            {% if form.profile_image.errors %}
+                            <div class="text-danger small mt-1">{{ form.profile_image.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+
                     </div>
 
-                    <div class="mt-4 pt-2 border-top">
-                        <button type="submit" class="btn btn-primary px-4 py-2 text-white">Save Changes</button>
+                    <div class="mt-4 pt-3 border-top d-flex align-items-center gap-3">
+                        <button type="submit" class="btn btn-primary px-4 py-2 fw-semibold text-white" style="border-radius: 8px;">
+                            <i class="bi bi-check2 me-2"></i>Save Changes
+                        </button>
+                        <a href="{% url 'dashboard:home' %}" class="btn py-2 px-3 fw-semibold text-muted"
+                           style="border-radius: 8px; background: rgba(0,0,0,0.04); border: none; font-size: 0.9rem;">
+                            Cancel
+                        </a>
                     </div>
+
                 </form>
             </div>
+
+            <!-- Password Reset Link -->
+            <div class="card border-0 shadow-sm p-4 mt-3" style="border-radius: 14px;">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div>
+                        <h6 class="fw-bold text-dark mb-1" style="font-size: 0.9rem;">
+                            <i class="bi bi-lock me-2" style="color: var(--brand-primary);"></i>Password
+                        </h6>
+                        <small class="text-muted">Reset your password via email.</small>
+                    </div>
+                    <a href="{% url 'accounts:password_reset' %}" class="btn btn-sm fw-semibold"
+                       style="border-radius: 8px; background: rgba(0,71,86,0.07); color: var(--brand-darkest); border: none;">
+                        Reset Password
+                    </a>
+                </div>
+            </div>
+
         </div>
     </div>
 </div>
-
-<script>
-    document.querySelectorAll('.profile-field-wrapper input, .profile-field-wrapper select, .profile-field-wrapper textarea').forEach(el => {
-        if (el.getAttribute('type') === 'checkbox') {
-            el.classList.add('form-check-input');
-            el.parentElement.classList.add('form-check', 'form-switch', 'mt-4');
-        } else {
-            el.classList.add('form-control');
-        }
-    });
-</script>
 {% endblock %}

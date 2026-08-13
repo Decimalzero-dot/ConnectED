@@ -1,24 +1,41 @@
 {% extends 'base.html' %}
 {% block title %}Complete Your Profile - ConnectED{% endblock %}
 
-{% block guest_content %}
+{% block content %}
 <div class="auth-page-bg">
-    <div class="auth-split-card d-md-flex">
-        <div class="auth-panel-left col-md-6 p-0 position-relative d-none d-md-block overflow-hidden">
-            <img src="/media/2118156-1200x2250-samsung-hd-tech-background-photo.webp" alt="ConnectED Onboarding Graphic" class="w-100 h-100" style="object-fit: cover; object-position: center;">
-            <div class="position-absolute top-0 start-0 m-4 px-3 py-1 rounded shadow-sm text-white fw-bold" style="background: rgba(0, 71, 86, 0.85); backdrop-filter: blur(4px); letter-spacing: 0.5px;">
-                ConnectED Setup
+    <div class="auth-split-card">
+
+        <!-- Left: Image Panel -->
+        <div class="auth-panel-left position-relative overflow-hidden">
+            <img
+                src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1200&auto=format&fit=crop&q=80"
+                alt="Students collaborating"
+                style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center;"
+            >
+            <!-- Brand overlay -->
+            <div style="position:absolute; inset:0; background: linear-gradient(135deg, rgba(0,71,86,0.80) 0%, rgba(0,106,122,0.60) 100%);"></div>
+
+            <!-- Content on top of overlay -->
+            <div class="position-relative d-flex flex-column justify-content-between h-100 p-5 text-white">
+                <span class="fw-bold fs-5" style="letter-spacing: 0.5px;">ConnectED</span>
+                <div>
+                    <h2 class="fw-bold mb-2" style="font-size: 2rem; line-height: 1.2;">One-time setup.<br>Lifetime visibility.</h2>
+                    <p class="text-white-50 mb-0" style="font-size: 0.9rem;">Your cohort, discipline, and university link your work to the right leaderboard and recruiters.</p>
+                </div>
             </div>
         </div>
-        
-        <div class="auth-panel-right col-md-6">
-            <h2 class="auth-form-title">Let's set up your profile</h2>
-            <p class="text-muted mb-4" style="font-size: 0.9rem;">This ensures your metrics align with the correct campus cohorts and tracks your assignments accurately.</p>
-            
+
+        <!-- Right: Form Panel -->
+        <div class="auth-panel-right">
+            <h2 class="auth-form-title">Set up your profile</h2>
+            <p class="text-muted mb-4" style="font-size: 0.9rem;">
+                This ensures your metrics align with the correct campus cohorts and tracks your assignments accurately.
+            </p>
+
             <form method="post" novalidate>
                 {% csrf_token %}
                 {% for field in form %}
-                    <div class="mb-3 onboarding-field-wrapper">
+                    <div class="mb-3">
                         <label class="form-label">{{ field.label }}</label>
                         {{ field }}
                         {% if field.help_text %}
@@ -29,16 +46,20 @@
                         {% endif %}
                     </div>
                 {% endfor %}
-                
-                <button type="submit" class="btn btn-primary w-100 py-2 fs-6 mt-3 text-white">Continue to Dashboard</button>
+
+                <button type="submit" class="btn btn-primary w-100 py-2 fs-6 mt-3 text-white fw-semibold">
+                    Continue to Dashboard
+                </button>
             </form>
         </div>
+
     </div>
 </div>
 
 <script>
-    document.querySelectorAll('.onboarding-field-wrapper input, .onboarding-field-wrapper select').forEach(element => {
-        element.classList.add('form-control');
+    // Apply Bootstrap form-control class to all form inputs and selects
+    document.querySelectorAll('.auth-panel-right input, .auth-panel-right select, .auth-panel-right textarea').forEach(el => {
+        el.classList.add('form-control');
     });
 </script>
 {% endblock %}
