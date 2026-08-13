@@ -2,32 +2,42 @@
 {% block title %}Leaderboard - ConnectED{% endblock %}
 
 {% block content %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
 <div class="container-fluid py-4">
+
+    <!-- Header -->
     <div class="row mb-4">
         <div class="col-12">
-            <h1 class="h3 fw-bold text-dark mb-1">Campus Standings</h1>
-            <p class="text-muted small">Compare development achievements globally or narrowed down within specific campus tracking scopes.</p>
+            <h4 class="fw-bold text-dark mb-1">Campus Standings</h4>
+            <p class="text-muted small mb-0">Compare achievements globally or within specific campus scopes.</p>
         </div>
     </div>
 
-    <div class="card border-0 shadow-sm p-3 mb-4" style="border-radius: 12px; background-color: #ffffff;">
-        <form method="get" id="leaderboardForm" class="row g-3 align-items-center">
+    <!-- Filters -->
+    <div class="card border-0 shadow-sm p-3 mb-4" style="border-radius: 12px;">
+        <form method="get" id="leaderboardForm" class="row g-3 align-items-end">
+
             <div class="col-md-4 col-sm-6">
-                <label class="form-label text-secondary small fw-semibold">Tracking Scope</label>
-                <select name="scope" class="form-select border-light-subtle bg-light" onchange="this.form.submit()" style="border-radius: 8px; padding: 0.6rem 1rem;">
-                    <option value="campus" {% if scope == 'campus' %}selected{% endif %}>My Campus</option>
+                <label class="form-label text-muted fw-semibold text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px;">
+                    <i class="bi bi-funnel me-1"></i>Scope
+                </label>
+                <select name="scope" class="form-select" onchange="this.form.submit()" style="border-radius: 8px;">
+                    <option value="campus"     {% if scope == 'campus' %}selected{% endif %}>My Campus</option>
                     <option value="discipline" {% if scope == 'discipline' %}selected{% endif %}>My Campus + Discipline</option>
-                    <option value="year" {% if scope == 'year' %}selected{% endif %}>My Campus + Year</option>
-                    <option value="global" {% if scope == 'global' %}selected{% endif %}>Global (All Campuses)</option>
+                    <option value="year"       {% if scope == 'year' %}selected{% endif %}>My Campus + Year</option>
+                    <option value="global"     {% if scope == 'global' %}selected{% endif %}>Global (All Campuses)</option>
                 </select>
             </div>
 
             {% if scope == 'discipline' %}
             <div class="col-md-4 col-sm-6">
-                <label class="form-label text-secondary small fw-semibold">Filter Track</label>
-                <select name="discipline" class="form-select border-light-subtle bg-light" onchange="this.form.submit()" style="border-radius: 8px; padding: 0.6rem 1rem;">
+                <label class="form-label text-muted fw-semibold text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px;">
+                    <i class="bi bi-cpu me-1"></i>Discipline Track
+                </label>
+                <select name="discipline" class="form-select" onchange="this.form.submit()" style="border-radius: 8px;">
                     {% for value, label in discipline_choices %}
-                        <option value="{{ value }}" {% if discipline_filter == value %}selected{% endif %}>{{ label }}</option>
+                    <option value="{{ value }}" {% if discipline_filter == value %}selected{% endif %}>{{ label }}</option>
                     {% endfor %}
                 </select>
             </div>
@@ -35,64 +45,99 @@
 
             {% if scope == 'year' %}
             <div class="col-md-4 col-sm-6">
-                <label class="form-label text-secondary small fw-semibold">Filter Cohort Year</label>
-                <select name="year" class="form-select border-light-subtle bg-light" onchange="this.form.submit()" style="border-radius: 8px; padding: 0.6rem 1rem;">
+                <label class="form-label text-muted fw-semibold text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px;">
+                    <i class="bi bi-calendar3 me-1"></i>Cohort Year
+                </label>
+                <select name="year" class="form-select" onchange="this.form.submit()" style="border-radius: 8px;">
                     {% for value, label in year_choices %}
-                        <option value="{{ value }}" {% if year_filter|stringformat:"s" == value|stringformat:"s" %}selected{% endif %}>{{ label }}</option>
+                    <option value="{{ value }}" {% if year_filter|stringformat:"s" == value|stringformat:"s" %}selected{% endif %}>{{ label }}</option>
                     {% endfor %}
                 </select>
             </div>
             {% endif %}
+
         </form>
     </div>
 
+    <!-- Table -->
     <div class="card border-0 shadow-sm overflow-hidden" style="border-radius: 12px;">
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0" style="background-color: #ffffff;">
-                <thead class="table-light" style="--bs-table-bg: #f8fafb;">
+            <table class="table table-hover align-middle mb-0" style="background: #ffffff;">
+                <thead style="background: #f8fafb;">
                     <tr>
-                        <th class="px-4 py-3 text-secondary text-uppercase fw-bold" style="font-size: 0.75rem; width: 100px;">Rank</th>
-                        <th class="py-3 text-secondary text-uppercase fw-bold" style="font-size: 0.75rem;">Student Identity</th>
+                        <th class="px-4 py-3 text-muted text-uppercase fw-semibold" style="font-size: 0.7rem; letter-spacing: 0.5px; width: 90px;">Rank</th>
+                        <th class="py-3 text-muted text-uppercase fw-semibold" style="font-size: 0.7rem; letter-spacing: 0.5px;">Student</th>
                         {% if scope == 'global' %}
-                        <th class="py-3 text-secondary text-uppercase fw-bold" style="font-size: 0.75rem;">Institution</th>
+                        <th class="py-3 text-muted text-uppercase fw-semibold" style="font-size: 0.7rem; letter-spacing: 0.5px;">Institution</th>
                         {% endif %}
-                        <th class="py-3 text-secondary text-uppercase fw-bold text-center" style="font-size: 0.75rem; width: 220px;">Tasks Cleared</th>
-                        <th class="pe-4 py-3 text-secondary text-uppercase fw-bold text-end" style="font-size: 0.75rem; width: 150px;">Total Score</th>
+                        <th class="py-3 text-muted text-uppercase fw-semibold text-center" style="font-size: 0.7rem; letter-spacing: 0.5px; width: 160px;">Challenges</th>
+                        <th class="pe-4 py-3 text-muted text-uppercase fw-semibold text-end" style="font-size: 0.7rem; letter-spacing: 0.5px; width: 140px;">Score</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for entry in leaderboard %}
-                    <tr {% if entry.student__username == user.username %}style="background-color: rgba(24, 143, 159, 0.06); font-weight: 600;"{% endif %}>
+                    <tr {% if entry.student__username == user.username %}style="background: rgba(24,143,159,0.05);"{% endif %}>
+
+                        <!-- Rank -->
                         <td class="px-4 py-3">
                             {% if forloop.counter == 1 %}
-                                <span class="badge rounded-pill bg-warning text-dark px-2.5 py-1">🥇 1st</span>
+                                <span class="badge rounded-pill px-3 py-1 fw-bold" style="background: #fef3c7; color: #92400e; font-size: 0.75rem;">
+                                    <i class="bi bi-trophy-fill me-1" style="color: #d97706;"></i>1st
+                                </span>
                             {% elif forloop.counter == 2 %}
-                                <span class="badge rounded-pill bg-secondary text-light px-2.5 py-1">🥈 2nd</span>
+                                <span class="badge rounded-pill px-3 py-1 fw-bold" style="background: #f1f5f9; color: #475569; font-size: 0.75rem;">
+                                    <i class="bi bi-trophy me-1"></i>2nd
+                                </span>
                             {% elif forloop.counter == 3 %}
-                                <span class="badge rounded-pill style-badge px-2.5 py-1" style="background-color: #cd7f32; color: white;">🥉 3rd</span>
+                                <span class="badge rounded-pill px-3 py-1 fw-bold" style="background: #fdf2e9; color: #92400e; font-size: 0.75rem;">
+                                    <i class="bi bi-trophy me-1" style="color: #cd7f32;"></i>3rd
+                                </span>
                             {% else %}
-                                <span class="text-muted ps-2">{{ forloop.counter }}</span>
+                                <span class="text-muted ps-2 fw-semibold" style="font-size: 0.9rem;">{{ forloop.counter }}</span>
                             {% endif %}
                         </td>
+
+                        <!-- Student -->
                         <td class="py-3">
-                            <span class="text-dark fw-semibold">{{ entry.student__username }}</span>
-                            {% if entry.student__username == user.username %}
-                                <span class="badge ms-2 text-white bg-darkest" style="font-size: 0.65rem; background-color: var(--brand-darkest) !important;">You</span>
-                            {% endif %}
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
+                                     style="width: 34px; height: 34px; background: rgba(0,71,86,0.08); font-size: 0.75rem; font-weight: 700; color: var(--brand-primary);">
+                                    {{ entry.student__username|slice:":2"|upper }}
+                                </div>
+                                <div>
+                                    <span class="fw-semibold text-dark" style="font-size: 0.9rem;">{{ entry.student__username }}</span>
+                                    {% if entry.student__username == user.username %}
+                                    <span class="badge ms-1 text-white px-2" style="font-size: 0.62rem; background: var(--brand-darkest); border-radius: 4px;">You</span>
+                                    {% endif %}
+                                </div>
+                            </div>
                         </td>
+
                         {% if scope == 'global' %}
                         <td class="py-3 text-muted small">{{ entry.student__profile__university__name }}</td>
                         {% endif %}
-                        <td class="py-3 text-center text-dark font-monospace">{{ entry.challenges_completed }}</td>
-                        <td class="pe-4 py-3 text-end text-primary fw-bold" style="color: var(--brand-primary) !important;">
-                            {{ entry.total_points }} pts
+
+                        <!-- Challenges -->
+                        <td class="py-3 text-center">
+                            <span class="fw-semibold text-dark font-monospace">{{ entry.challenges_completed }}</span>
+                            <small class="text-muted ms-1" style="font-size: 0.72rem;">done</small>
                         </td>
+
+                        <!-- Score -->
+                        <td class="pe-4 py-3 text-end">
+                            <span class="fw-bold" style="color: var(--brand-primary); font-size: 0.95rem;">
+                                {{ entry.total_points }}
+                            </span>
+                            <small class="text-muted ms-1" style="font-size: 0.72rem;">pts</small>
+                        </td>
+
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="5" class="text-muted text-center py-5">
-                            <div class="fs-4 mb-2">📥</div>
-                            No passed record arrays found inside this scope filter index yet.
+                        <td colspan="5" class="text-center py-5">
+                            <i class="bi bi-inbox d-block mb-3" style="font-size: 2.5rem; color: var(--brand-light);"></i>
+                            <p class="fw-semibold text-dark mb-1">No results in this scope yet</p>
+                            <p class="text-muted small mb-0">Be the first to complete a challenge and claim the top spot.</p>
                         </td>
                     </tr>
                     {% endfor %}
@@ -100,5 +145,6 @@
             </table>
         </div>
     </div>
+
 </div>
 {% endblock %}

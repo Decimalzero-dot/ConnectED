@@ -5,3 +5,4 @@ Pillow                   # image handling (avatars)
 python-dotenv            # manage secret keys via .env
 whitenoise               # serve static files in production
 gunicorn      
+requests

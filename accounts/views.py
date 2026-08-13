@@ -7,7 +7,7 @@ from django.contrib import messages
 from .forms import UserRegistrationForm, UserLoginForm, UserProfileForm, StudentProfileForm, AdminProfileForm
 from django.contrib.auth.views import PasswordResetView, PasswordResetConfirmView
 from django.urls import reverse_lazy
-
+from django.db import IntegrityError
 
 def register_view(request):
     if request.user.is_authenticated:
@@ -16,18 +16,18 @@ def register_view(request):
     if request.method == 'POST':
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-            messages.success(request, 'Account created successfully!')
-            return redirect('dashboard:onboarding')  
-        else:
-            messages.error(request, 'Please correct the errors below.')
+            try:
+                user = form.save()
+                login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+                messages.success(request, 'Account created successfully!')
+                return redirect('dashboard:onboarding')
+            except IntegrityError:
+                form.add_error('username', 'That username is already taken. Please choose another.')
+        messages.error(request, 'Please correct the errors below.')
     else:
         form = UserRegistrationForm()
 
     return render(request, 'accounts/register.html', {'form': form})
-
-
 
 def login_view(request):
     if request.user.is_authenticated:
