@@ -12,7 +12,7 @@ class OnboardingForm(forms.ModelForm):
 
     class Meta:
         model = Profile
-        fields = ('university', 'year_of_study', 'discipline', 'github_username', 'reg_number')
+        fields = ('year_of_study', 'discipline', 'github_username', 'reg_number')
         widgets = {
             'year_of_study': forms.Select(attrs={'class': 'form-control'}),
             'discipline': forms.Select(attrs={'class': 'form-control'}),

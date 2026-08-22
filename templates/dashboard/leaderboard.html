@@ -1,150 +1,548 @@
 {% extends 'base.html' %}
 {% block title %}Leaderboard - ConnectED{% endblock %}
+{% block page_title %}Leaderboard{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<div class="container-fluid px-0">
 
-<div class="container-fluid py-4">
+    <!-- =====================================================================
+         YOUR RANK BANNER
+    ====================================================================== -->
+    <div class="row g-3 mb-3">
 
-    <!-- Header -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <h4 class="fw-bold text-dark mb-1">Campus Standings</h4>
-            <p class="text-muted small mb-0">Compare achievements globally or within specific campus scopes.</p>
+        <div class="col-md-4">
+            <div class="stat-hero-card h-100">
+                <p class="stat-hero-label mb-2"><i class="bi bi-person-badge me-1"></i>Your Rank</p>
+                <div class="stat-hero-number">
+                    {% if your_rank %}#{{ your_rank }}{% else %}—{% endif %}
+                </div>
+                <p class="stat-hero-sublabel mt-2 mb-0">
+                    {% if your_rank %}
+                        In the current scope · {{ scope|capfirst }}
+                    {% else %}
+                        Complete a challenge to appear here
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <!-- Scope filter as pill tabs -->
+            <div class="card mb-0 h-100" style="border-radius:14px;">
+                <div class="card-body p-4 d-flex flex-column justify-content-center">
+                    <p class="text-muted fw-semibold text-uppercase mb-2" style="font-size:0.7rem; letter-spacing:0.5px;">
+                        <i class="bi bi-funnel me-1"></i>Filter Scope
+                    </p>
+                    <form method="get" id="leaderboardForm">
+                        <!-- Preserve secondary filters as hidden inputs -->
+                        {% if scope == 'discipline' %}
+                            <input type="hidden" name="discipline" value="{{ discipline_filter }}">
+                        {% elif scope == 'year' %}
+                            <input type="hidden" name="year" value="{{ year_filter }}">
+                        {% endif %}
+
+                        <div class="d-flex flex-wrap gap-2 mb-3">
+                            {% for value, label in scope_choices %}
+                            {% endfor %}
+                            <a href="?scope=campus" class="scope-pill {% if scope == 'campus' %}active{% endif %}">
+                                <i class="bi bi-building me-1"></i>My Campus
+                            </a>
+                            <a href="?scope=discipline" class="scope-pill {% if scope == 'discipline' %}active{% endif %}">
+                                <i class="bi bi-cpu me-1"></i>By Discipline
+                            </a>
+                            <a href="?scope=year" class="scope-pill {% if scope == 'year' %}active{% endif %}">
+                                <i class="bi bi-calendar3 me-1"></i>By Year
+                            </a>
+                            <a href="?scope=global" class="scope-pill {% if scope == 'global' %}active{% endif %}">
+                                <i class="bi bi-globe2 me-1"></i>Global
+                            </a>
+                        </div>
+
+                        {% if scope == 'discipline' %}
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <small class="text-muted fw-semibold">Track:</small>
+                            {% for value, label in discipline_choices %}
+                            <a href="?scope=discipline&discipline={{ value }}"
+                               class="scope-pill {% if discipline_filter == value %}active{% endif %}" style="font-size:0.72rem;">
+                                {{ label }}
+                            </a>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        {% if scope == 'year' %}
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <small class="text-muted fw-semibold">Year:</small>
+                            {% for value, label in year_choices %}
+                            <a href="?scope=year&year={{ value }}"
+                               class="scope-pill {% if year_filter|stringformat:'s' == value|stringformat:'s' %}active{% endif %}" style="font-size:0.72rem;">
+                                {{ label }}
+                            </a>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Filters -->
-    <div class="card border-0 shadow-sm p-3 mb-4" style="border-radius: 12px;">
-        <form method="get" id="leaderboardForm" class="row g-3 align-items-end">
+    <!-- =====================================================================
+         PODIUM — Top 3
+    ====================================================================== -->
+    {% if leaderboard %}
+    <div class="card mb-3" style="border-radius:14px;">
+        <div class="card-body p-4">
+            <p class="text-muted fw-semibold text-uppercase mb-3" style="font-size:0.7rem; letter-spacing:0.5px;">
+                <i class="bi bi-trophy me-1" style="color:#d97706;"></i>Top Performers
+            </p>
+            <div class="row g-3 justify-content-center align-items-end">
 
-            <div class="col-md-4 col-sm-6">
-                <label class="form-label text-muted fw-semibold text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px;">
-                    <i class="bi bi-funnel me-1"></i>Scope
-                </label>
-                <select name="scope" class="form-select" onchange="this.form.submit()" style="border-radius: 8px;">
-                    <option value="campus"     {% if scope == 'campus' %}selected{% endif %}>My Campus</option>
-                    <option value="discipline" {% if scope == 'discipline' %}selected{% endif %}>My Campus + Discipline</option>
-                    <option value="year"       {% if scope == 'year' %}selected{% endif %}>My Campus + Year</option>
-                    <option value="global"     {% if scope == 'global' %}selected{% endif %}>Global (All Campuses)</option>
-                </select>
+                <!-- 2nd place -->
+                {% if leaderboard|length >= 2 %}
+                {% with entry=leaderboard.1 %}
+                <div class="col-md-3 col-4">
+                    <div class="podium-card podium-2nd"
+                         data-bs-toggle="modal" data-bs-target="#studentModal"
+                         data-username="{{ entry.student__username }}"
+                         data-university="{{ entry.student__profile__university__name|default:'—' }}"
+                         data-discipline="{{ entry.student__profile__discipline|default:'—' }}"
+                         data-year="{{ entry.student__profile__year_of_study|default:'—' }}"
+                         data-github="{{ entry.student__profile__github_username|default:'' }}"
+                         data-points="{{ entry.total_points }}"
+                         data-challenges="{{ entry.challenges_completed }}"
+                         style="cursor:pointer;">
+                        <div class="podium-rank-badge" style="background:#94a3b8; color:white;">2</div>
+                        <div class="podium-avatar" style="border-color:#94a3b8;">
+                            {{ entry.student__username|slice:":2"|upper }}
+                        </div>
+                        <p class="podium-name">{{ entry.student__username }}</p>
+                        <p class="podium-points">{{ entry.total_points }} pts</p>
+                        <p class="podium-challenges">{{ entry.challenges_completed }} done</p>
+                        <div class="podium-bar podium-bar-2nd"></div>
+                    </div>
+                </div>
+                {% endwith %}
+                {% endif %}
+
+                <!-- 1st place -->
+                {% with entry=leaderboard.0 %}
+                <div class="col-md-3 col-4">
+                    <div class="podium-card podium-1st"
+                         data-bs-toggle="modal" data-bs-target="#studentModal"
+                         data-username="{{ entry.student__username }}"
+                         data-university="{{ entry.student__profile__university__name|default:'—' }}"
+                         data-discipline="{{ entry.student__profile__discipline|default:'—' }}"
+                         data-year="{{ entry.student__profile__year_of_study|default:'—' }}"
+                         data-github="{{ entry.student__profile__github_username|default:'' }}"
+                         data-points="{{ entry.total_points }}"
+                         data-challenges="{{ entry.challenges_completed }}"
+                         style="cursor:pointer;">
+                        <div class="podium-crown"><i class="bi bi-crown-fill"></i></div>
+                        <div class="podium-rank-badge" style="background:#d97706; color:white;">1</div>
+                        <div class="podium-avatar podium-avatar-1st" style="border-color:#d97706;">
+                            {{ entry.student__username|slice:":2"|upper }}
+                        </div>
+                        <p class="podium-name fw-bold">{{ entry.student__username }}</p>
+                        <p class="podium-points" style="color:var(--brand-primary); font-size:1.1rem;">{{ entry.total_points }} pts</p>
+                        <p class="podium-challenges">{{ entry.challenges_completed }} done</p>
+                        <div class="podium-bar podium-bar-1st"></div>
+                    </div>
+                </div>
+                {% endwith %}
+
+                <!-- 3rd place -->
+                {% if leaderboard|length >= 3 %}
+                {% with entry=leaderboard.2 %}
+                <div class="col-md-3 col-4">
+                    <div class="podium-card podium-3rd"
+                         data-bs-toggle="modal" data-bs-target="#studentModal"
+                         data-username="{{ entry.student__username }}"
+                         data-university="{{ entry.student__profile__university__name|default:'—' }}"
+                         data-discipline="{{ entry.student__profile__discipline|default:'—' }}"
+                         data-year="{{ entry.student__profile__year_of_study|default:'—' }}"
+                         data-github="{{ entry.student__profile__github_username|default:'' }}"
+                         data-points="{{ entry.total_points }}"
+                         data-challenges="{{ entry.challenges_completed }}"
+                         style="cursor:pointer;">
+                        <div class="podium-rank-badge" style="background:#b45309; color:white;">3</div>
+                        <div class="podium-avatar" style="border-color:#b45309;">
+                            {{ entry.student__username|slice:":2"|upper }}
+                        </div>
+                        <p class="podium-name">{{ entry.student__username }}</p>
+                        <p class="podium-points">{{ entry.total_points }} pts</p>
+                        <p class="podium-challenges">{{ entry.challenges_completed }} done</p>
+                        <div class="podium-bar podium-bar-3rd"></div>
+                    </div>
+                </div>
+                {% endwith %}
+                {% endif %}
+
             </div>
-
-            {% if scope == 'discipline' %}
-            <div class="col-md-4 col-sm-6">
-                <label class="form-label text-muted fw-semibold text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px;">
-                    <i class="bi bi-cpu me-1"></i>Discipline Track
-                </label>
-                <select name="discipline" class="form-select" onchange="this.form.submit()" style="border-radius: 8px;">
-                    {% for value, label in discipline_choices %}
-                    <option value="{{ value }}" {% if discipline_filter == value %}selected{% endif %}>{{ label }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            {% endif %}
-
-            {% if scope == 'year' %}
-            <div class="col-md-4 col-sm-6">
-                <label class="form-label text-muted fw-semibold text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px;">
-                    <i class="bi bi-calendar3 me-1"></i>Cohort Year
-                </label>
-                <select name="year" class="form-select" onchange="this.form.submit()" style="border-radius: 8px;">
-                    {% for value, label in year_choices %}
-                    <option value="{{ value }}" {% if year_filter|stringformat:"s" == value|stringformat:"s" %}selected{% endif %}>{{ label }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            {% endif %}
-
-        </form>
+        </div>
     </div>
+    {% endif %}
 
-    <!-- Table -->
-    <div class="card border-0 shadow-sm overflow-hidden" style="border-radius: 12px;">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0" style="background: #ffffff;">
-                <thead style="background: #f8fafb;">
-                    <tr>
-                        <th class="px-4 py-3 text-muted text-uppercase fw-semibold" style="font-size: 0.7rem; letter-spacing: 0.5px; width: 90px;">Rank</th>
-                        <th class="py-3 text-muted text-uppercase fw-semibold" style="font-size: 0.7rem; letter-spacing: 0.5px;">Student</th>
-                        {% if scope == 'global' %}
-                        <th class="py-3 text-muted text-uppercase fw-semibold" style="font-size: 0.7rem; letter-spacing: 0.5px;">Institution</th>
-                        {% endif %}
-                        <th class="py-3 text-muted text-uppercase fw-semibold text-center" style="font-size: 0.7rem; letter-spacing: 0.5px; width: 160px;">Challenges</th>
-                        <th class="pe-4 py-3 text-muted text-uppercase fw-semibold text-end" style="font-size: 0.7rem; letter-spacing: 0.5px; width: 140px;">Score</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for entry in leaderboard %}
-                    <tr {% if entry.student__username == user.username %}style="background: rgba(24,143,159,0.05);"{% endif %}>
-
-                        <!-- Rank -->
-                        <td class="px-4 py-3">
-                            {% if forloop.counter == 1 %}
-                                <span class="badge rounded-pill px-3 py-1 fw-bold" style="background: #fef3c7; color: #92400e; font-size: 0.75rem;">
-                                    <i class="bi bi-trophy-fill me-1" style="color: #d97706;"></i>1st
-                                </span>
-                            {% elif forloop.counter == 2 %}
-                                <span class="badge rounded-pill px-3 py-1 fw-bold" style="background: #f1f5f9; color: #475569; font-size: 0.75rem;">
-                                    <i class="bi bi-trophy me-1"></i>2nd
-                                </span>
-                            {% elif forloop.counter == 3 %}
-                                <span class="badge rounded-pill px-3 py-1 fw-bold" style="background: #fdf2e9; color: #92400e; font-size: 0.75rem;">
-                                    <i class="bi bi-trophy me-1" style="color: #cd7f32;"></i>3rd
-                                </span>
-                            {% else %}
-                                <span class="text-muted ps-2 fw-semibold" style="font-size: 0.9rem;">{{ forloop.counter }}</span>
+    <!-- =====================================================================
+         FULL TABLE — Rank 4+
+    ====================================================================== -->
+    <div class="card mb-0" style="border-radius:14px;">
+        <div class="card-body p-0">
+            <div class="px-4 pt-4 pb-2">
+                <p class="text-muted fw-semibold text-uppercase mb-0" style="font-size:0.7rem; letter-spacing:0.5px;">
+                    <i class="bi bi-list-ol me-1"></i>Full Rankings
+                </p>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead style="background:#f8fafb;">
+                        <tr>
+                            <th class="px-4 py-3 text-muted text-uppercase fw-semibold" style="font-size:0.68rem; letter-spacing:0.5px; width:70px;">Rank</th>
+                            <th class="py-3 text-muted text-uppercase fw-semibold" style="font-size:0.68rem; letter-spacing:0.5px;">Student</th>
+                            {% if scope == 'global' %}
+                            <th class="py-3 text-muted text-uppercase fw-semibold" style="font-size:0.68rem; letter-spacing:0.5px;">Institution</th>
                             {% endif %}
-                        </td>
+                            <th class="py-3 text-muted text-uppercase fw-semibold" style="font-size:0.68rem; letter-spacing:0.5px;">Track</th>
+                            <th class="py-3 text-muted text-uppercase fw-semibold text-center" style="font-size:0.68rem; letter-spacing:0.5px; width:120px;">Tasks</th>
+                            <th class="pe-4 py-3 text-muted text-uppercase fw-semibold text-end" style="font-size:0.68rem; letter-spacing:0.5px; width:120px;">Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for entry in leaderboard %}
+                        <tr class="leaderboard-row {% if entry.student__username == user.username %}leaderboard-you{% endif %}"
+                            data-bs-toggle="modal" data-bs-target="#studentModal"
+                            data-username="{{ entry.student__username }}"
+                            data-university="{{ entry.student__profile__university__name|default:'—' }}"
+                            data-discipline="{{ entry.student__profile__discipline|default:'—' }}"
+                            data-year="{{ entry.student__profile__year_of_study|default:'—' }}"
+                            data-github="{{ entry.student__profile__github_username|default:'' }}"
+                            data-points="{{ entry.total_points }}"
+                            data-challenges="{{ entry.challenges_completed }}"
+                            style="cursor:pointer;">
 
-                        <!-- Student -->
-                        <td class="py-3">
-                            <div class="d-flex align-items-center gap-2">
-                                <div class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
-                                     style="width: 34px; height: 34px; background: rgba(0,71,86,0.08); font-size: 0.75rem; font-weight: 700; color: var(--brand-primary);">
-                                    {{ entry.student__username|slice:":2"|upper }}
+                            <!-- Rank -->
+                            <td class="px-4 py-3">
+                                {% if forloop.counter == 1 %}
+                                    <span class="rank-pill" style="background:#fef3c7; color:#92400e;">
+                                        <i class="bi bi-trophy-fill me-1" style="color:#d97706;"></i>1
+                                    </span>
+                                {% elif forloop.counter == 2 %}
+                                    <span class="rank-pill" style="background:#f1f5f9; color:#475569;">
+                                        <i class="bi bi-trophy me-1"></i>2
+                                    </span>
+                                {% elif forloop.counter == 3 %}
+                                    <span class="rank-pill" style="background:#fdf2e9; color:#92400e;">
+                                        <i class="bi bi-trophy me-1" style="color:#b45309;"></i>3
+                                    </span>
+                                {% else %}
+                                    <span class="text-muted fw-semibold ps-1">{{ forloop.counter }}</span>
+                                {% endif %}
+                            </td>
+
+                            <!-- Student -->
+                            <td class="py-3">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="table-avatar">{{ entry.student__username|slice:":2"|upper }}</div>
+                                    <div>
+                                        <span class="fw-semibold text-dark" style="font-size:0.88rem;">
+                                            {{ entry.student__username }}
+                                        </span>
+                                        {% if entry.student__username == user.username %}
+                                        <span class="badge ms-1 px-2 text-white" style="font-size:0.6rem; background:var(--brand-darkest); border-radius:4px;">You</span>
+                                        {% endif %}
+                                        {% if entry.student__profile__github_username %}
+                                        <small class="d-block text-muted" style="font-size:0.7rem;">
+                                            <i class="bi bi-github me-1"></i>{{ entry.student__profile__github_username }}
+                                        </small>
+                                        {% endif %}
+                                    </div>
                                 </div>
-                                <div>
-                                    <span class="fw-semibold text-dark" style="font-size: 0.9rem;">{{ entry.student__username }}</span>
-                                    {% if entry.student__username == user.username %}
-                                    <span class="badge ms-1 text-white px-2" style="font-size: 0.62rem; background: var(--brand-darkest); border-radius: 4px;">You</span>
-                                    {% endif %}
-                                </div>
-                            </div>
-                        </td>
+                            </td>
 
-                        {% if scope == 'global' %}
-                        <td class="py-3 text-muted small">{{ entry.student__profile__university__name }}</td>
-                        {% endif %}
+                            {% if scope == 'global' %}
+                            <td class="py-3 text-muted small">{{ entry.student__profile__university__name|default:"—" }}</td>
+                            {% endif %}
 
-                        <!-- Challenges -->
-                        <td class="py-3 text-center">
-                            <span class="fw-semibold text-dark font-monospace">{{ entry.challenges_completed }}</span>
-                            <small class="text-muted ms-1" style="font-size: 0.72rem;">done</small>
-                        </td>
+                            <!-- Track -->
+                            <td class="py-3">
+                                <span class="badge px-2 py-1 fw-semibold text-capitalize"
+                                      style="font-size:0.68rem; background:rgba(0,71,86,0.07); color:var(--brand-darkest); border-radius:6px;">
+                                    {{ entry.student__profile__discipline|default:"—" }}
+                                </span>
+                            </td>
 
-                        <!-- Score -->
-                        <td class="pe-4 py-3 text-end">
-                            <span class="fw-bold" style="color: var(--brand-primary); font-size: 0.95rem;">
-                                {{ entry.total_points }}
-                            </span>
-                            <small class="text-muted ms-1" style="font-size: 0.72rem;">pts</small>
-                        </td>
+                            <!-- Tasks -->
+                            <td class="py-3 text-center fw-bold text-dark font-monospace">
+                                {{ entry.challenges_completed }}
+                            </td>
 
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="5" class="text-center py-5">
-                            <i class="bi bi-inbox d-block mb-3" style="font-size: 2.5rem; color: var(--brand-light);"></i>
-                            <p class="fw-semibold text-dark mb-1">No results in this scope yet</p>
-                            <p class="text-muted small mb-0">Be the first to complete a challenge and claim the top spot.</p>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                            <!-- Score -->
+                            <td class="pe-4 py-3 text-end">
+                                <span class="fw-bold" style="color:var(--brand-primary); font-size:0.95rem;">
+                                    {{ entry.total_points }}
+                                </span>
+                                <small class="text-muted ms-1" style="font-size:0.7rem;">pts</small>
+                            </td>
+
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5">
+                                <i class="bi bi-inbox d-block mb-3" style="font-size:2.5rem; color:var(--brand-light);"></i>
+                                <p class="fw-semibold text-dark mb-1">No results in this scope yet</p>
+                                <p class="text-muted small mb-0">Be the first to complete a challenge and claim the top spot.</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
 </div>
+
+<!-- =========================================================================
+     STUDENT MODAL
+========================================================================== -->
+<div class="modal fade" id="studentModal" tabindex="-1" aria-labelledby="studentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width:420px;">
+        <div class="modal-content" style="border-radius:16px; border:none; overflow:hidden;">
+
+            <!-- Header with brand gradient -->
+            <div style="background: linear-gradient(135deg, var(--brand-darkest) 0%, var(--brand-primary) 100%); padding: 1.75rem 1.75rem 1rem;">
+                <div class="d-flex align-items-center gap-3">
+                    <div id="modal-avatar"
+                         style="width:56px; height:56px; border-radius:50%; background:rgba(255,255,255,0.2); border:2px solid var(--brand-lightest); font-size:1.1rem; font-weight:700; color:white; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                    </div>
+                    <div>
+                        <h5 class="mb-0 fw-bold text-white" id="modal-username"></h5>
+                        <small class="text-white-50" id="modal-university"></small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-body p-4">
+
+                <!-- Stat row -->
+                <div class="row g-2 mb-4">
+                    <div class="col-6">
+                        <div class="text-center p-3 rounded-3" style="background:rgba(0,71,86,0.06);">
+                            <div class="fw-bold text-dark" id="modal-points" style="font-size:1.4rem;"></div>
+                            <small class="text-muted text-uppercase fw-semibold" style="font-size:0.65rem; letter-spacing:0.5px;">Total Points</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-center p-3 rounded-3" style="background:rgba(0,71,86,0.06);">
+                            <div class="fw-bold text-dark" id="modal-challenges" style="font-size:1.4rem;"></div>
+                            <small class="text-muted text-uppercase fw-semibold" style="font-size:0.65rem; letter-spacing:0.5px;">Tasks Done</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detail rows -->
+                <div class="d-flex flex-column gap-2 mb-4">
+                    <div class="d-flex align-items-center gap-3 p-2 rounded-3" style="background:#f8fafb;">
+                        <i class="bi bi-cpu" style="color:var(--brand-primary); width:18px; text-align:center;"></i>
+                        <div>
+                            <small class="text-muted d-block" style="font-size:0.68rem;">Discipline Track</small>
+                            <span class="fw-semibold text-dark small" id="modal-discipline"></span>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-3 p-2 rounded-3" style="background:#f8fafb;">
+                        <i class="bi bi-calendar2-check" style="color:var(--brand-primary); width:18px; text-align:center;"></i>
+                        <div>
+                            <small class="text-muted d-block" style="font-size:0.68rem;">Year of Study</small>
+                            <span class="fw-semibold text-dark small" id="modal-year"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GitHub link -->
+                <div id="modal-github-wrapper">
+                    <a id="modal-github-link" href="#" target="_blank" rel="noopener noreferrer"
+                       class="btn btn-dark w-100 fw-semibold py-2" style="border-radius:10px; font-size:0.88rem;">
+                        <i class="bi bi-github me-2"></i>View GitHub Profile
+                    </a>
+                </div>
+                <div id="modal-no-github" class="text-center text-muted small py-1" style="display:none;">
+                    <i class="bi bi-github me-1"></i>No GitHub username set
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- =========================================================================
+     STYLES
+========================================================================== -->
+<style>
+/* Scope pill tabs */
+.scope-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.4rem 0.9rem;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-decoration: none;
+    color: var(--brand-darkest);
+    background: rgba(0,71,86,0.07);
+    border: 1.5px solid transparent;
+    transition: all 0.2s ease;
+}
+.scope-pill:hover {
+    background: rgba(0,71,86,0.13);
+    color: var(--brand-darkest);
+}
+.scope-pill.active {
+    background: var(--brand-primary);
+    color: white;
+    border-color: var(--brand-primary);
+}
+
+/* Podium */
+.podium-card {
+    text-align: center;
+    padding: 1rem 0.5rem 0;
+    transition: transform 0.2s ease;
+}
+.podium-card:hover { transform: translateY(-3px); }
+
+.podium-crown {
+    color: #d97706;
+    font-size: 1.1rem;
+    margin-bottom: 0.25rem;
+}
+.podium-rank-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    font-size: 0.72rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+.podium-avatar {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: var(--brand-primary);
+    color: white;
+    font-size: 0.85rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 0.5rem;
+    border: 2.5px solid;
+}
+.podium-avatar-1st {
+    width: 62px; height: 62px;
+    font-size: 1rem;
+}
+.podium-name {
+    font-size: 0.82rem;
+    color: #333;
+    margin-bottom: 0.15rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.podium-points {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--brand-darkest);
+    margin-bottom: 0.1rem;
+}
+.podium-challenges {
+    font-size: 0.7rem;
+    color: #888;
+    margin-bottom: 0.5rem;
+}
+.podium-bar {
+    border-radius: 6px 6px 0 0;
+    margin: 0 auto;
+    width: 70%;
+}
+.podium-bar-1st { height: 48px; background: linear-gradient(180deg, #d97706, #f59e0b); }
+.podium-bar-2nd { height: 32px; background: linear-gradient(180deg, #94a3b8, #cbd5e1); }
+.podium-bar-3rd { height: 20px; background: linear-gradient(180deg, #b45309, #d97706); }
+
+/* Table */
+.leaderboard-row { transition: background 0.15s ease; }
+.leaderboard-you { background: rgba(24,143,159,0.05) !important; }
+.leaderboard-row:hover { background: rgba(0,71,86,0.03); }
+
+.rank-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.6rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.table-avatar {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: rgba(0,71,86,0.1);
+    color: var(--brand-darkest);
+    font-size: 0.72rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+</style>
+
+<!-- =========================================================================
+     MODAL JS
+========================================================================== -->
+<script>
+(function () {
+    const YEAR_MAP = { '1':'First Year', '2':'Second Year', '3':'Third Year', '4':'Fourth Year' };
+    const DISC_MAP = {
+        'software_eng':'Software Engineering',
+        'cybersecurity':'Cybersecurity',
+        'data_science':'Data Science',
+        'ui_ux':'UI/UX Design',
+        'networking':'Networking',
+        'ai_ml':'AI / Machine Learning',
+    };
+
+    document.getElementById('studentModal').addEventListener('show.bs.modal', function (e) {
+        const trigger = e.relatedTarget;
+        const username    = trigger.dataset.username;
+        const university  = trigger.dataset.university;
+        const discipline  = trigger.dataset.discipline;
+        const year        = trigger.dataset.year;
+        const github      = trigger.dataset.github;
+        const points      = trigger.dataset.points;
+        const challenges  = trigger.dataset.challenges;
+
+        document.getElementById('modal-avatar').textContent     = username.slice(0,2).toUpperCase();
+        document.getElementById('modal-username').textContent   = username;
+        document.getElementById('modal-university').textContent = university;
+        document.getElementById('modal-points').textContent     = points;
+        document.getElementById('modal-challenges').textContent = challenges;
+        document.getElementById('modal-discipline').textContent = DISC_MAP[discipline] || discipline;
+        document.getElementById('modal-year').textContent       = YEAR_MAP[year] || year;
+
+        if (github) {
+            document.getElementById('modal-github-wrapper').style.display = 'block';
+            document.getElementById('modal-no-github').style.display      = 'none';
+            document.getElementById('modal-github-link').href = 'https://github.com/' + github;
+        } else {
+            document.getElementById('modal-github-wrapper').style.display = 'none';
+            document.getElementById('modal-no-github').style.display      = 'block';
+        }
+    });
+})();
+</script>
+
 {% endblock %}

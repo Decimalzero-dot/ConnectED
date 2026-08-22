@@ -103,10 +103,12 @@ def leaderboard_view(request):
     passed_submissions = Submission.objects.filter(status='passed')
 
     scope             = request.GET.get('scope', 'campus')
-    discipline_filter = request.GET.get('discipline', profile.discipline)
-    year_filter       = request.GET.get('year', profile.year_of_study)
+    discipline_filter = request.GET.get('discipline') or profile.discipline or ''
+    year_filter       = request.GET.get('year') or profile.year_of_study or 1
 
-    queryset = passed_submissions.select_related('student__profile', 'challenge')
+    queryset = passed_submissions.select_related(
+        'student__profile', 'student__profile__university', 'challenge'
+    )
 
     if scope == 'campus':
         queryset = queryset.filter(student__profile__university=profile.university)
@@ -120,13 +122,32 @@ def leaderboard_view(request):
             student__profile__university=profile.university,
             student__profile__year_of_study=year_filter
         )
+    # scope == 'global' → no filter
 
     leaderboard = (
         queryset
-        .values('student__id', 'student__username', 'student__profile__university__name')
-        .annotate(total_points=Sum('challenge__points'), challenges_completed=Count('id'))
+        .values(
+            'student__id',
+            'student__username',
+            'student__profile__university__name',
+            'student__profile__discipline',
+            'student__profile__year_of_study',
+            'student__profile__github_username',
+            'student__profile__reg_number',
+        )
+        .annotate(
+            total_points=Sum('challenge__points'),
+            challenges_completed=Count('id')
+        )
         .order_by('-total_points')
     )
+
+    # Calculate current user's rank in this scope
+    your_rank = None
+    for i, entry in enumerate(leaderboard, start=1):
+        if entry['student__username'] == request.user.username:
+            your_rank = i
+            break
 
     context = {
         'leaderboard': leaderboard,
@@ -136,5 +157,12 @@ def leaderboard_view(request):
         'discipline_choices': Profile.DISCIPLINE_CHOICES,
         'year_choices': Profile.YEAR_CHOICES,
         'user_university': profile.university,
+        'your_rank': your_rank,
+        'scope_choices': [                        # ← add this
+                ('campus', 'My Campus'),
+                ('discipline', 'By Discipline'),
+                ('year', 'By Year'),
+                ('global', 'Global'),
+            ],
     }
     return render(request, 'dashboard/leaderboard.html', context)
