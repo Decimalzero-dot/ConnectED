@@ -18,11 +18,16 @@ def register_view(request):
         if form.is_valid():
             try:
                 user = form.save()
+                # Auto-assign university from email domain
+                if hasattr(form, 'university'):
+                    profile, _ = Profile.objects.get_or_create(user=user)
+                    profile.university = form.university
+                    profile.save()
                 login(request, user, backend='django.contrib.auth.backends.ModelBackend')
                 messages.success(request, 'Account created successfully!')
                 return redirect('dashboard:onboarding')
             except IntegrityError:
-                form.add_error('username', 'That username is already taken. Please choose another.')
+                form.add_error('username', 'That username is already taken.')
         messages.error(request, 'Please correct the errors below.')
     else:
         form = UserRegistrationForm()

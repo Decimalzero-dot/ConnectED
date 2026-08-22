@@ -10,6 +10,11 @@ class University(models.Model):
     location = models.CharField(max_length=200, blank=True)
     logo = models.ImageField(upload_to='university_logos/', blank=True, null=True)
     is_active = models.BooleanField(default=True)
+    email_domain = models.CharField(
+        max_length=100,
+        blank=True,
+        help_text="Student email domain e.g. students.uok.ac.ke"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

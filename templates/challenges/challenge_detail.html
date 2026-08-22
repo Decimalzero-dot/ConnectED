@@ -19,7 +19,7 @@
             <p class="text-muted">Deadline: {{ challenge.deadline }}</p>
         {% endif %}
         <hr>
-        <p>{{ challenge.description }}</p>
+        <p>{{ challenge.description|linebreaks }}</p>
     </div>
 </div>
 
@@ -38,7 +38,7 @@
             {% endif %}
         </p>
         {% if submission.feedback %}
-            <p class="text-muted">Feedback: {{ submission.feedback }}</p>
+            <p class="text-muted">Feedback: {{ submission.feedback|linebreaks }}</p>
         {% endif %}
     </div>
 </div>

@@ -4,17 +4,41 @@ from .models import User
 
 
 class UserRegistrationForm(UserCreationForm):
-    email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={
-        'class': 'form-control', 'placeholder': 'Email'
-    }))
+    email = forms.EmailField(
+        required=True,
+        widget=forms.EmailInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Your university email'
+        })
+    )
 
     class Meta:
         model = User
         fields = ('username', 'email', 'password1', 'password2')
         widgets = {
-            'username': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username'}),
+            'username': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Username'
+            }),
         }
 
+    def clean_email(self):
+        from universities.models import University
+        email = self.cleaned_data.get('email')
+        if email:
+            domain = email.split('@')[-1]
+            university = University.objects.filter(
+                email_domain=domain,
+                is_active=True
+            ).first()
+            if not university:
+                raise forms.ValidationError(
+                    "This email domain is not recognized. "
+                    "Please use your university email address."
+                )
+            # Store university on the form for use in the view
+            self.university = university
+        return email
 
 class UserLoginForm(AuthenticationForm):
     username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username'}))
