@@ -1,0 +1,417 @@
+{% extends 'base.html' %}
+{% block title %}Settings — ConnectED{% endblock %}
+{% block page_title %}Settings{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+
+    <div class="row g-3">
+
+        <!--LEFT — Tab navigation -->
+        <div class="col-md-3">
+            <div class="card mb-0" style="border-radius:14px;">
+                <div class="card-body p-2">
+                    <nav class="settings-nav" id="settings-tabs">
+                        <a class="settings-nav-link {% if active_tab == 'account' %}active{% endif %}" data-tab="account" href="?tab=account">
+                            <i class="bi bi-person-circle settings-nav-icon"></i>Account
+                        </a>
+                        <a class="settings-nav-link {% if active_tab == 'academic' %}active{% endif %}" data-tab="academic" href="?tab=academic">
+                            <i class="bi bi-mortarboard settings-nav-icon"></i>Academic Info
+                        </a>
+                        <a class="settings-nav-link {% if active_tab == 'security' %}active{% endif %}" data-tab="security" href="?tab=security">
+                            <i class="bi bi-shield-lock settings-nav-icon"></i>Security
+                        </a>
+                        <a class="settings-nav-link {% if active_tab == 'notifications' %}active{% endif %}" data-tab="notifications" href="?tab=notifications">
+                            <i class="bi bi-bell settings-nav-icon"></i>Notifications
+                        </a>
+                        <a class="settings-nav-link {% if active_tab == 'appearance' %}active{% endif %}" data-tab="appearance" href="?tab=appearance">
+                            <i class="bi bi-palette settings-nav-icon"></i>Appearance
+                        </a>
+                    </nav>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT — Tab content -->
+        <div class="col-md-9">
+
+            <!-- ACCOUNT -->
+            <div class="tab-section {% if active_tab != 'account' %}d-none{% endif %}" id="tab-account">
+                <div class="card mb-0" style="border-radius:14px;">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold text-dark text-uppercase mb-1" style="font-size:0.75rem; letter-spacing:0.5px;">
+                            <i class="bi bi-person-circle me-2" style="color:var(--brand-primary);"></i>Account Details
+                        </h6>
+                        <p class="text-muted small mb-4">Update your username, email and profile photo.</p>
+
+                        <form method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <input type="hidden" name="tab" value="account">
+                            <div class="row g-3">
+                                {% for field in account_form %}
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold text-muted text-uppercase" style="font-size:0.7rem; letter-spacing:0.5px;">{{ field.label }}</label>
+                                    {{ field }}
+                                    {% if field.errors %}<div class="text-danger small mt-1">{{ field.errors|striptags }}</div>{% endif %}
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <div class="mt-4 pt-3 border-top">
+                                <button type="submit" class="btn btn-primary fw-semibold text-white px-4" style="border-radius:8px;">
+                                    <i class="bi bi-check2 me-2"></i>Save Changes
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ACADEMIC -->
+            <div class="tab-section {% if active_tab != 'academic' %}d-none{% endif %}" id="tab-academic">
+                <div class="card mb-0" style="border-radius:14px;">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold text-dark text-uppercase mb-1" style="font-size:0.75rem; letter-spacing:0.5px;">
+                            <i class="bi bi-mortarboard me-2" style="color:var(--brand-primary);"></i>Academic Info
+                        </h6>
+                        <p class="text-muted small mb-4">Update your discipline and year of study.</p>
+
+                        <!-- University (read-only) -->
+                        <div class="d-flex align-items-center gap-3 p-3 rounded-3 mb-4" style="background:rgba(0,71,86,0.05); border:1px solid rgba(0,71,86,0.1);">
+                            <i class="bi bi-building" style="color:var(--brand-primary); font-size:1.2rem;"></i>
+                            <div>
+                                <small class="text-muted d-block fw-semibold text-uppercase" style="font-size:0.68rem; letter-spacing:0.5px;">University</small>
+                                <span class="fw-semibold text-dark">{{ profile.university.name|default:"Not assigned" }}</span>
+                            </div>
+                            <span class="ms-auto badge px-2 py-1 fw-semibold" style="font-size:0.65rem; background:rgba(0,71,86,0.08); color:var(--brand-darkest); border-radius:6px;">
+                                Contact admin to change
+                            </span>
+                        </div>
+
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="tab" value="academic">
+                            <div class="row g-3">
+                                {% for field in academic_form %}
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold text-muted text-uppercase" style="font-size:0.7rem; letter-spacing:0.5px;">{{ field.label }}</label>
+                                    {{ field }}
+                                    {% if field.errors %}<div class="text-danger small mt-1">{{ field.errors|striptags }}</div>{% endif %}
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <div class="mt-4 pt-3 border-top">
+                                <button type="submit" class="btn btn-primary fw-semibold text-white px-4" style="border-radius:8px;">
+                                    <i class="bi bi-check2 me-2"></i>Save Changes
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECURITY -->
+            <div class="tab-section {% if active_tab != 'security' %}d-none{% endif %}" id="tab-security">
+                <div class="card mb-0" style="border-radius:14px;">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold text-dark text-uppercase mb-1" style="font-size:0.75rem; letter-spacing:0.5px;">
+                            <i class="bi bi-shield-lock me-2" style="color:var(--brand-primary);"></i>Change Password
+                        </h6>
+                        <p class="text-muted small mb-4">Use a strong password you don't use anywhere else.</p>
+
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="tab" value="security">
+                            <div class="row g-3">
+                                {% for field in password_form %}
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold text-muted text-uppercase" style="font-size:0.7rem; letter-spacing:0.5px;">{{ field.label }}</label>
+                                    {{ field }}
+                                    {% if field.errors %}<div class="text-danger small mt-1">{{ field.errors|striptags }}</div>{% endif %}
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <div class="mt-4 pt-3 border-top d-flex align-items-center gap-3">
+                                <button type="submit" class="btn btn-primary fw-semibold text-white px-4" style="border-radius:8px;">
+                                    <i class="bi bi-lock me-2"></i>Change Password
+                                </button>
+                                <a href="{% url 'accounts:password_reset' %}" class="text-muted small">
+                                    <i class="bi bi-envelope me-1"></i>Forgot current password? Reset via email
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NOTIFICATIONS -->
+            <div class="tab-section {% if active_tab != 'notifications' %}d-none{% endif %}" id="tab-notifications">
+                <div class="card mb-0" style="border-radius:14px;">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold text-dark text-uppercase mb-1" style="font-size:0.75rem; letter-spacing:0.5px;">
+                            <i class="bi bi-bell me-2" style="color:var(--brand-primary);"></i>Notification Preferences
+                        </h6>
+                        <p class="text-muted small mb-4">Choose which emails ConnectED sends you.</p>
+
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="tab" value="notifications">
+
+                            <div class="d-flex flex-column gap-3">
+
+                                <div class="d-flex align-items-center justify-content-between p-3 rounded-3" style="background:#f8fafb; border:1px solid rgba(0,0,0,0.05);">
+                                    <div>
+                                        <p class="fw-semibold text-dark mb-0" style="font-size:0.9rem;">Submission Reviews</p>
+                                        <small class="text-muted">Email me when a submission is reviewed</small>
+                                    </div>
+                                    <div class="form-check form-switch mb-0">
+                                        {{ notification_form.notify_on_review }}
+                                    </div>
+                                </div>
+
+                                <div class="d-flex align-items-center justify-content-between p-3 rounded-3" style="background:#f8fafb; border:1px solid rgba(0,0,0,0.05);">
+                                    <div>
+                                        <p class="fw-semibold text-dark mb-0" style="font-size:0.9rem;">New Challenges</p>
+                                        <small class="text-muted">Email me when a new challenge is posted in my discipline</small>
+                                    </div>
+                                    <div class="form-check form-switch mb-0">
+                                        {{ notification_form.notify_on_new_challenge }}
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="mt-4 pt-3 border-top">
+                                <button type="submit" class="btn btn-primary fw-semibold text-white px-4" style="border-radius:8px;">
+                                    <i class="bi bi-check2 me-2"></i>Save Preferences
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- APPEARANCE -->
+            <div class="tab-section {% if active_tab != 'appearance' %}d-none{% endif %}" id="tab-appearance">
+                <div class="card mb-0" style="border-radius:14px;">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold text-dark text-uppercase mb-1" style="font-size:0.75rem; letter-spacing:0.5px;">
+                            <i class="bi bi-palette me-2" style="color:var(--brand-primary);"></i>Appearance
+                        </h6>
+                        <p class="text-muted small mb-4">Customize how ConnectED looks for you.</p>
+
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="tab" value="appearance">
+
+                            <!-- Dark mode -->
+                            <div class="d-flex align-items-center justify-content-between p-3 rounded-3 mb-3" style="background:#f8fafb; border:1px solid rgba(0,0,0,0.05);">
+                                <div>
+                                    <p class="fw-semibold text-dark mb-0" style="font-size:0.9rem;">
+                                        <i class="bi bi-moon-stars me-2" style="color:var(--brand-primary);"></i>Dark Mode
+                                    </p>
+                                    <small class="text-muted">Easier on the eyes at night.</small>
+                                </div>
+                                <div class="form-check form-switch mb-0">
+                                    {{ appearance_form.dark_mode }}
+                                </div>
+                            </div>
+
+                            <!-- Font size -->
+                            <div class="p-3 rounded-3 mb-4" style="background:#f8fafb; border:1px solid rgba(0,0,0,0.05);">
+                                <p class="fw-semibold text-dark mb-1" style="font-size:0.9rem;">
+                                    <i class="bi bi-type me-2" style="color:var(--brand-primary);"></i>Font Size
+                                </p>
+                                <small class="text-muted d-block mb-3">Affects text size across the platform.</small>
+
+                                <!-- Visual font size picker -->
+                                <div class="d-flex gap-2" id="font-size-picker">
+                                    <label class="font-size-option" data-value="small">
+                                        <input type="radio" name="font_size_visual" value="small" class="d-none">
+                                        <span>Small</span>
+                                    </label>
+                                    <label class="font-size-option" data-value="medium">
+                                        <input type="radio" name="font_size_visual" value="medium" class="d-none">
+                                        <span>Medium</span>
+                                    </label>
+                                    <label class="font-size-option" data-value="large">
+                                        <input type="radio" name="font_size_visual" value="large" class="d-none">
+                                        <span>Large</span>
+                                    </label>
+                                </div>
+                                <div class="d-none">{{ appearance_form.font_size }}</div>
+                            </div>
+
+                            <div class="pt-3 border-top">
+                                <button type="submit" class="btn btn-primary fw-semibold text-white px-4" style="border-radius:8px;">
+                                    <i class="bi bi-check2 me-2"></i>Save Appearance
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<style>
+/* Settings nav */
+.settings-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 0.25rem;
+}
+.settings-nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.65rem 1rem;
+    border-radius: 10px;
+    font-size: 0.87rem;
+    font-weight: 500;
+    color: #555;
+    text-decoration: none;
+    transition: all 0.15s ease;
+    cursor: pointer;
+}
+.settings-nav-link:hover {
+    background: rgba(0,71,86,0.06);
+    color: var(--brand-darkest);
+}
+.settings-nav-link.active {
+    background: var(--brand-primary);
+    color: white;
+    font-weight: 600;
+}
+.settings-nav-link.active .settings-nav-icon {
+    opacity: 1;
+}
+.settings-nav-icon {
+    font-size: 1rem;
+    width: 18px;
+    text-align: center;
+    opacity: 0.6;
+    flex-shrink: 0;
+}
+.settings-nav-link.active .settings-nav-icon { opacity: 1; }
+
+/* Font size picker */
+.font-size-option {
+    flex: 1;
+    text-align: center;
+    padding: 0.5rem;
+    border-radius: 8px;
+    border: 1.5px solid rgba(0,71,86,0.15);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.82rem;
+    color: #555;
+    transition: all 0.15s ease;
+    user-select: none;
+}
+.font-size-option:hover {
+    border-color: var(--brand-secondary);
+    color: var(--brand-darkest);
+}
+.font-size-option.selected {
+    background: var(--brand-primary);
+    border-color: var(--brand-primary);
+    color: white;
+}
+
+/* Dark mode — applied to html element so it cascades everywhere */
+html.dark-mode {
+    --bg-main: #0f1923;
+    --bg-card: #1a2535;
+    color: #e2e8f0;
+}
+body.dark-mode .card {
+    background-color: var(--bg-card);
+    color: #e2e8f0;
+}
+body.dark-mode .text-dark { color: #e2e8f0 !important; }
+body.dark-mode .text-muted { color: #94a3b8 !important; }
+body.dark-mode .topbar {
+    background-color: #1a2535;
+    border-bottom-color: rgba(255,255,255,0.07);
+}
+body.dark-mode .topbar-page-title { color: #e2e8f0; }
+body.dark-mode .topbar-user-name  { color: #e2e8f0; }
+body.dark-mode .topbar-icon-btn   { background: rgba(255,255,255,0.08); color: #e2e8f0; }
+body.dark-mode .topbar-user       { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1); }
+body.dark-mode .stat-mini-card    { background-color: var(--bg-card); }
+body.dark-mode .stat-mini-number  { color: #e2e8f0; }
+body.dark-mode .form-control,
+body.dark-mode .form-select {
+    background-color: #0f1923;
+    border-color: rgba(255,255,255,0.12);
+    color: #e2e8f0;
+}
+body.dark-mode .settings-nav-link        { color: #94a3b8; }
+body.dark-mode .settings-nav-link:hover  { background: rgba(255,255,255,0.06); color: #e2e8f0; }
+body.dark-mode .font-size-option         { border-color: rgba(255,255,255,0.15); color: #94a3b8; }
+body.dark-mode [style*="background:#f8fafb"] { background: rgba(255,255,255,0.04) !important; }
+body.dark-mode table { color: #e2e8f0; }
+body.dark-mode .table-hover tbody tr:hover { background: rgba(255,255,255,0.04); }
+body.dark-mode .border-top { border-color: rgba(255,255,255,0.08) !important; }
+</style>
+
+<script>
+(function () {
+
+        document.querySelectorAll('.settings-nav-link').forEach(link => {
+        link.addEventListener('click', function (e) {
+            e.preventDefault();
+            const tab = this.dataset.tab;
+
+            document.querySelectorAll('.settings-nav-link').forEach(l => l.classList.remove('active'));
+            this.classList.add('active');
+
+            document.querySelectorAll('.tab-section').forEach(s => s.classList.add('d-none'));
+            document.getElementById('tab-' + tab).classList.remove('d-none');
+
+            // Update URL without reload
+            history.replaceState(null, '', '?tab=' + tab);
+        });
+    });
+
+    const hiddenSelect = document.querySelector('[name="font_size"]');
+    const options      = document.querySelectorAll('.font-size-option');
+
+    function setFontSize(val) {
+        options.forEach(o => o.classList.toggle('selected', o.dataset.value === val));
+        if (hiddenSelect) hiddenSelect.value = val;
+        document.documentElement.setAttribute('data-font-size', val);
+    }
+
+    // Init from current select value
+    if (hiddenSelect) setFontSize(hiddenSelect.value || 'medium');
+
+    options.forEach(opt => {
+        opt.addEventListener('click', function () {
+            setFontSize(this.dataset.value);
+        });
+    });
+
+    /*  Dark mode*/
+    const darkToggle = document.querySelector('[name="dark_mode"]');
+
+    function applyDarkMode(on) {
+        document.documentElement.classList.toggle('dark-mode', on);
+    }
+
+    // Apply on page load from Django-rendered checkbox state
+    if (darkToggle) {
+        applyDarkMode(darkToggle.checked);
+
+        darkToggle.addEventListener('change', function () {
+            applyDarkMode(this.checked);
+        });
+    }
+
+})();
+</script>
+
+{% endblock %}

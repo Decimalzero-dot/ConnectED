@@ -1,6 +1,4 @@
-/* ==========================================================================
-   ConnectED Global Theme Variables & Resets
-   ========================================================================== */
+/* Global Theme Variables & Resets */
 :root {
     --brand-darkest:  #004756;
     --brand-primary:  #006a7a;
@@ -25,16 +23,13 @@ body {
     margin: 0;
 }
 
-/* ==========================================================================
-   Layout
-   ========================================================================== */
+/*Layout*/
 .app-container {
     display: flex;
     min-height: 100vh;
     width: 100vw;
 }
 
-/* Sidebar */
 .sidebar {
     width: var(--sidebar-width);
     height: 100vh;
@@ -69,7 +64,6 @@ body {
     align-items: center;
 }
 
-/* Section labels */
 .sidebar-section-label {
     list-style: none;
     padding: 0.35rem 1.5rem 0.2rem;
@@ -129,7 +123,6 @@ body {
     font-weight: 600;
 }
 
-/* Sidebar profile card */
 .sidebar-profile-card {
     background-color: rgba(255,255,255,0.05);
     border: 1px solid rgba(255,255,255,0.1);
@@ -154,9 +147,7 @@ body {
     text-align: center;
 }
 
-/* ==========================================================================
-   Main Wrapper + Topbar
-   ========================================================================== */
+/*Main Wrapper + Top bar */
 .main-wrapper {
     margin-left: var(--sidebar-width);
     width: calc(100% - var(--sidebar-width));
@@ -166,7 +157,6 @@ body {
     min-width: 0;
 }
 
-/* Topbar */
 .topbar {
     height: var(--topbar-height);
     background-color: var(--bg-card);
@@ -297,9 +287,7 @@ body {
     z-index: 1040;
 }
 
-/* ==========================================================================
-   Auth Split Layout
-   ========================================================================== */
+/* Auth Split Layout */
 .auth-page-bg {
     min-height: calc(100vh - 56px);
     display: flex;
@@ -355,9 +343,7 @@ body {
     outline: none;
 }
 
-/* ==========================================================================
-   Cards
-   ========================================================================== */
+/*Cards */
 .card {
     background-color: var(--bg-card);
     border: none;
@@ -366,7 +352,6 @@ body {
     margin-bottom: 1.5rem;
 }
 
-/* Stat hero card */
 .stat-hero-card {
     background: linear-gradient(135deg, var(--brand-darkest) 0%, var(--brand-primary) 100%);
     border-radius: 16px;
@@ -403,7 +388,6 @@ body {
     margin-top: 0.25rem;
 }
 
-/* Small stat card */
 .stat-mini-card {
     background: var(--bg-card);
     border-radius: 14px;
@@ -437,9 +421,7 @@ body {
     font-weight: 600;
 }
 
-/* ==========================================================================
-   Buttons
-   ========================================================================== */
+/* Buttons */
 .btn-primary {
     background-color: var(--brand-primary);
     border-color: var(--brand-primary);
@@ -466,9 +448,7 @@ body {
     border-color: var(--brand-lightest);
 }
 
-/* ==========================================================================
-   Notification Badge
-   ========================================================================== */
+/*Notification Badge */
 .notification-badge {
     background-color: #ef4444;
     color: white;
@@ -488,9 +468,7 @@ body {
     100% { transform: scale(1);   box-shadow: 0 0 0 0 rgba(239,68,68,0); }
 }
 
-/* ==========================================================================
-   Skeleton Loader
-   ========================================================================== */
+/*   Skeleton Loader */
 .skeleton {
     background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
     background-size: 200% 100%;
@@ -502,9 +480,7 @@ body {
     100% { background-position: -200% 0; }
 }
 
-/* ==========================================================================
-   Responsive
-   ========================================================================== */
+/*Responsive */
 @media (max-width: 991.98px) {
     .auth-split-card { grid-template-columns: 1fr; max-width: 480px; }
     .auth-panel-left { display: none !important; }
@@ -523,4 +499,106 @@ body {
         background: rgba(0,0,0,0.45);
         z-index: 1025;
     }
-} 
+}
+
+/*Font Size — controlled via data-font-size on <html> */
+html[data-font-size="small"]  { font-size: 14px; }
+html[data-font-size="medium"] { font-size: 16px; }
+html[data-font-size="large"]  { font-size: 18px; }
+
+/*Dark Mode — applied to <html class="dark-mode"> so it cascades globally */
+html.dark-mode {
+    --bg-main: #0f1923;
+    --bg-card: #1a2535;
+}
+
+html.dark-mode body {
+    background-color: var(--bg-main);
+    color: #e2e8f0;
+}
+
+/* Topbar */
+html.dark-mode .topbar {
+    background-color: #1a2535;
+    border-bottom-color: rgba(255,255,255,0.07);
+}
+html.dark-mode .topbar-page-title { color: #e2e8f0; }
+html.dark-mode .topbar-user-name  { color: #e2e8f0; }
+html.dark-mode .topbar-user-role  { color: #94a3b8; }
+html.dark-mode .topbar-icon-btn   { background: rgba(255,255,255,0.08); color: #e2e8f0; }
+html.dark-mode .topbar-icon-btn:hover { background: rgba(255,255,255,0.13); }
+html.dark-mode .topbar-user       { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1); }
+
+/* Cards */
+html.dark-mode .card,
+html.dark-mode .stat-mini-card {
+    background-color: var(--bg-card);
+    color: #e2e8f0;
+}
+html.dark-mode .stat-mini-number { color: #e2e8f0; }
+html.dark-mode .stat-mini-label  { color: #94a3b8; }
+
+/* Text utilities */
+html.dark-mode .text-dark   { color: #e2e8f0 !important; }
+html.dark-mode .text-muted  { color: #94a3b8 !important; }
+html.dark-mode h1, html.dark-mode h2,
+html.dark-mode h3, html.dark-mode h4,
+html.dark-mode h5, html.dark-mode h6 { color: #e2e8f0; }
+
+/* Forms */
+html.dark-mode .form-control,
+html.dark-mode .form-select {
+    background-color: #0f1923;
+    border-color: rgba(255,255,255,0.12);
+    color: #e2e8f0;
+}
+html.dark-mode .form-control:focus,
+html.dark-mode .form-select:focus {
+    background-color: #0f1923;
+    border-color: var(--brand-secondary);
+    color: #e2e8f0;
+}
+html.dark-mode .form-label { color: #94a3b8; }
+
+/* Tables */
+html.dark-mode table          { color: #e2e8f0; }
+html.dark-mode thead          { background: #1e2d3d !important; }
+html.dark-mode .table-hover tbody tr:hover { background: rgba(255,255,255,0.04); }
+html.dark-mode .leaderboard-you { background: rgba(24,143,159,0.1) !important; }
+
+/* Borders & dividers */
+html.dark-mode .border-top,
+html.dark-mode .border-bottom { border-color: rgba(255,255,255,0.08) !important; }
+html.dark-mode hr              { border-color: rgba(255,255,255,0.08); }
+
+/* Backgrounds used inline via style= */
+html.dark-mode [style*="background:#f8fafb"],
+html.dark-mode [style*="background: #f8fafb"] {
+    background: rgba(255,255,255,0.04) !important;
+}
+html.dark-mode [style*="background:rgba(0,71,86,0.0"],
+html.dark-mode [style*="background: rgba(0,71,86,0.0"] {
+    background: rgba(255,255,255,0.05) !important;
+}
+
+/* Alerts */
+html.dark-mode .alert { border-color: rgba(255,255,255,0.1); }
+
+/* Settings nav */
+html.dark-mode .settings-nav-link       { color: #94a3b8; }
+html.dark-mode .settings-nav-link:hover { background: rgba(255,255,255,0.06); color: #e2e8f0; }
+html.dark-mode .font-size-option        { border-color: rgba(255,255,255,0.15); color: #94a3b8; }
+html.dark-mode .font-size-option:hover  { color: #e2e8f0; }
+
+/* Notification list */
+html.dark-mode .notification-unread { background: rgba(24,143,159,0.08); }
+
+/* Scope pills on leaderboard */
+html.dark-mode .scope-pill {
+    background: rgba(255,255,255,0.07);
+    color: #e2e8f0;
+}
+html.dark-mode .scope-pill.active {
+    background: var(--brand-primary);
+    color: white;
+}

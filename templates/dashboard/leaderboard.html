@@ -5,9 +5,7 @@
 {% block content %}
 <div class="container-fluid px-0">
 
-    <!-- =====================================================================
-         YOUR RANK BANNER
-    ====================================================================== -->
+    <!--YOUR RANK BANNER -->
     <div class="row g-3 mb-3">
 
         <div class="col-md-4">
@@ -88,9 +86,7 @@
         </div>
     </div>
 
-    <!-- =====================================================================
-         PODIUM — Top 3
-    ====================================================================== -->
+    <!--PODIUM — Top 3 -->
     {% if leaderboard %}
     <div class="card mb-3" style="border-radius:14px;">
         <div class="card-body p-4">
@@ -184,9 +180,7 @@
     </div>
     {% endif %}
 
-    <!-- =====================================================================
-         FULL TABLE — Rank 4+
-    ====================================================================== -->
+    <!--FULL TABLE — Rank 4+ -->
     <div class="card mb-0" style="border-radius:14px;">
         <div class="card-body p-0">
             <div class="px-4 pt-4 pb-2">
@@ -303,9 +297,7 @@
 
 </div>
 
-<!-- =========================================================================
-     STUDENT MODAL
-========================================================================== -->
+<!-- STUDENT MODAL -->
 <div class="modal fade" id="studentModal" tabindex="-1" aria-labelledby="studentModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" style="max-width:420px;">
         <div class="modal-content" style="border-radius:16px; border:none; overflow:hidden;">
@@ -375,9 +367,6 @@
     </div>
 </div>
 
-<!-- =========================================================================
-     STYLES
-========================================================================== -->
 <style>
 /* Scope pill tabs */
 .scope-pill {
@@ -500,9 +489,6 @@
 }
 </style>
 
-<!-- =========================================================================
-     MODAL JS
-========================================================================== -->
 <script>
 (function () {
     const YEAR_MAP = { '1':'First Year', '2':'Second Year', '3':'Third Year', '4':'Fourth Year' };

@@ -14,9 +14,7 @@
 
     <div class="row g-4">
 
-        <!-- ================================================================
-             LEFT — Identity Card
-        ================================================================ -->
+        <!-- Identity Card-->
         <div class="col-lg-4">
             <div class="card border-0 shadow-sm p-4 text-center" style="border-radius: 14px;">
 
@@ -98,9 +96,7 @@
             </div>
         </div>
 
-        <!-- ================================================================
-             RIGHT — Edit Form
-        ================================================================ -->
+        <!-- RIGHT Edit Form-->
         <div class="col-lg-8">
             <div class="card border-0 shadow-sm p-4" style="border-radius: 14px;">
 
@@ -132,7 +128,7 @@
                             {% endif %}
                         </div>
 
-                        <!-- Reg Number (students only) -->
+                        <!-- Reg Number for students only -->
                         {% if user.user_type == 'student' %}
                         <div class="col-md-6">
                             <label class="form-label fw-semibold text-muted text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px;">Reg Number</label>
@@ -172,21 +168,7 @@
                 </form>
             </div>
 
-            <!-- Password Reset Link -->
-            <div class="card border-0 shadow-sm p-4 mt-3" style="border-radius: 14px;">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div>
-                        <h6 class="fw-bold text-dark mb-1" style="font-size: 0.9rem;">
-                            <i class="bi bi-lock me-2" style="color: var(--brand-primary);"></i>Password
-                        </h6>
-                        <small class="text-muted">Reset your password via email.</small>
-                    </div>
-                    <a href="{% url 'accounts:password_reset' %}" class="btn btn-sm fw-semibold"
-                       style="border-radius: 8px; background: rgba(0,71,86,0.07); color: var(--brand-darkest); border: none;">
-                        Reset Password
-                    </a>
-                </div>
-            </div>
+
 
         </div>
     </div>

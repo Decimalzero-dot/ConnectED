@@ -30,6 +30,17 @@ class User(AbstractUser):
 
 
 class Profile(models.Model):
+    
+    FONT_SIZE_CHOICES = (
+    ('small', 'Small'),
+    ('medium', 'Medium'),
+    ('large', 'Large'),
+    )
+    dark_mode = models.BooleanField(default=False)
+    font_size = models.CharField(max_length=10, choices=FONT_SIZE_CHOICES, default='medium')
+
+    notify_on_review = models.BooleanField(default=True)
+    notify_on_new_challenge = models.BooleanField(default=True)
     YEAR_CHOICES = (
         (1, 'First Year'),
         (2, 'Second Year'),

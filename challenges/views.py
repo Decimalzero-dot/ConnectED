@@ -7,6 +7,8 @@ from .models import Challenge, Submission
 from .forms import SubmissionForm
 from django.utils import timezone
 from notifications.models import Notification
+from django.core.mail import send_mail
+from django.conf import settings as django_settings
 
 
 @login_required
@@ -41,7 +43,7 @@ def challenge_detail(request, pk):
     profile = request.user.profile
     eligible = challenge.is_eligible_for(profile)
 
-    # Get this student's latest submission for this challenge, if any
+    # Get's student's latest submission
     submission = Submission.objects.filter(challenge=challenge, student=request.user).first()
 
     form = None
@@ -86,7 +88,7 @@ def review_queue(request):
 def review_submission(request, pk):
     submission = get_object_or_404(Submission, pk=pk)
 
-    # Campus admin can only review their own campus's submissions
+    # Campus admin review's their own campus's submissions
     if request.user.user_type == 'campus_admin':
         if submission.student.profile.university != request.user.profile.university:
             messages.error(request, "You can only review submissions from your own campus.")
@@ -107,6 +109,20 @@ def review_submission(request, pk):
             notification_type='submission_reviewed',
             link=f'/challenges/{submission.challenge.pk}/'
             )
+            if submission.student.profile.notify_on_review:
+                send_mail(
+                    subject=f'ConnectED — Submission {decision.title()}',
+                    message=(
+                        f'Hi {submission.student.username},\n\n'
+                        f'Your submission for "{submission.challenge.title}" has been marked {decision}.\n\n'
+                        f'{"Feedback: " + submission.feedback if submission.feedback else ""}\n\n'
+                        f'Visit ConnectED to view your updated leaderboard rank.\n\n'
+                        f'— The ConnectED Team'
+                    ),
+                    from_email=django_settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[submission.student.email],
+                    fail_silently=True,  # doesn't crash the review if email fails
+                )
             messages.success(request, f'Submission marked as {decision}.')
             return redirect('challenges:review_queue')
 

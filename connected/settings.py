@@ -101,9 +101,8 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 LOGIN_URL = 'accounts:login'
-LOGIN_REDIRECT_URL = '/dashboard/onboarding/'  # after GitHub login
-ACCOUNT_EMAIL_VERIFICATION = 'none'            # skip email confirm for now
-
+LOGIN_REDIRECT_URL = '/dashboard/onboarding/'  
+ACCOUNT_EMAIL_VERIFICATION = 'none'            
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
 SESSION_COOKIE_AGE = 3600
@@ -121,6 +120,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'notifications.context_processors.unread_count',
+                'accounts.context_processors.user_preferences',
             ],
         },
     },

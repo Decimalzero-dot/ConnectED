@@ -5,17 +5,17 @@
 <div class="auth-page-bg">
     <div class="auth-split-card">
 
-        <!-- Left: Image Panel -->
+        <!-- Image Panel -->
         <div class="auth-panel-left position-relative overflow-hidden">
             <img
                 src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1200&auto=format&fit=crop&q=80"
                 alt="Students collaborating"
                 style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center;"
             >
-            <!-- Brand overlay -->
+            <!--overlay -->
             <div style="position:absolute; inset:0; background: linear-gradient(135deg, rgba(0,71,86,0.80) 0%, rgba(0,106,122,0.60) 100%);"></div>
 
-            <!-- Content on top of overlay -->
+            <!-- Content on overlay -->
             <div class="position-relative d-flex flex-column justify-content-between h-100 p-5 text-white">
                 <span class="fw-bold fs-5" style="letter-spacing: 0.5px;">ConnectED</span>
                 <div>
@@ -25,7 +25,7 @@
             </div>
         </div>
 
-        <!-- Right: Form Panel -->
+        <!--Form Panel -->
         <div class="auth-panel-right">
             <h2 class="auth-form-title">Set up your profile</h2>
             <p class="text-muted mb-4" style="font-size: 0.9rem;">
@@ -57,7 +57,7 @@
 </div>
 
 <script>
-    // Apply Bootstrap form-control class to all form inputs and selects
+    // Apply Bootstrap 
     document.querySelectorAll('.auth-panel-right input, .auth-panel-right select, .auth-panel-right textarea').forEach(el => {
         el.classList.add('form-control');
     });

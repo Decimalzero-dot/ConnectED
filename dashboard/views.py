@@ -122,7 +122,7 @@ def leaderboard_view(request):
             student__profile__university=profile.university,
             student__profile__year_of_study=year_filter
         )
-    # scope == 'global' → no filter
+    # scope == 'global' has no filter
 
     leaderboard = (
         queryset
@@ -142,7 +142,7 @@ def leaderboard_view(request):
         .order_by('-total_points')
     )
 
-    # Calculate current user's rank in this scope
+    # Calculate current user's 
     your_rank = None
     for i, entry in enumerate(leaderboard, start=1):
         if entry['student__username'] == request.user.username:
@@ -158,7 +158,7 @@ def leaderboard_view(request):
         'year_choices': Profile.YEAR_CHOICES,
         'user_university': profile.university,
         'your_rank': your_rank,
-        'scope_choices': [                        # ← add this
+        'scope_choices': [                        
                 ('campus', 'My Campus'),
                 ('discipline', 'By Discipline'),
                 ('year', 'By Year'),

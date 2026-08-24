@@ -11,8 +11,9 @@ urlpatterns = [
     path('login/', views.login_view, name='login'),
     path('logout/', LogoutView.as_view(next_page='accounts:login'), name='logout'),
     path('profile/', views.profile_view, name='profile'),
+    path('settings/', views.settings_view, name='settings'),
 
-    # Password reset flow
+    # Password reset 
     path('password-reset/', CustomPasswordResetView.as_view(), name='password_reset'),
     path('password-reset/done/', PasswordResetDoneView.as_view(
         template_name='accounts/password_reset_done.html'
