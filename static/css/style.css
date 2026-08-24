@@ -344,6 +344,7 @@ body {
 }
 
 /*Cards */
+
 .card {
     background-color: var(--bg-card);
     border: none;
@@ -388,6 +389,7 @@ body {
     margin-top: 0.25rem;
 }
 
+
 .stat-mini-card {
     background: var(--bg-card);
     border-radius: 14px;
@@ -422,6 +424,7 @@ body {
 }
 
 /* Buttons */
+
 .btn-primary {
     background-color: var(--brand-primary);
     border-color: var(--brand-primary);
@@ -449,6 +452,7 @@ body {
 }
 
 /*Notification Badge */
+
 .notification-badge {
     background-color: #ef4444;
     color: white;
@@ -468,7 +472,9 @@ body {
     100% { transform: scale(1);   box-shadow: 0 0 0 0 rgba(239,68,68,0); }
 }
 
+
 /*   Skeleton Loader */
+
 .skeleton {
     background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
     background-size: 200% 100%;
@@ -602,3 +608,4 @@ html.dark-mode .scope-pill.active {
     background: var(--brand-primary);
     color: white;
 }
+

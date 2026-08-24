@@ -143,6 +143,7 @@ def leaderboard_view(request):
     )
 
     # Calculate current user's 
+
     your_rank = None
     for i, entry in enumerate(leaderboard, start=1):
         if entry['student__username'] == request.user.username:

@@ -15,7 +15,6 @@ from .settings_forms import (
     PasswordChangeSettingsForm
 )
 
-
 def register_view(request):
     if request.user.is_authenticated:
         return redirect('dashboard:home')
