@@ -6,3 +6,4 @@ python-dotenv            # manage secret keys via .env
 whitenoise               # serve static files in production
 gunicorn      
 requests
+django-ratelimit

@@ -22,7 +22,7 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     # path('', RedirectView.as_view(pattern_name='dashboard:home', permanent=False)),
-    path('admin/', admin.site.urls),
+    path('connected-19k/', admin.site.urls),
     path('accounts/', include('accounts.urls')),
     path('', include('core.urls')),          
     path('dashboard/', include('dashboard.urls')),  
@@ -34,4 +34,4 @@ urlpatterns = [
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
-    
+handler429 = 'accounts.views.handler429'

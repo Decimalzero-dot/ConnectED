@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block title %}Too Many Requests — ConnectED{% endblock %}
+
+{% block content %}
+<div class="text-center py-5">
+    <h1 class="display-1 fw-bold" style="color: var(--brand-primary, #006a7a);">429</h1>
+    <h2 class="mb-3">Slow Down</h2>
+    <p class="text-muted mb-4">Too many attempts. Please wait a minute and try again.</p>
+    <a href="/" class="btn btn-primary">Go Home</a>
+</div>
+{% endblock %}

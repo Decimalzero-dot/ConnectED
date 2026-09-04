@@ -3,6 +3,8 @@ from django.contrib.auth.views import LogoutView
 from . import views
 from .views import CustomPasswordResetView, CustomPasswordResetConfirmView
 from django.contrib.auth.views import PasswordResetDoneView, PasswordResetCompleteView
+from django_ratelimit.decorators import ratelimit
+from django.utils.decorators import method_decorator
 
 app_name = 'accounts'
 
@@ -14,7 +16,13 @@ urlpatterns = [
     path('settings/', views.settings_view, name='settings'),
 
     # Password reset 
-    path('password-reset/', CustomPasswordResetView.as_view(), name='password_reset'),
+    path('password-reset/', 
+    method_decorator(ratelimit(key='ip', rate='3/m', method='POST', block=True), name='dispatch')(
+        CustomPasswordResetView.as_view()
+    ), 
+    name='password_reset'
+    ),
+
     path('password-reset/done/', PasswordResetDoneView.as_view(
         template_name='accounts/password_reset_done.html'
     ), name='password_reset_done'),
@@ -23,5 +31,4 @@ urlpatterns = [
         template_name='accounts/password_reset_complete.html'
     ), name='password_reset_complete'),
 ]
-
 
