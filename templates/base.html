@@ -1,221 +1,519 @@
 {% load static %}
-<!DOCTYPE html>
-<html lang="en"
-      class="{% if user.is_authenticated and user.profile.dark_mode %}dark-mode{% endif %}"
-      data-font-size="{% if user.is_authenticated %}{{ user.profile.font_size|default:'medium' }}{% else %}medium{% endif %}">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!doctype html>
+
+<html
+  lang="en"
+  class="{% if user.is_authenticated and user.profile.dark_mode %}dark-mode{% endif %}"
+  data-font-size="{% if user.is_authenticated %}{{ user.profile.font_size|default:'medium' }}{% else %}medium{% endif %}"
+>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
     <title>{% block title %}ConnectED{% endblock %}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-</head>
-<body>
 
-{% if user.is_authenticated %}
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
 
-    <!-- Mobile header -->
-    <header class="mobile-header d-md-none">
-        <a href="{% url 'core:landing' %}" class="text-white text-decoration-none fs-5 fw-bold">ConnectED</a>
-        <button id="mobile-sidebar-toggle" class="btn btn-outline-light btn-sm" type="button" aria-label="Toggle navigation">
-            <i class="bi bi-list fs-5"></i>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+  </head>
+
+  <body>
+
+    {% if user.is_authenticated %}
+
+      <!-- Mobile header -->
+      <header class="mobile-header d-md-none">
+        <a
+          href="{% url 'core:landing' %}"
+          class="text-white text-decoration-none fs-5 fw-bold"
+        >
+          ConnectED
+        </a>
+
+        <button
+          id="mobile-sidebar-toggle"
+          class="btn btn-outline-light btn-sm"
+          type="button"
+          aria-label="Toggle navigation"
+        >
+          <i class="bi bi-list fs-5"></i>
         </button>
-    </header>
+      </header>
 
-    <div class="app-container">
 
-        <!-- ================================================================
-             SIDEBAR
-        ================================================================ -->
+      <div class="app-container">
+
+        <!-- SIDEBAR -->
         <nav class="sidebar">
-            <a href="{% url 'core:landing' %}" class="sidebar-brand">
-                <i class="bi bi-lightning-charge-fill me-2" style="color: var(--brand-lightest);"></i>ConnectED
-            </a>
 
-            <ul class="sidebar-menu mt-3">
+          <a href="{% url 'core:landing' %}" class="sidebar-brand">
+            <i
+              class="bi bi-lightning-charge-fill me-2"
+              style="color: var(--brand-lightest)"
+            ></i>
+            ConnectED
+          </a>
 
-                <!-- Core -->
-                <li class="sidebar-section-label">Main</li>
-                <li><a href="{% url 'dashboard:home' %}" class="sidebar-link">
-                    <i class="bi bi-grid-1x2 sidebar-icon"></i>Home
-                </a></li>
-                <li><a href="{% url 'challenges:list' %}" class="sidebar-link">
-                    <i class="bi bi-code-slash sidebar-icon"></i>Challenges
-                </a></li>
-                <li><a href="{% url 'dashboard:leaderboard' %}" class="sidebar-link">
-                    <i class="bi bi-bar-chart-line sidebar-icon"></i>Leaderboard
-                </a></li>
 
-                {% if user.user_type == 'campus_admin' or user.user_type == 'super_admin' %}
-                <li><a href="{% url 'challenges:review_queue' %}" class="sidebar-link">
-                    <i class="bi bi-clipboard-check sidebar-icon"></i>Review Queue
-                </a></li>
+          <ul class="sidebar-menu mt-3">
+
+            <!-- Core -->
+            <li class="sidebar-section-label">Main</li>
+
+            <li>
+              <a href="{% url 'dashboard:home' %}" class="sidebar-link">
+                <i class="bi bi-grid-1x2 sidebar-icon"></i>
+                Home
+              </a>
+            </li>
+
+            <li>
+              <a href="{% url 'challenges:list' %}" class="sidebar-link">
+                <i class="bi bi-code-slash sidebar-icon"></i>
+                Challenges
+              </a>
+            </li>
+
+            <li>
+              <a href="{% url 'dashboard:leaderboard' %}" class="sidebar-link">
+                <i class="bi bi-bar-chart-line sidebar-icon"></i>
+                Leaderboard
+              </a>
+            </li>
+
+            {% if user.user_type == 'employer' %}
+                <a href="{% url 'dashboard:employer_home' %}" class="text-white text-decoration-none py-2">Home</a>
+                <a href="{% url 'dashboard:leaderboard' %}" class="text-white text-decoration-none py-2">Browse Students</a>
+                <a href="{% url 'challenges:sponsor' %}" class="text-white text-decoration-none py-2">Sponsor Challenges</a>
+            {% else %}
+                <a href="{% url 'dashboard:home' %}" class="text-white text-decoration-none py-2">Home</a>
+                <a href="{% url 'challenges:list' %}" class="text-white text-decoration-none py-2">Challenges</a>
+                <a href="{% url 'dashboard:leaderboard' %}" class="text-white text-decoration-none py-2">Leaderboard</a>
+                {% if user.user_type in 'campus_admin super_admin' %}
+                    <a href="{% url 'challenges:review_queue' %}" class="text-white text-decoration-none py-2">Review Queue</a>
                 {% endif %}
+            {% endif %}
 
-                <!-- Account -->
-                <li class="sidebar-section-label mt-2">Account</li>
-                <li><a href="{% url 'accounts:settings' %}?tab=account" class="sidebar-link">
-                    <i class="bi bi-gear sidebar-icon"></i>Settings
-                </a></li>
-                <li><a href="#" class="sidebar-link">
-                    <i class="bi bi-chat-dots sidebar-icon"></i>Messages
-                </a></li>
-                <li><a href="{% url 'accounts:profile' %}" class="sidebar-link">
-                    <i class="bi bi-person-badge sidebar-icon"></i>Profile
-                </a></li>
-                <li>
-                    <a href="{% url 'notifications:list' %}" class="sidebar-link d-flex justify-content-between align-items-center">
-                        <span><i class="bi bi-bell sidebar-icon"></i>Notifications</span>
-                        {% if unread_notifications %}
-                        <span class="notification-badge pulse-animation">{{ unread_notifications }}</span>
-                        {% endif %}
-                    </a>
-                </li>
-
-                <!-- Management (admin only) -->
-                {% if user.user_type == 'campus_admin' or user.user_type == 'super_admin' %}
-                <li class="sidebar-section-label mt-2">Management</li>
-                <li><a href="{% url 'management:campus_dashboard' %}" class="sidebar-link">
-                    <i class="bi bi-speedometer2 sidebar-icon"></i>Admin Panel
-                </a></li>
-                <li><a href="{% url 'management:challenge_create' %}" class="sidebar-link">
-                    <i class="bi bi-plus-circle sidebar-icon"></i>New Challenge
-                </a></li>
-                <li><a href="{% url 'management:campus_students' %}" class="sidebar-link">
-                    <i class="bi bi-people sidebar-icon"></i>Students
-                </a></li>
-                {% endif %}
-
-                {% if user.user_type == 'super_admin' %}
-                <li class="sidebar-section-label mt-2">Super Admin</li>
-                <li><a href="{% url 'management:super_dashboard' %}" class="sidebar-link">
-                    <i class="bi bi-diagram-3 sidebar-icon"></i>Super Dashboard
-                </a></li>
-                <li><a href="{% url 'management:university_list' %}" class="sidebar-link">
-                    <i class="bi bi-building sidebar-icon"></i>Universities
-                </a></li>
-                <li><a href="{% url 'management:admin_list' %}" class="sidebar-link">
-                    <i class="bi bi-shield-check sidebar-icon"></i>Admins
-                </a></li>
-                <li><a href="{% url 'management:all_students' %}" class="sidebar-link">
-                    <i class="bi bi-person-lines-fill sidebar-icon"></i>All Students
-                </a></li>
-                {% endif %}
-
-            </ul>
-
-            <!-- Profile card -->
-            <div class="sidebar-profile-card mx-3 my-2 text-center text-white">
-                <div class="profile-card-img-wrapper mb-2">
-                    {% if user.profile_image %}
-                        <img src="{{ user.profile_image.url }}" alt="{{ user.get_full_name|default:user.username }}" class="profile-card-img">
-                    {% else %}
-                        <div class="profile-card-avatar-fallback mx-auto">
-                            {{ user.username|slice:":2"|upper }}
-                        </div>
-                    {% endif %}
-                </div>
-                <h6 class="mb-0 fw-bold fs-6 text-truncate">{{ user.get_full_name|default:user.username }}</h6>
-                <small class="text-white-50 d-block mb-2 text-capitalize text-truncate">
-                    {{ user.get_user_type_display }}
-                    {% if user.is_student and user.profile.year_of_study %}• Yr {{ user.profile.year_of_study }}{% endif %}
-                </small>
-                <a href="{% url 'accounts:profile' %}" class="btn btn-sm btn-light-accent w-100 py-1 fw-semibold">
-                    Open Profile
+            {% if user.user_type == 'campus_admin' or user.user_type == 'super_admin' %}
+              <li>
+                <a href="{% url 'challenges:review_queue' %}" class="sidebar-link">
+                  <i class="bi bi-clipboard-check sidebar-icon"></i>
+                  Review Queue
                 </a>
+              </li>
+            {% endif %}
+
+
+            <!-- Account -->
+            <li class="sidebar-section-label mt-2">Account</li>
+
+            <li>
+              <a href="{% url 'accounts:settings' %}" class="sidebar-link">
+                <i class="bi bi-gear sidebar-icon"></i>
+                Settings
+              </a>
+            </li>
+
+            <li>
+              <a href="#" class="sidebar-link">
+                <i class="bi bi-chat-dots sidebar-icon"></i>
+                Messages
+              </a>
+            </li>
+
+            <li>
+              <a
+                href="{% url 'notifications:list' %}"
+                class="sidebar-link d-flex justify-content-between align-items-center"
+              >
+                <span>
+                  <i class="bi bi-bell sidebar-icon"></i>
+                  Notifications
+                </span>
+
+                {% if unread_notifications %}
+                  <span class="notification-badge pulse-animation">
+                    {{ unread_notifications }}
+                  </span>
+                {% endif %}
+              </a>
+            </li>
+
+
+            <!-- Management -->
+            {% if user.user_type == 'campus_admin' or user.user_type == 'super_admin' %}
+
+              <li class="sidebar-section-label mt-2">Management</li>
+
+              <li>
+                <a
+                  href="{% url 'management:campus_dashboard' %}"
+                  class="sidebar-link"
+                >
+                  <i class="bi bi-speedometer2 sidebar-icon"></i>
+                  Admin Panel
+                </a>
+              </li>
+
+              <li>
+                <a
+                  href="{% url 'management:challenge_create' %}"
+                  class="sidebar-link"
+                >
+                  <i class="bi bi-plus-circle sidebar-icon"></i>
+                  New Challenge
+                </a>
+              </li>
+
+              <li>
+                <a
+                  href="{% url 'management:campus_students' %}"
+                  class="sidebar-link"
+                >
+                  <i class="bi bi-people sidebar-icon"></i>
+                  Students
+                </a>
+              </li>
+
+              <li>
+                <a
+                  href="{% url 'management:employer_interests' %}"
+                  class="sidebar-link"
+                >
+                  <i class="bi bi-briefcase sidebar-icon"></i>
+                  Employer Interests
+                </a>
+              </li>
+
+            {% endif %}
+
+
+            <!-- Super Admin -->
+            {% if user.user_type == 'super_admin' %}
+
+              <li class="sidebar-section-label mt-2">Super Admin</li>
+
+              <li>
+                <a
+                  href="{% url 'management:super_dashboard' %}"
+                  class="sidebar-link"
+                >
+                  <i class="bi bi-diagram-3 sidebar-icon"></i>
+                  Super Dashboard
+                </a>
+              </li>
+
+              <li>
+                <a
+                  href="{% url 'management:university_list' %}"
+                  class="sidebar-link"
+                >
+                  <i class="bi bi-building sidebar-icon"></i>
+                  Universities
+                </a>
+              </li>
+
+              <li>
+                <a
+                  href="{% url 'management:admin_list' %}"
+                  class="sidebar-link"
+                >
+                  <i class="bi bi-shield-check sidebar-icon"></i>
+                  Admins
+                </a>
+              </li>
+
+              <li>
+                <a
+                  href="{% url 'management:all_students' %}"
+                  class="sidebar-link"
+                >
+                  <i class="bi bi-person-lines-fill sidebar-icon"></i>
+                  All Students
+                </a>
+              </li>
+
+              <li>
+                <a
+                  href="{% url 'management:employer_list' %}"
+                  class="sidebar-link"
+                >
+                  <i class="bi bi-buildings sidebar-icon"></i>
+                  Employers
+                </a>
+              </li>
+
+            {% endif %}
+
+          </ul>
+
+
+          <!-- Profile card -->
+          <div class="sidebar-profile-card mx-3 my-2 text-center text-white">
+
+            <div class="profile-card-img-wrapper mb-2">
+
+              {% if user.profile_image %}
+                <img
+                  src="{{ user.profile_image.url }}"
+                  alt="{{ user.get_full_name|default:user.username }}"
+                  class="profile-card-img"
+                />
+              {% else %}
+                <div class="profile-card-avatar-fallback mx-auto">
+                  {{ user.username|slice:":2"|upper }}
+                </div>
+              {% endif %}
+
             </div>
 
+
+            <h6 class="mb-0 fw-bold fs-6 text-truncate">
+              {{ user.get_full_name|default:user.username }}
+            </h6>
+
+
+            <small
+              class="text-white-50 d-block mb-2 text-capitalize text-truncate"
+            >
+              {{ user.get_user_type_display }}
+
+              {% if user.is_student and user.profile.year_of_study %}
+                • Yr {{ user.profile.year_of_study }}
+              {% endif %}
+            </small>
+
+
+            <a
+              href="{% url 'accounts:profile' %}"
+              class="btn btn-sm btn-light-accent w-100 py-1 fw-semibold"
+            >
+              Open Profile
+            </a>
+
+          </div>
 
         </nav>
 
-        <!--MAIN CONTENT-->
+
+        <!-- MAIN CONTENT -->
         <div class="main-wrapper">
 
-            <!-- Top bar -->
-            <header class="topbar">
-                <div class="topbar-left">
-                    <span class="topbar-page-title">{% block page_title %}{% endblock %}</span>
-                </div>
-                <div class="topbar-right">
-                    <!-- Notifications bell -->
-                    <a href="{% url 'notifications:list' %}" class="topbar-icon-btn position-relative" title="Notifications">
-                        <i class="bi bi-bell"></i>
-                        {% if unread_notifications %}
-                        <span class="topbar-badge">{{ unread_notifications }}</span>
-                        {% endif %}
-                    </a>
+          <!-- Top bar -->
+          <header class="topbar">
 
-                    <!-- Avatar + name -->
-                    <a href="{% url 'accounts:profile' %}" class="topbar-user text-decoration-none">
-                        {% if user.profile_image %}
-                            <img src="{{ user.profile_image.url }}" alt="avatar" class="topbar-avatar">
-                        {% else %}
-                            <div class="topbar-avatar-fallback">{{ user.username|slice:":2"|upper }}</div>
-                        {% endif %}
-                        <div class="topbar-user-info d-none d-md-block">
-                            <span class="topbar-user-name">{{ user.get_full_name|default:user.username }}</span>
-                            <span class="topbar-user-role text-capitalize">{{ user.get_user_type_display }}</span>
-                        </div>
-                    </a>
+            <div class="topbar-left">
+              <span class="topbar-page-title">
+                {% block page_title %}{% endblock %}
+              </span>
+            </div>
 
-                    <!-- Logout -->
-                    <form action="{% url 'accounts:logout' %}" method="post">
-                        {% csrf_token %}
-                        <button type="submit" class="topbar-icon-btn" title="Logout">
-                            <i class="bi bi-box-arrow-right"></i>
-                        </button>
-                    </form>
 
-                </div>
-            </header>
+            <div class="topbar-right">
 
-            <main class="main-content">
-                {% if messages %}
-                <div class="messages-container mb-3">
-                    {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                    {% endfor %}
-                </div>
+              <!-- Notifications -->
+              <a
+                href="{% url 'notifications:list' %}"
+                class="topbar-icon-btn position-relative"
+                title="Notifications"
+              >
+                <i class="bi bi-bell"></i>
+
+                {% if unread_notifications %}
+                  <span class="topbar-badge">
+                    {{ unread_notifications }}
+                  </span>
+                {% endif %}
+              </a>
+
+
+              <!-- Avatar + name -->
+              <a
+                href="{% url 'accounts:profile' %}"
+                class="topbar-user text-decoration-none"
+              >
+
+                {% if user.profile_image %}
+
+                  <img
+                    src="{{ user.profile_image.url }}"
+                    alt="avatar"
+                    class="topbar-avatar"
+                  />
+
+                {% else %}
+
+                  <div class="topbar-avatar-fallback">
+                    {{ user.username|slice:":2"|upper }}
+                  </div>
+
                 {% endif %}
 
-                {% block content %}{% endblock %}
-            </main>
+
+                <div class="topbar-user-info d-none d-md-block">
+
+                  <span class="topbar-user-name">
+                    {{ user.get_full_name|default:user.username }}
+                  </span>
+
+                  <span class="topbar-user-role text-capitalize">
+                    {{ user.get_user_type_display }}
+                  </span>
+
+                </div>
+
+              </a>
+
+
+              <!-- Logout -->
+              <form action="{% url 'accounts:logout' %}" method="post">
+                {% csrf_token %}
+
+                <button
+                  type="submit"
+                  class="topbar-icon-btn"
+                  title="Logout"
+                >
+                  <i class="bi bi-box-arrow-right"></i>
+                </button>
+
+              </form>
+
+            </div>
+
+          </header>
+
+
+          <main class="main-content">
+
+            {% if messages %}
+
+              <div class="messages-container mb-3">
+
+                {% for message in messages %}
+
+                  <div
+                    class="alert alert-{{ message.tags }} alert-dismissible fade show"
+                    role="alert"
+                  >
+                    {{ message }}
+
+                    <button
+                      type="button"
+                      class="btn-close"
+                      data-bs-dismiss="alert"
+                      aria-label="Close"
+                    ></button>
+
+                  </div>
+
+                {% endfor %}
+
+              </div>
+
+            {% endif %}
+
+
+            {% block content %}
+            {% endblock %}
+
+          </main>
+
         </div>
 
-    </div>
+      </div>
 
-{% else %}
-    <!-- Guest navbar -->
-    <nav class="navbar navbar-dark" style="background-color: var(--brand-darkest);">
+
+    {% else %}
+
+      <!-- Guest navbar -->
+      <nav
+        class="navbar navbar-dark"
+        style="background-color: var(--brand-darkest)"
+      >
+
         <div class="container">
-            <a class="navbar-brand fw-bold" href="{% url 'core:landing' %}">
-                <i class="bi bi-lightning-charge-fill me-1" style="color: var(--brand-lightest);"></i>ConnectED
+
+          <a
+            class="navbar-brand fw-bold"
+            href="{% url 'core:landing' %}"
+          >
+            <i
+              class="bi bi-lightning-charge-fill me-1"
+              style="color: var(--brand-lightest)"
+            ></i>
+            ConnectED
+          </a>
+
+
+          <div>
+
+            <a
+              class="btn btn-outline-light btn-sm me-2"
+              href="{% url 'accounts:login' %}"
+            >
+              Login
             </a>
-            <div>
-                <a class="btn btn-outline-light btn-sm me-2" href="{% url 'accounts:login' %}">Login</a>
-                <a class="btn btn-light btn-sm" href="{% url 'accounts:register' %}">Register</a>
-            </div>
+
+            <a
+              class="btn btn-light btn-sm"
+              href="{% url 'accounts:register' %}"
+            >
+              Register
+            </a>
+
+          </div>
+
         </div>
-    </nav>
 
-    <div class="container mt-4">
+      </nav>
+
+
+      <div class="container mt-4">
+
         {% if messages %}
-            {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-            {% endfor %}
-        {% endif %}
-        {% block guest_content %}{% endblock %}
-    </div>
-{% endif %}
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="{% static 'js/main.js' %}"></script>
-</body>
+          {% for message in messages %}
+
+            <div
+              class="alert alert-{{ message.tags }} alert-dismissible fade show"
+              role="alert"
+            >
+              {{ message }}
+
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="alert"
+                aria-label="Close"
+              ></button>
+
+            </div>
+
+          {% endfor %}
+
+        {% endif %}
+
+
+        {% block guest_content %}
+        {% endblock %}
+
+      </div>
+
+    {% endif %}
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="{% static 'js/main.js' %}"></script>
+
+  </body>
 </html>

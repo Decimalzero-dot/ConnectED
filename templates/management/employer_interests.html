@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block title %}Employer Interests — ConnectED{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Employer Interests</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Company</th>
+            <th>Student</th>
+            <th>Opportunity</th>
+            <th>Message</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for interest in interests %}
+        <tr>
+            <td>
+                {{ interest.employer.employer_profile.company_name }}<br>
+                <small class="text-muted">
+                    {{ interest.employer.employer_profile.company_email }}
+                </small>
+            </td>
+            <td>
+                {{ interest.student.username }}<br>
+                <small class="text-muted">
+                    {{ interest.student.profile.university.name }}
+                </small>
+            </td>
+            <td>{{ interest.get_job_type_display }}</td>
+            <td>{{ interest.message|truncatewords:15 }}</td>
+            <td>
+                {% if interest.status == 'forwarded' %}
+                    <span class="badge bg-success">Forwarded</span>
+                {% elif interest.status == 'closed' %}
+                    <span class="badge bg-secondary">Closed</span>
+                {% else %}
+                    <span class="badge bg-warning text-dark">Pending</span>
+                {% endif %}
+            </td>
+            <td>
+                {% if interest.status == 'pending' %}
+                <form method="post" class="d-inline">
+                    {% csrf_token %}
+                    <input type="hidden" name="interest_id" value="{{ interest.pk }}">
+                    <button type="submit" class="btn btn-sm btn-primary">
+                        Forward to Student
+                    </button>
+                </form>
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="6" class="text-muted text-center">
+                No employer interests yet.
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

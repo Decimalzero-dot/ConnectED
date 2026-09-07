@@ -9,30 +9,28 @@ from accounts.models import Profile
 
 
 @login_required
-def onboarding_view(request):
-    profile = request.user.profile
-
-    if profile.onboarding_complete:
-        return redirect('dashboard:home')
-
-    if request.method == 'POST':
-        form = OnboardingForm(request.POST, instance=profile)
-        if form.is_valid():
-            profile = form.save(commit=False)
-            profile.onboarding_complete = True
-            profile.save()
-            messages.success(request, 'Welcome to ConnectED!')
-            return redirect('dashboard:home')
-    else:
-        form = OnboardingForm(instance=profile)
-
-    return render(request, 'dashboard/onboarding.html', {'form': form})
-
-
-@login_required
 def home_view(request):
-    profile = request.user.profile
+    user = request.user
 
+    # Employers go to their own dashboard
+    if user.user_type == 'employer':
+        return redirect('dashboard:employer_home')
+
+    # Campus/super admins skip onboarding
+    if user.user_type in ('campus_admin', 'super_admin'):
+        profile, _ = Profile.objects.get_or_create(user=user)
+        context = {
+            'profile': profile,
+            'university': profile.university,
+            'year_of_study': 'Admin',
+            'discipline': 'Platform Administration',
+            'access_level': 'admin',
+            'message': 'Manage your campus from the Admin Panel.',
+        }
+        return render(request, 'dashboard/home.html', context)
+
+    # Students
+    profile, _ = Profile.objects.get_or_create(user=user)
     if not profile.onboarding_complete:
         return redirect('dashboard:onboarding')
 
@@ -98,6 +96,11 @@ def home_stats_api(request):
 
 @login_required
 def leaderboard_view(request):
+    user = request.user
+    profile = None
+
+    if user.user_type == 'employer':
+        return employer_leaderboard_view(request)
     profile = request.user.profile
 
     passed_submissions = Submission.objects.filter(status='passed')
@@ -167,3 +170,88 @@ def leaderboard_view(request):
             ],
     }
     return render(request, 'dashboard/leaderboard.html', context)
+
+@login_required
+def onboarding_view(request):
+    user = request.user
+
+    # Employers don't do student onboarding
+    if user.user_type == 'employer':
+        return redirect('dashboard:employer_home')
+
+    # Admins don't do onboarding either
+    if user.user_type in ('campus_admin', 'super_admin'):
+        return redirect('dashboard:home')
+
+    profile, _ = Profile.objects.get_or_create(user=user)
+
+    if profile.onboarding_complete:
+        return redirect('dashboard:home')
+
+    if request.method == 'POST':
+        form = OnboardingForm(request.POST, instance=profile)
+        if form.is_valid():
+            profile = form.save(commit=False)
+            profile.onboarding_complete = True
+            profile.save()
+            messages.success(request, 'Welcome to ConnectED!')
+            return redirect('dashboard:home')
+    else:
+        form = OnboardingForm(instance=profile)
+
+    return render(request, 'dashboard/onboarding.html', {
+        'form': form,
+        'user': user,
+    })
+
+def employer_leaderboard_view(request):
+    from challenges.models import Submission
+    from accounts.models import Profile
+
+    # Employers see top students across all universities
+    passed_submissions = Submission.objects.filter(status='passed')
+
+    leaderboard = (
+        passed_submissions
+        .select_related('student__profile', 'student__profile__university', 'challenge')
+        .values(
+            'student__id',
+            'student__username',
+            'student__profile__university__name',
+            'student__profile__discipline',
+            'student__profile__year_of_study',
+            'student__profile__github_username',
+        )
+        .annotate(
+            total_points=Sum('challenge__points'),
+            challenges_completed=Count('id')
+        )
+        .order_by('-total_points')
+    )
+
+    return render(request, 'dashboard/employer_leaderboard.html', {
+        'leaderboard': leaderboard,
+    })
+
+@login_required
+def employer_home(request):
+    if request.user.user_type != 'employer':
+        return redirect('dashboard:home')
+
+    try:
+        employer_profile = request.user.employer_profile
+    except Exception:
+        return redirect('dashboard:home')
+
+    from challenges.models import EmployerInterest
+    interests_sent = EmployerInterest.objects.filter(
+        employer=request.user
+    ).select_related('student__profile')
+
+    context = {
+        'employer_profile': employer_profile,
+        'interests_sent': interests_sent,
+        'total_interests': interests_sent.count(),
+        'forwarded': interests_sent.filter(status='forwarded').count(),
+    }
+    return render(request, 'dashboard/employer_home.html', context)

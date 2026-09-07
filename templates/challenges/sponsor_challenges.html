@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}Sponsor Challenges — ConnectED{% endblock %}
+
+{% block content %}
+<h2 class="fw-bold mb-2">Sponsor a Challenge</h2>
+<p class="text-muted mb-4">
+    Partner with ConnectED to fund discipline-specific challenges.
+    Your company brand appears on the challenge, and you get first
+    access to top performers.
+</p>
+
+<div class="card border-0 shadow-sm p-4 mb-4">
+    <h5 class="fw-bold">How Sponsorship Works</h5>
+    <ol class="mt-3">
+        <li class="mb-2">Browse existing challenges or propose a new one</li>
+        <li class="mb-2">Contact us with your sponsorship interest</li>
+        <li class="mb-2">Your brand appears on the challenge</li>
+        <li>Top performers are flagged to your team first</li>
+    </ol>
+    <a href="mailto:{{ settings.DEFAULT_FROM_EMAIL }}"
+       class="btn btn-primary mt-3">
+        Contact Us to Sponsor
+    </a>
+</div>
+
+<h5 class="mb-3">Current Active Challenges</h5>
+<div class="row">
+    {% for challenge in challenges %}
+    <div class="col-md-6 mb-3">
+        <div class="card h-100 p-3">
+            <h6 class="fw-bold">{{ challenge.title }}</h6>
+            <p class="text-muted small mb-1">
+                {{ challenge.get_discipline_display }} &middot;
+                {{ challenge.get_difficulty_display }} &middot;
+                {{ challenge.points }} pts
+            </p>
+            <p class="small">{{ challenge.description|truncatewords:15|linebreaksbr }}</p>
+        </div>
+    </div>
+    {% empty %}
+    <p class="text-muted">No active challenges yet.</p>
+    {% endfor %}
+</div>
+{% endblock %}

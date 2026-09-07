@@ -69,3 +69,41 @@ class Submission(models.Model):
     def __str__(self):
         return f"{self.student.username} → {self.challenge.title} ({self.status})"
     
+class EmployerInterest(models.Model):
+    JOB_TYPE_CHOICES = (
+        ('internship', 'Internship'),
+        ('attachment', 'Industrial Attachment'),
+        ('part_time', 'Part Time'),
+        ('full_time', 'Full Time'),
+        ('contract', 'Contract'),
+    )
+
+    employer = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='interests_sent'
+    )
+    student = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='interests_received'
+    )
+    job_type = models.CharField(max_length=20, choices=JOB_TYPE_CHOICES)
+    message = models.TextField()
+    status = models.CharField(
+        max_length=20,
+        choices=(
+            ('pending', 'Pending'),
+            ('forwarded', 'Forwarded to Student'),
+            ('closed', 'Closed'),
+        ),
+        default='pending'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        unique_together = ['employer', 'student']
+
+    def __str__(self):
+        return f"{self.employer.employer_profile.company_name} → {self.student.username}"

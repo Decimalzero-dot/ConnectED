@@ -15,9 +15,21 @@
                         <a class="settings-nav-link {% if active_tab == 'account' %}active{% endif %}" data-tab="account" href="?tab=account">
                             <i class="bi bi-person-circle settings-nav-icon"></i>Account
                         </a>
-                        <a class="settings-nav-link {% if active_tab == 'academic' %}active{% endif %}" data-tab="academic" href="?tab=academic">
+                        {% if user.user_type == 'student' %}
+                        <a href="#academic" class="list-group-item list-group-item-action {% if active_tab == 'academic' %}active{% endif %}" data-tab="academic">
                             <i class="bi bi-mortarboard settings-nav-icon"></i>Academic Info
                         </a>
+                        {% endif %}
+                        {% if user.user_type == 'student' %}
+                        <div class="tab-section {% if active_tab != 'academic' %}d-none{% endif %}" id="tab-academic">
+                            ... academic form ...
+                        </div>
+                        {% endif %}
+                        {% if user.user_type == 'employer' %}
+                        <a href="#employer" class="list-group-item list-group-item-action {% if active_tab == 'employer' %}active{% endif %}" data-tab="employer">
+                            <i class="bi bi-building settings-nav-icon"></i>Company Info
+                        </a>
+                        {% endif %}   
                         <a class="settings-nav-link {% if active_tab == 'security' %}active{% endif %}" data-tab="security" href="?tab=security">
                             <i class="bi bi-shield-lock settings-nav-icon"></i>Security
                         </a>
@@ -108,6 +120,35 @@
                     </div>
                 </div>
             </div>
+
+            {% if user.user_type == 'employer' %}
+            <div class="tab-section {% if active_tab != 'employer' %}d-none{% endif %}" id="tab-employer">
+                <div class="card border-0 shadow-sm p-4">
+                    <h5 class="fw-bold mb-4">Company Information</h5>
+                    <p class="text-muted small mb-3">
+                        To update your company details contact the platform admin.
+                    </p>
+                    <div class="mb-2"><strong>Company:</strong> {{ user.employer_profile.company_name }}</div>
+                    <div class="mb-2"><strong>Email:</strong> {{ user.employer_profile.company_email }}</div>
+                    <div class="mb-2"><strong>Industry:</strong> {{ user.employer_profile.industry|default:"Not set" }}</div>
+                    <div class="mb-2"><strong>Website:</strong>
+                        {% if user.employer_profile.company_website %}
+                            <a href="{{ user.employer_profile.company_website }}" target="_blank">
+                                {{ user.employer_profile.company_website }}
+                            </a>
+                        {% else %}Not set{% endif %}
+                    </div>
+                    <div class="mt-3">
+                        <strong>Verification Status:</strong>
+                        {% if user.employer_profile.is_verified %}
+                            <span class="badge bg-success">Verified</span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark">Pending Verification</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
 
             <!-- SECURITY -->
             <div class="tab-section {% if active_tab != 'security' %}d-none{% endif %}" id="tab-security">

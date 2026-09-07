@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}Employers — ConnectED{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">Employer Accounts</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Company</th>
+            <th>Contact Email</th>
+            <th>Industry</th>
+            <th>Website</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for emp in employers %}
+        <tr>
+            <td>{{ emp.company_name }}</td>
+            <td>{{ emp.company_email }}</td>
+            <td>{{ emp.industry|default:"—" }}</td>
+            <td>
+                {% if emp.company_website %}
+                    <a href="{{ emp.company_website }}" target="_blank">Visit</a>
+                {% else %}—{% endif %}
+            </td>
+            <td>
+                {% if emp.is_verified %}
+                    <span class="badge bg-success">Verified</span>
+                {% else %}
+                    <span class="badge bg-warning text-dark">Pending</span>
+                {% endif %}
+            </td>
+            <td>
+                {% if not emp.is_verified %}
+                <form method="post" action="{% url 'management:verify_employer' emp.pk %}"
+                      class="d-inline">
+                    {% csrf_token %}
+                    <button name="action" value="verify"
+                            class="btn btn-sm btn-success">Verify</button>
+                    <button name="action" value="reject"
+                            class="btn btn-sm btn-danger">Reject</button>
+                </form>
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="text-muted">No employer accounts yet.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

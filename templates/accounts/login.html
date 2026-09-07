@@ -1,53 +1,148 @@
 {% extends 'base.html' %}
-{% block title %}Login - ConnectED{% endblock %}
+{% block title %}Login — ConnectED{% endblock %}
 
 {% block guest_content %}
 <div class="auth-page-bg">
-    <div class="auth-split-card d-md-flex">
-        <div class="auth-panel-left col-md-6 p-0 position-relative d-none d-md-block overflow-hidden">
-            <img src="/media/2118156-1200x2250-samsung-hd-tech-background-photo.webp" alt="ConnectED Auth Graphic" class="w-100 h-100" style="object-fit: cover; object-position: center;">
-            
-            <div class="position-absolute top-0 start-0 m-4 px-3 py-1 rounded shadow-sm text-white fw-bold" style="background: rgba(0, 71, 86, 0.85); backdrop-filter: blur(4px); letter-spacing: 0.5px;">
-                ConnectED
+    <div class="auth-split-card">
+
+        <!-- Left panel -->
+        <div class="auth-panel-left position-relative overflow-hidden">
+            <img
+                src="https://images.unsplash.com/photo-1531482615713-2afd69097998?w=1200&auto=format&fit=crop&q=80"
+                alt="Students collaborating"
+                style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center;">
+            <div style="position:absolute; inset:0; background: linear-gradient(135deg, rgba(0,71,86,0.82) 0%, rgba(0,106,122,0.62) 100%);"></div>
+            <div class="position-relative d-flex flex-column justify-content-between h-100 p-5 text-white">
+                <span class="fw-bold fs-5">
+                    <i class="bi bi-lightning-charge-fill me-1" style="color:var(--brand-lightest);"></i>ConnectED
+                </span>
+                <div>
+                    <h2 class="fw-bold mb-2" style="font-size:2rem; line-height:1.2;">
+                        Welcome back.<br>Keep building.
+                    </h2>
+                    <p class="text-white-50 mb-0" style="font-size:0.9rem;">
+                        Your leaderboard position, challenges, and portfolio are waiting.
+                    </p>
+                </div>
             </div>
         </div>
-        
-        <div class="auth-panel-right col-md-6">
-            <h2 class="auth-form-title">Welcome Back</h2>
-            <p class="text-muted mb-4">Log in to check your latest rank and active challenges.</p>
-            
+
+        <!-- Right panel -->
+        <div class="auth-panel-right">
+            <h2 class="auth-form-title">Sign in</h2>
+            <p class="text-muted mb-4" style="font-size:0.88rem;">Enter your credentials to access your dashboard.</p>
+
+            <!-- Error messages -->
+            {% if messages %}
+            {% for message in messages %}
+            <div class="auth-alert auth-alert-{{ message.tags }} mb-4">
+                <i class="bi bi-exclamation-circle-fill me-2"></i>{{ message }}
+            </div>
+            {% endfor %}
+            {% endif %}
+
             <form method="post" novalidate>
                 {% csrf_token %}
-                {% for field in form %}
-                    <div class="mb-3">
-                        <label class="form-label">{{ field.label }}</label>
-                        <div class="custom-field-wrapper">
-                            {{ field }}
-                        </div>
-                        {% if field.errors %}
-                            <div class="text-danger small mt-1">{{ field.errors|striptags }}</div>
-                        {% endif %}
-                    </div>
-                {% endfor %}
-                
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <a href="{% url 'accounts:password_reset' %}" class="small text-decoration-none" style="color: var(--brand-primary);">Forgot password?</a>
+
+                <div class="mb-3">
+                    <label class="form-label">Username</label>
+                    {{ form.username }}
+                    {% if form.username.errors %}
+                    <div class="auth-field-error">{{ form.username.errors|striptags }}</div>
+                    {% endif %}
                 </div>
 
-                <button type="submit" class="btn btn-primary w-100 py-2 fs-6">Sign In</button>
+                <div class="mb-4">
+                    <label class="form-label">Password</label>
+                    <div class="password-wrapper">
+                        {{ form.password }}
+                        <button type="button" class="password-toggle" tabindex="-1" aria-label="Toggle password visibility">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
+                    {% if form.password.errors %}
+                    <div class="auth-field-error">{{ form.password.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold text-white mb-3" style="border-radius:8px; font-size:0.95rem;">
+                    Sign In <i class="bi bi-arrow-right ms-1"></i>
+                </button>
+
+                <p class="text-center text-muted small mb-0">
+                    Don't have an account?
+                    <a href="{% url 'accounts:register' %}" class="fw-semibold" style="color:var(--brand-primary);">Create one</a>
+                </p><br>
+                <p class="text-muted small mt-3">
+    <a href="{% url 'accounts:employer_register' %}">Register as employer</a>
+</p>
             </form>
-            
-            <p class="mt-4 text-center text-muted small">
-                Don't have an account? <a href="{% url 'accounts:register' %}" class="fw-bold text-decoration-none" style="color: var(--brand-primary);">Register here</a>
-            </p>
         </div>
     </div>
 </div>
 
+<style>
+.auth-alert {
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+.auth-alert-error, .auth-alert-danger {
+    background: #fef2f2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+}
+.auth-alert-success {
+    background: #f0fdf4;
+    color: #16a34a;
+    border: 1px solid #bbf7d0;
+}
+.auth-alert-warning {
+    background: #fffbeb;
+    color: #d97706;
+    border: 1px solid #fde68a;
+}
+.auth-field-error {
+    color: #dc2626;
+    font-size: 0.78rem;
+    margin-top: 0.3rem;
+    font-weight: 500;
+}
+.password-wrapper {
+    position: relative;
+}
+.password-wrapper input {
+    padding-right: 2.75rem;
+}
+.password-toggle {
+    position: absolute;
+    top: 50%; right: 0.75rem;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #888;
+    cursor: pointer;
+    padding: 0;
+    font-size: 1rem;
+    line-height: 1;
+}
+.password-toggle:hover { color: var(--brand-primary); }
+</style>
+
 <script>
-    // Injects raw styling classes securely into your autogenerated fields directly
-    document.querySelectorAll('.custom-field-wrapper input').forEach(input => {
-        input.classList.add('form-control');
+document.querySelectorAll('.password-toggle').forEach(btn => {
+    btn.addEventListener('click', function () {
+        const input = this.closest('.password-wrapper').querySelector('input');
+        const icon  = this.querySelector('i');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.replace('bi-eye', 'bi-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.replace('bi-eye-slash', 'bi-eye');
+        }
     });
+});
 </script>
 {% endblock %}

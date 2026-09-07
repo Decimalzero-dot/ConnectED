@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block title %}Student Leaderboard — ConnectED{% endblock %}
+
+{% block content %}
+<h2 class="fw-bold mb-2">Top Students</h2>
+<p class="text-muted mb-4">
+    Discover verified talent from Kenyan universities.
+    Click "Express Interest" to connect with a student through their university.
+</p>
+
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>Rank</th>
+            <th>Student</th>
+            <th>University</th>
+            <th>Discipline</th>
+            <th>Year</th>
+            <th>GitHub</th>
+            <th>Points</th>
+            <th>Completed</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for entry in leaderboard %}
+        <tr>
+            <td>
+                {% if forloop.counter == 1 %}🥇
+                {% elif forloop.counter == 2 %}🥈
+                {% elif forloop.counter == 3 %}🥉
+                {% else %}{{ forloop.counter }}{% endif %}
+            </td>
+            <td>{{ entry.student__username }}</td>
+            <td>{{ entry.student__profile__university__name|default:"—" }}</td>
+            <td>{{ entry.student__profile__discipline|default:"—" }}</td>
+            <td>{{ entry.student__profile__year_of_study|default:"—" }}</td>
+            <td>
+                {% if entry.student__profile__github_username %}
+                    <a href="https://github.com/{{ entry.student__profile__github_username }}"
+                       target="_blank">
+                        @{{ entry.student__profile__github_username }}
+                    </a>
+                {% else %}—{% endif %}
+            </td>
+            <td><strong>{{ entry.total_points }}</strong></td>
+            <td>{{ entry.challenges_completed }}</td>
+            <td>
+                <a href="{% url 'challenges:express_interest' entry.student__id %}"
+                   class="btn btn-sm btn-outline-primary">
+                    Express Interest
+                </a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="9" class="text-muted text-center">
+                No student data yet.
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

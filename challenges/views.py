@@ -3,8 +3,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 # Create your views here.
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
-from .models import Challenge, Submission
-from .forms import SubmissionForm
+from .models import Challenge, Submission, EmployerInterest
+from .forms import SubmissionForm, ChallengeForm, EmployerInterestForm
 from django.utils import timezone
 from notifications.models import Notification
 from django.core.mail import send_mail
@@ -127,3 +127,102 @@ def review_submission(request, pk):
             return redirect('challenges:review_queue')
 
     return render(request, 'challenges/review_submission.html', {'submission': submission})
+
+
+def is_verified_employer(user):
+    return (
+        user.is_authenticated and
+        user.user_type == 'employer' and
+        hasattr(user, 'employer_profile') and
+        user.employer_profile.is_verified
+    )
+
+
+@login_required
+@user_passes_test(is_verified_employer)
+def express_interest(request, student_id):
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+
+    student = get_object_or_404(User, pk=student_id, user_type='student')
+
+    # Check if already expressed interest
+    existing = EmployerInterest.objects.filter(
+        employer=request.user,
+        student=student
+    ).first()
+
+    if existing:
+        messages.info(request, 'You have already expressed interest in this student.')
+        return redirect('dashboard:leaderboard')
+
+    if request.method == 'POST':
+        form = EmployerInterestForm(request.POST)
+        if form.is_valid():
+            interest = form.save(commit=False)
+            interest.employer = request.user
+            interest.student = student
+            interest.save()
+
+            # Notify campus admin via email
+            campus_admins = User.objects.filter(
+                user_type='campus_admin',
+                profile__university=student.profile.university
+            ).select_related('profile')
+
+            admin_emails = [a.email for a in campus_admins if a.email]
+
+            if admin_emails:
+                send_mail(
+                    subject=f'ConnectED — Employer Interest in {student.username}',
+                    message=(
+                        f'An employer has expressed interest in one of your students.\n\n'
+                        f'Student: {student.username} ({student.email})\n'
+                        f'Company: {request.user.employer_profile.company_name}\n'
+                        f'Contact: {request.user.employer_profile.company_email}\n'
+                        f'Opportunity type: {interest.get_job_type_display()}\n\n'
+                        f'Message:\n{interest.message}\n\n'
+                        f'Please facilitate the introduction via ConnectED admin panel.'
+                    ),
+                    from_email=django_settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=admin_emails,
+                    fail_silently=True,
+                )
+
+            # In-platform notification to campus admin
+            from notifications.models import Notification
+            for admin in campus_admins:
+                Notification.objects.create(
+                    recipient=admin,
+                    message=(
+                        f'{request.user.employer_profile.company_name} expressed '
+                        f'interest in {student.username} '
+                        f'({interest.get_job_type_display()})'
+                    ),
+                    notification_type='general',
+                    link=f'/management/employer-interests/'
+                )
+
+            messages.success(
+                request,
+                'Interest submitted. The university will facilitate the introduction.'
+            )
+            return redirect('dashboard:public_leaderboard')
+    else:
+        form = EmployerInterestForm()
+
+    return render(request, 'challenges/express_interest.html', {
+        'form': form,
+        'student': student,
+    })
+@login_required
+def sponsor_challenge_view(request):
+    if request.user.user_type != 'employer':
+        messages.error(request, 'Only employers can sponsor challenges.')
+        return redirect('dashboard:home')
+
+    # For now show existing active challenges with a sponsorship CTA
+    challenges = Challenge.objects.filter(is_active=True)
+    return render(request, 'challenges/sponsor_challenges.html', {
+        'challenges': challenges,
+    })

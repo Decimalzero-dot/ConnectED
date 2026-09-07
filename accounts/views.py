@@ -7,7 +7,7 @@ from django.urls import reverse_lazy, reverse
 from django.db import IntegrityError
 from django_ratelimit.decorators import ratelimit
 from .models import User, Profile
-from .forms import UserRegistrationForm, UserLoginForm, StudentProfileForm, AdminProfileForm
+from .forms import UserRegistrationForm, UserLoginForm, StudentProfileForm, AdminProfileForm, EmployerRegistrationForm
 from .settings_forms import (
     AccountSettingsForm, AcademicSettingsForm,
     AppearanceSettingsForm, NotificationSettingsForm,
@@ -183,3 +183,54 @@ def settings_view(request):
         'profile': profile,
     }
     return render(request, 'accounts/settings.html', context)
+
+def employer_register_view(request):
+    if request.user.is_authenticated:
+        return redirect('dashboard:home')
+
+    if request.method == 'POST':
+        form = EmployerRegistrationForm(request.POST)
+        if form.is_valid():
+            try:
+                user = form.save(commit=False)
+                user.user_type = 'employer'
+                user.save()
+
+                # Create employer profile
+                from .models import EmployerProfile
+                EmployerProfile.objects.create(
+                    user=user,
+                    company_name=form.cleaned_data['company_name'],
+                    company_email=form.cleaned_data['email'],
+                    company_website=form.cleaned_data.get('company_website', ''),
+                    industry=form.cleaned_data.get('industry', ''),
+                    is_verified=False
+                )
+                messages.success(
+                    request,
+                    'Account created. Please wait for admin verification '
+                    'before you can access the platform.'
+                )
+                return redirect('accounts:login')
+            except IntegrityError:
+                form.add_error('username', 'That username is already taken.')
+        messages.error(request, 'Please correct the errors below.')
+        if user is not None:
+            # Block unverified employers
+            if user.user_type == 'employer':
+                try:
+                    if not user.employer_profile.is_verified:
+                        messages.error(
+                            request,
+                            'Your employer account is pending verification. '
+                            'You will be notified once approved.'
+                        )
+                        return render(request, 'accounts/login.html', {'form': form})
+                except Exception:
+                    pass
+            login(request, user)
+            return redirect('dashboard:home')
+    else:
+        form = EmployerRegistrationForm()
+
+    return render(request, 'accounts/employer_register.html', {'form': form})

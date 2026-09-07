@@ -237,3 +237,71 @@ def change_user_role(request, pk):
         return redirect('management:all_students')
 
     return render(request, 'management/change_role.html', {'target_user': target_user})
+
+@login_required
+@super_admin_required
+def employer_list(request):
+    from accounts.models import EmployerProfile
+    employers = EmployerProfile.objects.select_related('user').all()
+    return render(request, 'management/employer_list.html', {'employers': employers})
+
+
+@login_required
+@super_admin_required
+def verify_employer(request, pk):
+    from accounts.models import EmployerProfile
+    employer_profile = get_object_or_404(EmployerProfile, pk=pk)
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'verify':
+            employer_profile.is_verified = True
+            employer_profile.save()
+            messages.success(
+                request,
+                f'{employer_profile.company_name} verified successfully.'
+            )
+        elif action == 'reject':
+            employer_profile.user.delete()
+            messages.success(request, 'Employer account rejected and removed.')
+            return redirect('management:employer_list')
+
+    return redirect('management:employer_list')
+
+
+@login_required
+@admin_required
+def employer_interests(request):
+    from challenges.models import EmployerInterest
+    if request.user.user_type == 'super_admin':
+        interests = EmployerInterest.objects.select_related(
+            'employer__employer_profile', 'student__profile'
+        ).all()
+    else:
+        interests = EmployerInterest.objects.filter(
+            student__profile__university=request.user.profile.university
+        ).select_related('employer__employer_profile', 'student__profile')
+
+    if request.method == 'POST':
+        interest_id = request.POST.get('interest_id')
+        from challenges.models import EmployerInterest
+        interest = get_object_or_404(EmployerInterest, pk=interest_id)
+        interest.status = 'forwarded'
+        interest.save()
+
+        # Notify student
+        from notifications.models import Notification
+        Notification.objects.create(
+            recipient=interest.student,
+            message=(
+                f'{interest.employer.employer_profile.company_name} has expressed '
+                f'interest in you for a {interest.get_job_type_display()} opportunity. '
+                f'Your campus admin will be in touch.'
+            ),
+            notification_type='general',
+            link='/accounts/profile/'
+        )
+        messages.success(request, 'Interest forwarded to student.')
+        return redirect('management:employer_interests')
+
+    return render(request, 'management/employer_interests.html', {'interests': interests})

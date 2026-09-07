@@ -5,7 +5,9 @@
 {% block content %}
 <div class="container-fluid px-0">
 
-    <!--YOUR RANK BANNER -->
+    <!-- =====================================================================
+         YOUR RANK BANNER
+    ====================================================================== -->
     <div class="row g-3 mb-3">
 
         <div class="col-md-4">
@@ -40,8 +42,6 @@
                         {% endif %}
 
                         <div class="d-flex flex-wrap gap-2 mb-3">
-                            {% for value, label in scope_choices %}
-                            {% endfor %}
                             <a href="?scope=campus" class="scope-pill {% if scope == 'campus' %}active{% endif %}">
                                 <i class="bi bi-building me-1"></i>My Campus
                             </a>
@@ -86,101 +86,81 @@
         </div>
     </div>
 
-    <!--PODIUM — Top 3 -->
+    <!-- =====================================================================
+         TOP 3 — Clean list
+    ====================================================================== -->
     {% if leaderboard %}
-    <div class="card mb-3" style="border-radius:14px;">
-        <div class="card-body p-4">
-            <p class="text-muted fw-semibold text-uppercase mb-3" style="font-size:0.7rem; letter-spacing:0.5px;">
+    <div class="card mb-3" style="border-radius:14px; overflow:hidden;">
+        <div class="px-4 pt-4 pb-2">
+            <p class="text-muted fw-semibold text-uppercase mb-0" style="font-size:0.7rem; letter-spacing:0.5px;">
                 <i class="bi bi-trophy me-1" style="color:#d97706;"></i>Top Performers
             </p>
-            <div class="row g-3 justify-content-center align-items-end">
-
-                <!-- 2nd place -->
-                {% if leaderboard|length >= 2 %}
-                {% with entry=leaderboard.1 %}
-                <div class="col-md-3 col-4">
-                    <div class="podium-card podium-2nd"
-                         data-bs-toggle="modal" data-bs-target="#studentModal"
-                         data-username="{{ entry.student__username }}"
-                         data-university="{{ entry.student__profile__university__name|default:'—' }}"
-                         data-discipline="{{ entry.student__profile__discipline|default:'—' }}"
-                         data-year="{{ entry.student__profile__year_of_study|default:'—' }}"
-                         data-github="{{ entry.student__profile__github_username|default:'' }}"
-                         data-points="{{ entry.total_points }}"
-                         data-challenges="{{ entry.challenges_completed }}"
-                         style="cursor:pointer;">
-                        <div class="podium-rank-badge" style="background:#94a3b8; color:white;">2</div>
-                        <div class="podium-avatar" style="border-color:#94a3b8;">
-                            {{ entry.student__username|slice:":2"|upper }}
-                        </div>
-                        <p class="podium-name">{{ entry.student__username }}</p>
-                        <p class="podium-points">{{ entry.total_points }} pts</p>
-                        <p class="podium-challenges">{{ entry.challenges_completed }} done</p>
-                        <div class="podium-bar podium-bar-2nd"></div>
-                    </div>
-                </div>
-                {% endwith %}
-                {% endif %}
-
-                <!-- 1st place -->
-                {% with entry=leaderboard.0 %}
-                <div class="col-md-3 col-4">
-                    <div class="podium-card podium-1st"
-                         data-bs-toggle="modal" data-bs-target="#studentModal"
-                         data-username="{{ entry.student__username }}"
-                         data-university="{{ entry.student__profile__university__name|default:'—' }}"
-                         data-discipline="{{ entry.student__profile__discipline|default:'—' }}"
-                         data-year="{{ entry.student__profile__year_of_study|default:'—' }}"
-                         data-github="{{ entry.student__profile__github_username|default:'' }}"
-                         data-points="{{ entry.total_points }}"
-                         data-challenges="{{ entry.challenges_completed }}"
-                         style="cursor:pointer;">
-                        <div class="podium-crown"><i class="bi bi-crown-fill"></i></div>
-                        <div class="podium-rank-badge" style="background:#d97706; color:white;">1</div>
-                        <div class="podium-avatar podium-avatar-1st" style="border-color:#d97706;">
-                            {{ entry.student__username|slice:":2"|upper }}
-                        </div>
-                        <p class="podium-name fw-bold">{{ entry.student__username }}</p>
-                        <p class="podium-points" style="color:var(--brand-primary); font-size:1.1rem;">{{ entry.total_points }} pts</p>
-                        <p class="podium-challenges">{{ entry.challenges_completed }} done</p>
-                        <div class="podium-bar podium-bar-1st"></div>
-                    </div>
-                </div>
-                {% endwith %}
-
-                <!-- 3rd place -->
-                {% if leaderboard|length >= 3 %}
-                {% with entry=leaderboard.2 %}
-                <div class="col-md-3 col-4">
-                    <div class="podium-card podium-3rd"
-                         data-bs-toggle="modal" data-bs-target="#studentModal"
-                         data-username="{{ entry.student__username }}"
-                         data-university="{{ entry.student__profile__university__name|default:'—' }}"
-                         data-discipline="{{ entry.student__profile__discipline|default:'—' }}"
-                         data-year="{{ entry.student__profile__year_of_study|default:'—' }}"
-                         data-github="{{ entry.student__profile__github_username|default:'' }}"
-                         data-points="{{ entry.total_points }}"
-                         data-challenges="{{ entry.challenges_completed }}"
-                         style="cursor:pointer;">
-                        <div class="podium-rank-badge" style="background:#b45309; color:white;">3</div>
-                        <div class="podium-avatar" style="border-color:#b45309;">
-                            {{ entry.student__username|slice:":2"|upper }}
-                        </div>
-                        <p class="podium-name">{{ entry.student__username }}</p>
-                        <p class="podium-points">{{ entry.total_points }} pts</p>
-                        <p class="podium-challenges">{{ entry.challenges_completed }} done</p>
-                        <div class="podium-bar podium-bar-3rd"></div>
-                    </div>
-                </div>
-                {% endwith %}
-                {% endif %}
-
-            </div>
         </div>
+        {% for entry in leaderboard %}
+        {% if forloop.counter <= 3 %}
+        <div class="top3-row {% if entry.student__username == user.username %}top3-you{% endif %}"
+             data-bs-toggle="modal" data-bs-target="#studentModal"
+             data-username="{{ entry.student__username }}"
+             data-university="{{ entry.student__profile__university__name|default:'—' }}"
+             data-discipline="{{ entry.student__profile__discipline|default:'—' }}"
+             data-year="{{ entry.student__profile__year_of_study|default:'—' }}"
+             data-github="{{ entry.student__profile__github_username|default:'' }}"
+             data-points="{{ entry.total_points }}"
+             data-challenges="{{ entry.challenges_completed }}"
+             style="cursor:pointer;">
+
+            <!-- Rank indicator -->
+            <div class="top3-rank">
+                {% if forloop.counter == 1 %}
+                    <span class="top3-rank-badge" style="background:#fef3c7; color:#92400e;">
+                        <i class="bi bi-trophy-fill" style="color:#d97706;"></i>
+                    </span>
+                {% elif forloop.counter == 2 %}
+                    <span class="top3-rank-badge" style="background:#f1f5f9; color:#475569;">
+                        <i class="bi bi-trophy"></i>
+                    </span>
+                {% else %}
+                    <span class="top3-rank-badge" style="background:#fdf2e9; color:#92400e;">
+                        <i class="bi bi-trophy" style="color:#b45309;"></i>
+                    </span>
+                {% endif %}
+                <span class="top3-rank-num">{{ forloop.counter }}</span>
+            </div>
+
+            <!-- Avatar + name -->
+            <div class="top3-avatar">{{ entry.student__username|slice:":2"|upper }}</div>
+            <div class="flex-grow-1 min-w-0">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="fw-semibold text-dark" style="font-size:0.9rem;">{{ entry.student__username }}</span>
+                    {% if entry.student__username == user.username %}
+                    <span class="badge px-2 text-white" style="font-size:0.6rem; background:var(--brand-darkest); border-radius:4px;">You</span>
+                    {% endif %}
+                </div>
+                {% if entry.student__profile__github_username %}
+                <small class="text-muted" style="font-size:0.72rem;">
+                    <i class="bi bi-github me-1"></i>{{ entry.student__profile__github_username }}
+                </small>
+                {% endif %}
+            </div>
+
+            <!-- Stats -->
+            <div class="top3-stats">
+                <span class="top3-stat-item">
+                    <i class="bi bi-check2-circle me-1" style="color:var(--brand-secondary);"></i>
+                    {{ entry.challenges_completed }} done
+                </span>
+                <span class="top3-pts">{{ entry.total_points }} pts</span>
+            </div>
+
+        </div>
+        {% endif %}
+        {% endfor %}
     </div>
     {% endif %}
 
-    <!--FULL TABLE — Rank 4+ -->
+    <!-- =====================================================================
+         FULL TABLE — Rank 4+
+    ====================================================================== -->
     <div class="card mb-0" style="border-radius:14px;">
         <div class="card-body p-0">
             <div class="px-4 pt-4 pb-2">
@@ -297,8 +277,9 @@
 
 </div>
 
-
-<!-- STUDENT MODAL -->
+<!-- =========================================================================
+     STUDENT MODAL
+========================================================================== -->
 <div class="modal fade" id="studentModal" tabindex="-1" aria-labelledby="studentModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" style="max-width:420px;">
         <div class="modal-content" style="border-radius:16px; border:none; overflow:hidden;">
@@ -368,6 +349,9 @@
     </div>
 </div>
 
+<!-- =========================================================================
+     STYLES
+========================================================================== -->
 <style>
 /* Scope pill tabs */
 .scope-pill {
@@ -393,74 +377,70 @@
     border-color: var(--brand-primary);
 }
 
-/* Podium */
-.podium-card {
-    text-align: center;
-    padding: 1rem 0.5rem 0;
-    transition: transform 0.2s ease;
+/* Top 3 list rows */
+.top3-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.9rem 1.5rem;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    transition: background 0.15s ease;
 }
-.podium-card:hover { transform: translateY(-3px); }
+.top3-row:last-child { border-bottom: none; }
+.top3-row:hover { background: rgba(66,182,198,0.06); }
+.top3-you { background: rgba(24,143,159,0.05); }
+.top3-you:hover { background: rgba(24,143,159,0.09); }
 
-.podium-crown {
-    color: #d97706;
-    font-size: 1.1rem;
-    margin-bottom: 0.25rem;
+.top3-rank {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+    width: 56px;
 }
-.podium-rank-badge {
-    display: inline-flex;
+.top3-rank-badge {
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    display: flex;
     align-items: center;
     justify-content: center;
-    width: 24px; height: 24px;
-    border-radius: 50%;
-    font-size: 0.72rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
+    font-size: 0.8rem;
+    flex-shrink: 0;
 }
-.podium-avatar {
-    width: 52px; height: 52px;
+.top3-rank-num {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #888;
+}
+.top3-avatar {
+    width: 40px; height: 40px;
     border-radius: 50%;
-    background: var(--brand-primary);
-    color: white;
-    font-size: 0.85rem;
+    background: rgba(0,71,86,0.1);
+    color: var(--brand-darkest);
+    font-size: 0.78rem;
     font-weight: 700;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 auto 0.5rem;
-    border: 2.5px solid;
+    flex-shrink: 0;
+    border: 2px solid var(--brand-light);
 }
-.podium-avatar-1st {
-    width: 62px; height: 62px;
-    font-size: 1rem;
+.top3-stats {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    flex-shrink: 0;
+    gap: 0.15rem;
 }
-.podium-name {
-    font-size: 0.82rem;
-    color: #333;
-    margin-bottom: 0.15rem;
-    font-weight: 600;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-.podium-points {
-    font-size: 0.9rem;
-    font-weight: 700;
-    color: var(--brand-darkest);
-    margin-bottom: 0.1rem;
-}
-.podium-challenges {
-    font-size: 0.7rem;
+.top3-stat-item {
+    font-size: 0.75rem;
     color: #888;
-    margin-bottom: 0.5rem;
 }
-.podium-bar {
-    border-radius: 6px 6px 0 0;
-    margin: 0 auto;
-    width: 70%;
+.top3-pts {
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--brand-primary);
 }
-.podium-bar-1st { height: 48px; background: linear-gradient(180deg, #d97706, #f59e0b); }
-.podium-bar-2nd { height: 32px; background: linear-gradient(180deg, #94a3b8, #cbd5e1); }
-.podium-bar-3rd { height: 20px; background: linear-gradient(180deg, #b45309, #d97706); }
 
 /* Table */
 .leaderboard-row { transition: background 0.15s ease; }
@@ -490,6 +470,9 @@
 }
 </style>
 
+<!-- =========================================================================
+     MODAL JS
+========================================================================== -->
 <script>
 (function () {
     const YEAR_MAP = { '1':'First Year', '2':'Second Year', '3':'Third Year', '4':'Fourth Year' };

@@ -1,121 +1,323 @@
 {% extends 'base.html' %}
+
 {% block title %}ConnectED - Build Your Tech Career{% endblock %}
 
 {% block guest_content %}
+
 <!-- Bootstrap Icons CDN -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+/>
 
 <div class="container-fluid px-0">
 
-    <!--HERO SECTION-->
+  <!-- HERO SECTION -->
+  <div class="row align-items-stretch g-0 mx-0" style="min-height: 88vh">
 
-    <div class="row align-items-stretch g-0 mx-0" style="min-height: 88vh;">
+    <!-- Left: Copy -->
+    <div
+      class="col-lg-6 d-flex align-items-center px-4 ps-lg-5 py-5"
+      style="background-color: var(--bg-main)"
+    >
+      <div style="max-width: 540px">
 
-        <!-- Left: Copy -->
-        <div class="col-lg-6 d-flex align-items-center px-4 ps-lg-5 py-5" style="background-color: var(--bg-main);">
-            <div style="max-width: 540px;">
-                <span class="badge px-3 py-2 rounded-pill mb-3 fw-semibold text-uppercase" style="background-color: rgba(24,143,159,0.1); color: var(--brand-primary); font-size: 0.72rem; letter-spacing: 0.5px;">
-                    <i class="bi bi-lightning-charge-fill me-1"></i> The Ultimate Campus Tech Pipeline
-                </span>
+        <span
+          class="badge px-3 py-2 rounded-pill mb-3 fw-semibold text-uppercase"
+          style="
+            background-color: rgba(24, 143, 159, 0.1);
+            color: var(--brand-primary);
+            font-size: 0.72rem;
+            letter-spacing: 0.5px;
+          "
+        >
+          <i class="bi bi-lightning-charge-fill me-1"></i>
+          The Ultimate Campus Tech Pipeline
+        </span>
 
-                <h1 class="display-4 fw-bold lh-sm mb-3 text-dark" style="letter-spacing: -1px;">
-                    Where Kenyan Student Developers
-                    <span style="color: var(--brand-primary);">Get Discovered.</span>
-                </h1>
+        <h1
+          class="display-4 fw-bold lh-sm mb-3 text-dark"
+          style="letter-spacing: -1px"
+        >
+          Where Kenyan Student Developers
+          <span style="color: var(--brand-primary)">
+            Get Discovered.
+          </span>
+        </h1>
 
-                <p class="lead text-secondary mb-4" style="font-size: 1.05rem; line-height: 1.7;">
-                    Complete GitHub-verified challenges, climb the inter-university leaderboard, and put a real code portfolio in front of top recruiters — before you graduate.
-                </p>
+        <p
+          class="lead text-secondary mb-4"
+          style="font-size: 1.05rem; line-height: 1.7"
+        >
+          Complete GitHub-verified challenges, climb the inter-university
+          leaderboard, and put a real code portfolio in front of top recruiters
+          — before you graduate.
+        </p>
 
-                <div class="d-flex flex-wrap gap-3">
-                    <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-lg px-4 py-3 fw-bold shadow-sm" style="border-radius: 8px;">
-                        <i class="bi bi-person-plus-fill me-2"></i>Create Your Account
-                    </a>
-                    <a href="{% url 'accounts:login' %}" class="btn btn-lg px-4 py-3 fw-semibold" style="border-radius: 8px; color: var(--brand-darkest); border: 1.5px solid var(--brand-light); background: transparent;">
-                        <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
-                    </a>
-                </div>
+        <div class="d-flex flex-wrap gap-3">
 
-                <!-- Social proof strip -->
-                <div class="d-flex align-items-center gap-3 mt-4 pt-2">
-                    <div class="d-flex">
-                        {% for i in "123" %}
-                        <div style="width:32px; height:32px; border-radius:50%; background: var(--brand-secondary); border: 2px solid white; margin-left: {% if not forloop.first %}-10px{% else %}0{% endif %}; display:flex; align-items:center; justify-content:center;">
-                            <i class="bi bi-person-fill text-white" style="font-size:0.8rem;"></i>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    <p class="mb-0 text-muted small fw-semibold">
-                        Trusted by <span style="color: var(--brand-primary);">students</span> across Kenyan universities
-                    </p>
-                </div>
-            </div>
+          <a
+            href="{% url 'accounts:register' %}"
+            class="btn btn-primary btn-lg px-4 py-3 fw-bold shadow-sm"
+            style="border-radius: 8px"
+          >
+            <i class="bi bi-person-plus-fill me-2"></i>
+            Create Your Account
+          </a>
+
+         <a href="{% url 'accounts:employer_register' %}" class="btn btn-outline-secondary btn-lg">
+        I'm an Employer
+        </a>
+
+          <a
+            href="{% url 'accounts:login' %}"
+            class="btn btn-lg px-4 py-3 fw-semibold"
+            style="
+              border-radius: 8px;
+              color: var(--brand-darkest);
+              border: 1.5px solid var(--brand-light);
+              background: transparent;
+            "
+          >
+            <i class="bi bi-box-arrow-in-right me-2"></i>
+            Sign In
+          </a>
+
         </div>
 
-        <!-- Right: Image panel -->
-        <div class="col-lg-6 d-none d-lg-block position-relative" style="min-height: 500px;">
+        <!-- Social proof strip -->
+        <div class="d-flex align-items-center gap-3 mt-4 pt-2">
 
-            <img
-                src="https://images.unsplash.com/photo-1531482615713-2afd69097998?w=1200&auto=format&fit=crop&q=80"
-                alt="Ambitious campus students working on tech projects"
-                style="width:100%; height:100%; object-fit:cover; display:block;"
+          <div class="d-flex">
+            {% for i in "123" %}
+            <div
+              style="
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
+                background: var(--brand-secondary);
+                border: 2px solid white;
+                margin-left: {% if not forloop.first %}-10px{% else %}0{% endif %};
+                display: flex;
+                align-items: center;
+                justify-content: center;
+              "
             >
-            <div style="position:absolute; inset:0; background: linear-gradient(135deg, rgba(0,71,86,0.72) 0%, rgba(0,106,122,0.55) 100%);"></div>
-
-
-            <div class="position-absolute bottom-0 start-0 m-4 p-3 rounded-3 shadow" style="background: rgba(255,255,255,0.96); max-width: 210px;">
-                <div class="d-flex align-items-center gap-2 mb-1">
-                    <i class="bi bi-trophy-fill" style="color: var(--brand-primary); font-size:1.1rem;"></i>
-                    <span class="fw-bold small text-dark">Inter-Campus Rankings</span>
-                </div>
-                <p class="mb-0 text-muted" style="font-size: 0.75rem; line-height:1.4;">Live leaderboard syncing across major institutions</p>
+              <i
+                class="bi bi-person-fill text-white"
+                style="font-size: 0.8rem"
+              ></i>
             </div>
+            {% endfor %}
+          </div>
 
-            <div class="position-absolute top-0 end-0 m-4 px-3 py-2 rounded-pill shadow-sm fw-bold" style="background: var(--brand-lightest); color: var(--brand-darkest); font-size: 0.8rem;">
-                <i class="bi bi-people-fill me-1"></i> Active Builders
-            </div>
+          <p class="mb-0 text-muted small fw-semibold">
+            Trusted by
+            <span style="color: var(--brand-primary)">students</span>
+            across Kenyan universities
+          </p>
+
         </div>
+
+      </div>
     </div>
 
-    <!--FEATURES STRIP-->
+    <!-- Right: Image panel -->
+    <div
+      class="col-lg-6 d-none d-lg-block position-relative"
+      style="min-height: 500px"
+    >
 
-    <div class="border-top border-light-subtle bg-white py-5">
-        <div class="container">
-            <div class="row g-4 text-center">
+      <img
+        src="https://images.unsplash.com/photo-1531482615713-2afd69097998?w=1200&auto=format&fit=crop&q=80"
+        alt="Ambitious campus students working on tech projects"
+        style="
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          display: block;
+        "
+      />
 
-                <div class="col-md-4">
-                    <div class="mb-3">
-                        <span class="d-inline-flex align-items-center justify-content-center rounded-3" style="width:52px; height:52px; background: rgba(24,143,159,0.1);">
-                            <i class="bi bi-bar-chart-fill" style="font-size:1.4rem; color: var(--brand-primary);"></i>
-                        </span>
-                    </div>
-                    <h5 class="fw-bold text-dark">Ranked Milestones</h5>
-                    <p class="text-muted small px-lg-3">Earn verified points tied to your university, discipline, and year. Every submission counts.</p>
-                </div>
+      <!-- Overlay -->
+      <div
+        style="
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(
+            135deg,
+            rgba(0, 71, 86, 0.72) 0%,
+            rgba(0, 106, 122, 0.55) 100%
+          );
+        "
+      ></div>
 
-                <div class="col-md-4">
-                    <div class="mb-3">
-                        <span class="d-inline-flex align-items-center justify-content-center rounded-3" style="width:52px; height:52px; background: rgba(24,143,159,0.1);">
-                            <i class="bi bi-code-slash" style="font-size:1.4rem; color: var(--brand-primary);"></i>
-                        </span>
-                    </div>
-                    <h5 class="fw-bold text-dark">Curated Challenges</h5>
-                    <p class="text-muted small px-lg-3">Real-world problems structured by your progression level — not generic LeetCode clones.</p>
-                </div>
+      <!-- Ranking card -->
+      <div
+        class="position-absolute bottom-0 start-0 m-4 p-3 rounded-3 shadow"
+        style="
+          background: rgba(255, 255, 255, 0.96);
+          max-width: 210px;
+        "
+      >
 
-                <div class="col-md-4">
-                    <div class="mb-3">
-                        <span class="d-inline-flex align-items-center justify-content-center rounded-3" style="width:52px; height:52px; background: rgba(24,143,159,0.1);">
-                            <i class="bi bi-briefcase-fill" style="font-size:1.4rem; color: var(--brand-primary);"></i>
-                        </span>
-                    </div>
-                    <h5 class="fw-bold text-dark">Recruiter Pipeline</h5>
-                    <p class="text-muted small px-lg-3">Skip the CV gatekeeping. Let your verified score data get you in front of the right people.</p>
-                </div>
+        <div class="d-flex align-items-center gap-2 mb-1">
 
-            </div>
+          <i
+            class="bi bi-trophy-fill"
+            style="
+              color: var(--brand-primary);
+              font-size: 1.1rem;
+            "
+          ></i>
+
+          <span class="fw-bold small text-dark">
+            Inter-Campus Rankings
+          </span>
+
         </div>
+
+        <p
+          class="mb-0 text-muted"
+          style="font-size: 0.75rem; line-height: 1.4"
+        >
+          Live leaderboard syncing across major institutions
+        </p>
+
+      </div>
+
+      <!-- Active Builders badge -->
+      <div
+        class="position-absolute top-0 end-0 m-4 px-3 py-2 rounded-pill shadow-sm fw-bold"
+        style="
+          background: var(--brand-lightest);
+          color: var(--brand-darkest);
+          font-size: 0.8rem;
+        "
+      >
+        <i class="bi bi-people-fill me-1"></i>
+        Active Builders
+      </div>
+
     </div>
+
+  </div>
+
+
+  <!-- FEATURES STRIP -->
+  <div class="border-top border-light-subtle bg-white py-5">
+
+    <div class="container">
+
+      <div class="row g-4 text-center">
+
+        <!-- Feature 1 -->
+        <div class="col-md-4">
+
+          <div class="mb-3">
+
+            <span
+              class="d-inline-flex align-items-center justify-content-center rounded-3"
+              style="
+                width: 52px;
+                height: 52px;
+                background: rgba(24, 143, 159, 0.1);
+              "
+            >
+              <i
+                class="bi bi-bar-chart-fill"
+                style="
+                  font-size: 1.4rem;
+                  color: var(--brand-primary);
+                "
+              ></i>
+            </span>
+
+          </div>
+
+          <h5 class="fw-bold text-dark">Ranked Milestones</h5>
+
+          <p class="text-muted small px-lg-3">
+            Earn verified points tied to your university, discipline, and year.
+            Every submission counts.
+          </p>
+
+        </div>
+
+
+        <!-- Feature 2 -->
+        <div class="col-md-4">
+
+          <div class="mb-3">
+
+            <span
+              class="d-inline-flex align-items-center justify-content-center rounded-3"
+              style="
+                width: 52px;
+                height: 52px;
+                background: rgba(24, 143, 159, 0.1);
+              "
+            >
+              <i
+                class="bi bi-code-slash"
+                style="
+                  font-size: 1.4rem;
+                  color: var(--brand-primary);
+                "
+              ></i>
+            </span>
+
+          </div>
+
+          <h5 class="fw-bold text-dark">Curated Challenges</h5>
+
+          <p class="text-muted small px-lg-3">
+            Real-world problems structured by your progression level — not
+            generic LeetCode clones.
+          </p>
+
+        </div>
+
+
+        <!-- Feature 3 -->
+        <div class="col-md-4">
+
+          <div class="mb-3">
+
+            <span
+              class="d-inline-flex align-items-center justify-content-center rounded-3"
+              style="
+                width: 52px;
+                height: 52px;
+                background: rgba(24, 143, 159, 0.1);
+              "
+            >
+              <i
+                class="bi bi-briefcase-fill"
+                style="
+                  font-size: 1.4rem;
+                  color: var(--brand-primary);
+                "
+              ></i>
+            </span>
+
+          </div>
+
+          <h5 class="fw-bold text-dark">Recruiter Pipeline</h5>
+
+          <p class="text-muted small px-lg-3">
+            Skip the CV gatekeeping. Let your verified score data get you in
+            front of the right people.
+          </p>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
 
 </div>
+
 {% endblock %}

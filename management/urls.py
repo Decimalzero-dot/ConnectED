@@ -19,4 +19,7 @@ urlpatterns = [
     path('campus/students/', views.campus_students, name='campus_students'),
     path('campus/challenges/create/', views.challenge_create, name='challenge_create'),
     path('campus/challenges/<int:pk>/edit/', views.challenge_edit, name='challenge_edit'),
+    path('employers/', views.employer_list, name='employer_list'),
+    path('employers/<int:pk>/verify/', views.verify_employer, name='verify_employer'),
+    path('employer-interests/', views.employer_interests, name='employer_interests'),
 ]
