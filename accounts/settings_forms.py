@@ -1,5 +1,5 @@
 from django import forms
-from .models import User, Profile
+from .models import User, Profile, EmployerProfile
 
 
 class AccountSettingsForm(forms.ModelForm):
@@ -18,7 +18,7 @@ class AcademicSettingsForm(forms.ModelForm):
     """Year, discipline, github, reg number"""
     class Meta:
         model = Profile
-        fields = ('year_of_study', 'discipline', 'github_username', 'reg_number')
+        fields = ('year_of_study', 'discipline', 'github_username', 'reg_number', 'personal_email')
         widgets = {
             'year_of_study': forms.Select(attrs={'class': 'form-control'}),
             'discipline': forms.Select(attrs={'class': 'form-control'}),
@@ -30,6 +30,10 @@ class AcademicSettingsForm(forms.ModelForm):
                 'class': 'form-control',
                 'placeholder': 'e.g. COM/M/0050/2022'
             }),
+            'personal_email': forms.EmailInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Personal email for notifications'
+        }),
         }
 
 
@@ -75,3 +79,26 @@ class PasswordChangeSettingsForm(forms.Form):
         if new_password and confirm_password and new_password != confirm_password:
             raise forms.ValidationError('New passwords do not match.')
         return cleaned_data
+
+class EmployerProfileForm(forms.ModelForm):
+    class Meta:
+        model = EmployerProfile
+        fields = ('company_name', 'company_email', 'company_website', 'industry')
+        widgets = {
+            'company_name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Company name'
+            }),
+            'company_email': forms.EmailInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Company contact email'
+            }),
+            'company_website': forms.URLInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'https://yourcompany.com'
+            }),
+            'industry': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'e.g. Fintech, Agriculture, Healthcare'
+            }),
+        }    

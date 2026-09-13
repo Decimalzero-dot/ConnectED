@@ -110,6 +110,8 @@ def review_submission(request, pk):
             link=f'/challenges/{submission.challenge.pk}/'
             )
             if submission.student.profile.notify_on_review:
+                recipient_email = submission.student.profile.personal_email or submission.student.email
+
                 send_mail(
                     subject=f'ConnectED — Submission {decision.title()}',
                     message=(
@@ -120,8 +122,8 @@ def review_submission(request, pk):
                         f'— The ConnectED Team'
                     ),
                     from_email=django_settings.DEFAULT_FROM_EMAIL,
-                    recipient_list=[submission.student.email],
-                    fail_silently=True,  # doesn't crash the review if email fails
+                    recipient_list=[recipient_email],
+                    fail_silently=True,
                 )
             messages.success(request, f'Submission marked as {decision}.')
             return redirect('challenges:review_queue')

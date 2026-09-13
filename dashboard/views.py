@@ -5,7 +5,7 @@ from django.http import JsonResponse
 from django.db.models import Sum, Count
 from .forms import OnboardingForm
 from challenges.models import Submission, Challenge
-from accounts.models import Profile
+from accounts.models import Profile, EmployerProfile
 
 
 @login_required
@@ -240,8 +240,9 @@ def employer_home(request):
 
     try:
         employer_profile = request.user.employer_profile
-    except Exception:
-        return redirect('dashboard:home')
+    except EmployerProfile.DoesNotExist:
+        messages.warning(request, 'Your employer profile is incomplete. Please register again.')
+        return redirect('accounts:employer_register')
 
     from challenges.models import EmployerInterest
     interests_sent = EmployerInterest.objects.filter(

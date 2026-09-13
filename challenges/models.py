@@ -20,9 +20,25 @@ class Challenge(models.Model):
         ('capstone', 'Capstone'),
     )
 
+    discipline = models.CharField(max_length=20, choices=DISCIPLINE_CHOICES)
     title = models.CharField(max_length=200)
     description = models.TextField()
-    discipline = models.CharField(max_length=20, choices=DISCIPLINE_CHOICES)
+    objective = models.TextField(
+        blank=True,
+        help_text="What the student should achieve"
+    )
+    requirements = models.TextField(
+        blank=True,
+        help_text="One requirement per line"
+    )
+    submission_instructions = models.TextField(
+        blank=True,
+        help_text="What to submit and how"
+    )
+    expected_skills = models.TextField(
+        blank=True,
+        help_text="Comma-separated skills e.g. Python, conditionals, functions"
+    )
     difficulty = models.CharField(max_length=20, choices=DIFFICULTY_CHOICES)
     min_year = models.PositiveSmallIntegerField(
         choices=((1, '1st Year'), (2, '2nd Year'), (3, '3rd Year'), (4, '4th Year')),

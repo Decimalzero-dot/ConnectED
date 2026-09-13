@@ -19,14 +19,10 @@ class ChallengeForm(forms.ModelForm):
     class Meta:
         model = Challenge
         fields = (
-            'title',
-            'description',
-            'discipline',
-            'difficulty',
-            'min_year',
-            'points',
-            'deadline',
-            'is_active'
+           'title', 'description', 'objective', 'requirements',
+            'submission_instructions', 'expected_skills',
+            'discipline', 'difficulty', 'min_year',
+            'points', 'deadline', 'is_active'
         )
 
         widgets = {
@@ -43,6 +39,17 @@ class ChallengeForm(forms.ModelForm):
                 'class': 'form-control',
                 'type': 'datetime-local'
             }),
+            'objective': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
+            'requirements': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 4,
+                'placeholder': 'One requirement per line'
+            }),
+            'submission_instructions': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'expected_skills': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'e.g. Python, conditionals, functions'
+    }),
         }
 
 

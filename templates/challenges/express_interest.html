@@ -1,43 +1,87 @@
 {% extends 'base.html' %}
 {% block title %}Express Interest — ConnectED{% endblock %}
+{% block page_title %}Express Interest{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <a href="{% url 'dashboard:leaderboard' %}" class="btn btn-link mb-3">&larr; Back to Leaderboard</a>
+<div class="container-fluid px-0">
 
-        <div class="card border-0 shadow-sm p-4 mb-4">
-            <h5 class="fw-bold">Student: {{ student.username }}</h5>
-            <p class="text-muted mb-1">
-                {{ student.profile.get_discipline_display }} &middot;
-                {{ student.profile.get_year_of_study_display }}
-            </p>
-            <p class="text-muted mb-0">
-                University: {{ student.profile.university.name }}
-            </p>
-        </div>
+    <a href="{% url 'dashboard:leaderboard' %}" class="d-inline-flex align-items-center gap-2 text-muted text-decoration-none mb-4 fw-semibold" style="font-size:0.85rem;">
+        <i class="bi bi-arrow-left"></i> Back to Leaderboard
+    </a>
 
-        <div class="card border-0 shadow-sm p-4">
-            <h5 class="fw-bold mb-4">Express Interest</h5>
-            <p class="text-muted small mb-4">
-                Your message will be reviewed by the university before being
-                forwarded to the student. Include enough detail for them to
-                understand the opportunity.
-            </p>
-            <form method="post">
-                {% csrf_token %}
-                {% for field in form %}
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">{{ field.label }}</label>
-                        {{ field }}
-                        {% if field.errors %}
-                            <div class="text-danger small mt-1">{{ field.errors|striptags }}</div>
-                        {% endif %}
+    <div class="row g-3 justify-content-center">
+        <div class="col-lg-7">
+
+            <!-- Student card -->
+            <div class="card mb-3" style="border-radius:14px;">
+                <div class="card-body p-4">
+                    <h6 class="fw-bold text-dark text-uppercase mb-3" style="font-size:0.75rem; letter-spacing:0.5px;">
+                        <i class="bi bi-person me-2" style="color:var(--brand-primary);"></i>Student Profile
+                    </h6>
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="d-flex align-items-center justify-content-center rounded-circle fw-bold"
+                             style="width:52px; height:52px; background:rgba(0,71,86,0.1); color:var(--brand-darkest); font-size:1rem; flex-shrink:0; border:2px solid var(--brand-light);">
+                            {{ student.username|slice:":2"|upper }}
+                        </div>
+                        <div>
+                            <h5 class="fw-bold text-dark mb-0">{{ student.username }}</h5>
+                            <p class="text-muted small mb-0">
+                                {{ student.profile.get_discipline_display }} &middot;
+                                {{ student.profile.get_year_of_study_display }} &middot;
+                                {{ student.profile.university.name }}
+                            </p>
+                        </div>
                     </div>
-                {% endfor %}
-                <button type="submit" class="btn btn-primary">Submit Interest</button>
-            </form>
+                </div>
+            </div>
+
+            <!-- Interest form -->
+            <div class="card" style="border-radius:14px;">
+                <div class="card-body p-4">
+                    <h6 class="fw-bold text-dark text-uppercase mb-1" style="font-size:0.75rem; letter-spacing:0.5px;">
+                        <i class="bi bi-briefcase me-2" style="color:var(--brand-primary);"></i>Express Interest
+                    </h6>
+                    <p class="text-muted small mb-4">
+                        Your message will be reviewed by the university before being forwarded to the student.
+                        Include enough detail for them to understand the opportunity.
+                    </p>
+
+                    {% if messages %}
+                    {% for message in messages %}
+                    <div class="auth-alert auth-alert-{{ message.tags }} mb-4">
+                        <i class="bi bi-info-circle-fill me-2"></i>{{ message }}
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        {% for field in form %}
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold text-muted text-uppercase" style="font-size:0.7rem; letter-spacing:0.5px;">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.errors %}
+                            <div class="text-danger small mt-1">{{ field.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                        <div class="pt-3 border-top">
+                            <button type="submit" class="btn btn-primary fw-semibold text-white px-4" style="border-radius:8px;">
+                                <i class="bi bi-send me-2"></i>Submit Interest
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
         </div>
     </div>
 </div>
+
+<style>
+.auth-alert { padding:0.75rem 1rem; border-radius:8px; font-size:0.875rem; font-weight:500; }
+.auth-alert-error, .auth-alert-danger { background:#fef2f2; color:#dc2626; border:1px solid #fecaca; }
+.auth-alert-success { background:#f0fdf4; color:#16a34a; border:1px solid #bbf7d0; }
+.auth-alert-warning { background:#fffbeb; color:#d97706; border:1px solid #fde68a; }
+</style>
 {% endblock %}

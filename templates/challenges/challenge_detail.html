@@ -1,69 +1,770 @@
 {% extends 'base.html' %}
-{% block title %}{{ challenge.title }} - ConnectED{% endblock %}
+
+{% block title %}{{ challenge.title }} — ConnectED{% endblock %}
+{% block page_title %}Challenge Detail{% endblock %}
 
 {% block content %}
-<a href="{% url 'challenges:list' %}" class="btn btn-link mb-3">&larr; Back to Challenges</a>
 
-<div class="card">
-    <div class="card-body">
-        <div class="d-flex justify-content-between align-items-start">
-            <h2>{{ challenge.title }}</h2>
-            {% if eligible %}
-                <span class="badge bg-success">Eligible to Attempt</span>
-            {% else %}
-                <span class="badge bg-secondary">Requires {{ challenge.get_discipline_display }}, Year {{ challenge.min_year }}+</span>
-            {% endif %}
-        </div>
-        <p class="text-muted">{{ challenge.get_discipline_display }} · {{ challenge.get_difficulty_display }} · {{ challenge.points }} points</p>
-        {% if challenge.deadline %}
-            <p class="text-muted">Deadline: {{ challenge.deadline }}</p>
-        {% endif %}
-        <hr>
-        <p>{{ challenge.description|linebreaks }}</p>
-    </div>
-</div>
+<div class="container-fluid px-0">
 
-{% if submission %}
-<div class="card mt-3">
-    <div class="card-body">
-        <h5>Your Submission</h5>
-        <p>Repo: <a href="{{ submission.github_repo_url }}" target="_blank">{{ submission.github_repo_url }}</a></p>
-        <p>Status:
-            {% if submission.status == 'passed' %}
-                <span class="badge bg-success">Passed</span>
-            {% elif submission.status == 'failed' %}
-                <span class="badge bg-danger">Failed</span>
-            {% else %}
-                <span class="badge bg-warning text-dark">Pending Review</span>
-            {% endif %}
-        </p>
-        {% if submission.feedback %}
-            <p class="text-muted">Feedback: {{ submission.feedback|linebreaks }}</p>
-        {% endif %}
-    </div>
-</div>
-{% elif eligible %}
-<div class="card mt-3">
-    <div class="card-body">
-        <h5>Submit Your Solution</h5>
-        <form method="post">
-            {% csrf_token %}
-            {% for field in form %}
-                <div class="mb-3">
-                    <label class="form-label">{{ field.label }}</label>
-                    {{ field }}
-                    {% if field.errors %}
-                        <div class="text-danger small">{{ field.errors }}</div>
+    <!-- Back link -->
+    <a href="{% url 'challenges:list' %}"
+       class="d-inline-flex align-items-center gap-2 text-muted text-decoration-none mb-4 fw-semibold"
+       style="font-size:0.85rem;">
+        <i class="bi bi-arrow-left"></i>
+        Back to Challenges
+    </a>
+
+
+    <div class="row g-3">
+
+
+        <!-- ================================================================
+             LEFT — Challenge info
+        ================================================================= -->
+        <div class="col-lg-8">
+
+            <div class="card mb-3" style="border-radius:14px;">
+
+                <div class="card-body p-4">
+
+
+                    <!-- ====================================================
+                         HEADER
+                    ===================================================== -->
+                    <div class="d-flex align-items-start justify-content-between gap-3 mb-3">
+
+                        <h4 class="fw-bold text-dark mb-0">
+                            {{ challenge.title }}
+                        </h4>
+
+
+                        {% if eligible %}
+
+                        <span class="badge px-3 py-2 fw-semibold flex-shrink-0"
+                              style="background:rgba(16,185,129,0.1);
+                                     color:#059669;
+                                     border-radius:8px;
+                                     font-size:0.75rem;">
+
+                            <i class="bi bi-check-circle me-1"></i>
+                            Eligible
+
+                        </span>
+
+                        {% else %}
+
+                        <span class="badge px-3 py-2 fw-semibold flex-shrink-0"
+                              style="background:rgba(0,0,0,0.06);
+                                     color:#666;
+                                     border-radius:8px;
+                                     font-size:0.75rem;">
+
+                            <i class="bi bi-lock me-1"></i>
+                            Locked
+
+                        </span>
+
+                        {% endif %}
+
+                    </div>
+
+
+
+                    <!-- ====================================================
+                         META PILLS
+                    ===================================================== -->
+                    <div class="d-flex flex-wrap gap-2 mb-4">
+
+                        <!-- Discipline -->
+                        <span class="badge px-2 py-1 fw-semibold"
+                              style="background:rgba(0,71,86,0.08);
+                                     color:var(--brand-darkest);
+                                     border-radius:6px;
+                                     font-size:0.72rem;">
+
+                            <i class="bi bi-cpu me-1"></i>
+                            {{ challenge.get_discipline_display }}
+
+                        </span>
+
+
+                        <!-- Difficulty -->
+                        <span class="badge px-2 py-1 fw-semibold"
+                              style="background:rgba(0,71,86,0.08);
+                                     color:var(--brand-darkest);
+                                     border-radius:6px;
+                                     font-size:0.72rem;">
+
+                            <i class="bi bi-bar-chart me-1"></i>
+                            {{ challenge.get_difficulty_display }}
+
+                        </span>
+
+
+                        <!-- Points -->
+                        <span class="badge px-2 py-1 fw-semibold"
+                              style="background:rgba(0,71,86,0.08);
+                                     color:var(--brand-darkest);
+                                     border-radius:6px;
+                                     font-size:0.72rem;">
+
+                            <i class="bi bi-star me-1"></i>
+                            {{ challenge.points }} pts
+
+                        </span>
+
+
+                        <!-- Deadline -->
+                        {% if challenge.deadline %}
+
+                        <span class="badge px-2 py-1 fw-semibold"
+                              style="background:rgba(239,68,68,0.08);
+                                     color:#dc2626;
+                                     border-radius:6px;
+                                     font-size:0.72rem;">
+
+                            <i class="bi bi-clock me-1"></i>
+                            Due {{ challenge.deadline|date:"d M Y" }}
+
+                        </span>
+
+                        {% endif %}
+
+                    </div>
+
+
+
+                    <hr class="opacity-10">
+
+
+
+                    <!-- ====================================================
+                         DESCRIPTION
+                    ===================================================== -->
+                    {% if challenge.description %}
+
+                    <div class="mt-3"
+                         style="font-size:0.92rem;
+                                line-height:1.75;
+                                color:#444;">
+
+                        {{ challenge.description|linebreaks }}
+
+                    </div>
+
                     {% endif %}
+
+
+
+                    <!-- ====================================================
+                         OBJECTIVE
+                    ===================================================== -->
+                    {% if challenge.objective %}
+
+                    <hr class="opacity-10 my-4">
+
+                    <div>
+
+                        <h6 class="fw-bold text-dark text-uppercase mb-2"
+                            style="font-size:0.75rem;
+                                   letter-spacing:0.5px;">
+
+                            <i class="bi bi-bullseye me-2"
+                               style="color:var(--brand-primary);"></i>
+
+                            Objective
+
+                        </h6>
+
+
+                        <p class="mb-0"
+                           style="font-size:0.92rem;
+                                  line-height:1.75;
+                                  color:#444;">
+
+                            {{ challenge.objective|linebreaks }}
+
+                        </p>
+
+                    </div>
+
+                    {% endif %}
+
+
+
+                    <!-- ====================================================
+                         REQUIREMENTS
+                    ===================================================== -->
+                    {% if challenge.requirements %}
+
+                    <hr class="opacity-10 my-4">
+
+                    <div>
+
+                        <h6 class="fw-bold text-dark text-uppercase mb-3"
+                            style="font-size:0.75rem;
+                                   letter-spacing:0.5px;">
+
+                            <i class="bi bi-list-check me-2"
+                               style="color:var(--brand-primary);"></i>
+
+                            Requirements
+
+                        </h6>
+
+
+                        <div class="d-flex flex-column gap-2">
+
+                            {% for req in challenge.requirements.splitlines %}
+
+                                {% if req %}
+
+                                <div class="d-flex align-items-start gap-2">
+
+                                    <i class="bi bi-check-circle-fill mt-1"
+                                       style="font-size:0.8rem;
+                                              color:var(--brand-primary);">
+                                    </i>
+
+
+                                    <span style="font-size:0.9rem;
+                                                 line-height:1.6;
+                                                 color:#444;">
+
+                                        {{ req }}
+
+                                    </span>
+
+                                </div>
+
+                                {% endif %}
+
+                            {% endfor %}
+
+                        </div>
+
+                    </div>
+
+                    {% endif %}
+
+
+
+                    <!-- ====================================================
+                         EXPECTED SKILLS
+                    ===================================================== -->
+                    {% if challenge.expected_skills %}
+
+                    <hr class="opacity-10 my-4">
+
+                    <div>
+
+                        <h6 class="fw-bold text-dark text-uppercase mb-3"
+                            style="font-size:0.75rem;
+                                   letter-spacing:0.5px;">
+
+                            <i class="bi bi-tools me-2"
+                               style="color:var(--brand-primary);"></i>
+
+                            Expected Skills
+
+                        </h6>
+
+
+                        <div class="p-3 rounded-3"
+                             style="background:#f8fafb;
+                                    border:1px solid rgba(0,0,0,0.05);">
+
+                            <span class="text-dark small">
+
+                                {{ challenge.expected_skills }}
+
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                    {% endif %}
+
+
+
+                    <!-- ====================================================
+                         SUBMISSION INSTRUCTIONS
+                    ===================================================== -->
+                    {% if challenge.submission_instructions %}
+
+                    <hr class="opacity-10 my-4">
+
+                    <div>
+
+                        <h6 class="fw-bold text-dark text-uppercase mb-3"
+                            style="font-size:0.75rem;
+                                   letter-spacing:0.5px;">
+
+                            <i class="bi bi-github me-2"
+                               style="color:var(--brand-primary);"></i>
+
+                            Submission
+
+                        </h6>
+
+
+                        <div class="p-3 rounded-3"
+                             style="background:rgba(0,71,86,0.04);
+                                    border:1px solid rgba(0,71,86,0.1);">
+
+                            <p class="mb-0 small text-dark">
+
+                                {{ challenge.submission_instructions|linebreaks }}
+
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    {% endif %}
+
+
                 </div>
-            {% endfor %}
-            <button type="submit" class="btn btn-primary">Submit</button>
-        </form>
+
+            </div>
+
+
+
+            <!-- ============================================================
+                 SUBMISSION / STATUS CARD
+            ================================================================= -->
+
+            {% if submission %}
+
+            <div class="card" style="border-radius:14px;">
+
+                <div class="card-body p-4">
+
+
+                    <h6 class="fw-bold text-dark text-uppercase mb-3"
+                        style="font-size:0.75rem;
+                               letter-spacing:0.5px;">
+
+                        <i class="bi bi-send-check me-2"
+                           style="color:var(--brand-primary);"></i>
+
+                        Your Submission
+
+                    </h6>
+
+
+
+                    <!-- Repository -->
+                    <div class="d-flex align-items-center gap-3 p-3 rounded-3 mb-3"
+                         style="background:#f8fafb;
+                                border:1px solid rgba(0,0,0,0.05);">
+
+                        <i class="bi bi-github"
+                           style="font-size:1.2rem;
+                                  color:#333;">
+                        </i>
+
+
+                        <div>
+
+                            <small class="text-muted d-block"
+                                   style="font-size:0.68rem;">
+
+                                Repository
+
+                            </small>
+
+
+                            <a href="{{ submission.github_repo_url }}"
+                               target="_blank"
+                               rel="noopener"
+                               class="fw-semibold small"
+                               style="color:var(--brand-primary);">
+
+                                {{ submission.github_repo_url }}
+
+                            </a>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- Submission Status -->
+                    <div class="d-flex align-items-center gap-2 mb-3">
+
+                        <span class="fw-semibold text-muted small">
+                            Status:
+                        </span>
+
+
+                        {% if submission.status == 'passed' %}
+
+                        <span class="badge px-2 py-1 fw-semibold"
+                              style="background:rgba(16,185,129,0.1);
+                                     color:#059669;
+                                     border-radius:6px;">
+
+                            <i class="bi bi-check-circle-fill me-1"></i>
+                            Passed
+
+                        </span>
+
+
+                        {% elif submission.status == 'failed' %}
+
+                        <span class="badge px-2 py-1 fw-semibold"
+                              style="background:rgba(239,68,68,0.1);
+                                     color:#dc2626;
+                                     border-radius:6px;">
+
+                            <i class="bi bi-x-circle-fill me-1"></i>
+                            Failed
+
+                        </span>
+
+
+                        {% else %}
+
+                        <span class="badge px-2 py-1 fw-semibold"
+                              style="background:rgba(245,158,11,0.1);
+                                     color:#d97706;
+                                     border-radius:6px;">
+
+                            <i class="bi bi-hourglass-split me-1"></i>
+                            Pending Review
+
+                        </span>
+
+                        {% endif %}
+
+                    </div>
+
+
+
+                    <!-- Feedback -->
+                    {% if submission.feedback %}
+
+                    <div class="p-3 rounded-3"
+                         style="background:rgba(0,71,86,0.04);
+                                border:1px solid rgba(0,71,86,0.1);">
+
+                        <small class="text-muted fw-semibold text-uppercase d-block mb-1"
+                               style="font-size:0.68rem;
+                                      letter-spacing:0.5px;">
+
+                            Feedback
+
+                        </small>
+
+
+                        <p class="mb-0 small text-dark">
+
+                            {{ submission.feedback|linebreaks }}
+
+                        </p>
+
+                    </div>
+
+                    {% endif %}
+
+
+                </div>
+
+            </div>
+
+
+
+            <!-- ============================================================
+                 NO SUBMISSION — ELIGIBLE
+            ================================================================= -->
+
+            {% elif eligible %}
+
+            <div class="card" style="border-radius:14px;">
+
+                <div class="card-body p-4">
+
+
+                    <h6 class="fw-bold text-dark text-uppercase mb-1"
+                        style="font-size:0.75rem;
+                               letter-spacing:0.5px;">
+
+                        <i class="bi bi-upload me-2"
+                           style="color:var(--brand-primary);"></i>
+
+                        Submit Your Solution
+
+                    </h6>
+
+
+                    <p class="text-muted small mb-4">
+
+                        Paste your GitHub repository URL below.
+                        Make sure the repo is public.
+
+                    </p>
+
+
+
+                    <form method="post" novalidate>
+
+                        {% csrf_token %}
+
+
+                        {% for field in form %}
+
+                        <div class="mb-3">
+
+                            <label class="form-label fw-semibold text-muted text-uppercase"
+                                   style="font-size:0.7rem;
+                                          letter-spacing:0.5px;">
+
+                                {{ field.label }}
+
+                            </label>
+
+
+                            {{ field }}
+
+
+                            {% if field.errors %}
+
+                            <div class="text-danger small mt-1">
+
+                                {{ field.errors|striptags }}
+
+                            </div>
+
+                            {% endif %}
+
+                        </div>
+
+                        {% endfor %}
+
+
+
+                        <button type="submit"
+                                class="btn btn-primary fw-semibold text-white px-4"
+                                style="border-radius:8px;">
+
+                            <i class="bi bi-send me-2"></i>
+
+                            Submit Solution
+
+                        </button>
+
+                    </form>
+
+
+                </div>
+
+            </div>
+
+
+
+            <!-- ============================================================
+                 NOT ELIGIBLE
+            ================================================================= -->
+
+            {% else %}
+
+            <div class="p-4 rounded-3"
+                 style="background:rgba(0,0,0,0.03);
+                        border:1.5px dashed rgba(0,0,0,0.12);">
+
+                <div class="d-flex align-items-center gap-3">
+
+                    <i class="bi bi-lock flex-shrink-0"
+                       style="font-size:1.5rem;
+                              color:#aaa;">
+                    </i>
+
+
+                    <div>
+
+                        <p class="fw-semibold text-dark mb-1">
+                            Not eligible yet
+                        </p>
+
+
+                        <p class="text-muted small mb-0">
+
+                            This challenge requires
+                            <strong>
+                                {{ challenge.get_discipline_display }}
+                            </strong>
+
+                            discipline and at least
+
+                            <strong>
+                                Year {{ challenge.min_year }}
+                            </strong>.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            {% endif %}
+
+        </div>
+
+
+
+        <!-- ================================================================
+             RIGHT — QUICK STATS SIDEBAR
+        ================================================================= -->
+
+        <div class="col-lg-4">
+
+            <div class="card" style="border-radius:14px;">
+
+                <div class="card-body p-4">
+
+
+                    <h6 class="fw-bold text-dark text-uppercase mb-3"
+                        style="font-size:0.75rem;
+                               letter-spacing:0.5px;">
+
+                        Challenge Info
+
+                    </h6>
+
+
+
+                    <div class="d-flex flex-column gap-3">
+
+
+                        <!-- Discipline -->
+                        <div>
+
+                            <small class="text-muted d-block"
+                                   style="font-size:0.7rem;">
+
+                                Discipline
+
+                            </small>
+
+
+                            <span class="fw-semibold text-dark small">
+
+                                {{ challenge.get_discipline_display }}
+
+                            </span>
+
+                        </div>
+
+
+
+                        <!-- Difficulty -->
+                        <div>
+
+                            <small class="text-muted d-block"
+                                   style="font-size:0.7rem;">
+
+                                Difficulty
+
+                            </small>
+
+
+                            <span class="fw-semibold text-dark small">
+
+                                {{ challenge.get_difficulty_display }}
+
+                            </span>
+
+                        </div>
+
+
+
+                        <!-- Minimum Year -->
+                        <div>
+
+                            <small class="text-muted d-block"
+                                   style="font-size:0.7rem;">
+
+                                Minimum Year
+
+                            </small>
+
+
+                            <span class="fw-semibold text-dark small">
+
+                                Year {{ challenge.min_year }}+
+
+                            </span>
+
+                        </div>
+
+
+
+                        <!-- Points -->
+                        <div>
+
+                            <small class="text-muted d-block"
+                                   style="font-size:0.7rem;">
+
+                                Points
+
+                            </small>
+
+
+                            <span class="fw-bold"
+                                  style="color:var(--brand-primary);
+                                         font-size:1.1rem;">
+
+                                {{ challenge.points }} pts
+
+                            </span>
+
+                        </div>
+
+
+
+                        <!-- Deadline -->
+                        {% if challenge.deadline %}
+
+                        <div>
+
+                            <small class="text-muted d-block"
+                                   style="font-size:0.7rem;">
+
+                                Deadline
+
+                            </small>
+
+
+                            <span class="fw-semibold text-dark small">
+
+                                {{ challenge.deadline|date:"d M Y, H:i" }}
+
+                            </span>
+
+                        </div>
+
+                        {% endif %}
+
+
+                    </div>
+
+
+                </div>
+
+            </div>
+
+        </div>
+
+
     </div>
+
 </div>
-{% else %}
-<div class="alert alert-secondary mt-3">
-    You're not eligible to attempt this challenge yet. It requires <strong>{{ challenge.get_discipline_display }}</strong> discipline and at least <strong>Year {{ challenge.min_year }}</strong>.
-</div>
-{% endif %}
+
 {% endblock %}

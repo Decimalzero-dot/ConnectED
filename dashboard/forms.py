@@ -12,13 +12,17 @@ class OnboardingForm(forms.ModelForm):
 
     class Meta:
         model = Profile
-        fields = ('year_of_study', 'discipline', 'github_username', 'reg_number')
+        fields = ('year_of_study', 'discipline', 'github_username', 'reg_number', 'personal_email')
         widgets = {
             'year_of_study': forms.Select(attrs={'class': 'form-control'}),
             'discipline': forms.Select(attrs={'class': 'form-control'}),
             'github_username': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'your-github-username'}),
             'reg_number': forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': 'e.g. SCT211-0050/2022'}),
+            'placeholder': 'e.g. COM/M/0050/2022'}),
+            'personal_email': forms.EmailInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Personal email for notifications'
+            }),
         }
-   
+    

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="560" viewBox="0 0 1600 560" role="img" aria-labelledby="title desc">
+<title id="title">ConnectED</title>
+<desc id="desc">ConnectED logo with connectivity symbol and Learning, Linked tagline.</desc>
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#0B70F1"/><stop offset="100%" stop-color="#6B3DF4"/></linearGradient></defs>
+<g transform="translate(118 128)">
+<path d="M151 61C116 10 44 24 27 78c-18 58 27 107 79 91 25-8 41-30 45-54" fill="none" stroke="url(#g)" stroke-width="26" stroke-linecap="round"/>
+<path d="M151 61c36 51 107 37 124-17 18-58-27-107-79-91-25 8-41 30-45 54" transform="translate(0 128)" fill="none" stroke="url(#g)" stroke-width="26" stroke-linecap="round"/>
+<path d="M138 99l52 52" fill="none" stroke="#6B3DF4" stroke-width="19" stroke-linecap="round"/>
+<circle cx="151" cy="112" r="19" fill="#fff" stroke="#0B70F1" stroke-width="12"/>
+<circle cx="190" cy="151" r="19" fill="#fff" stroke="#6B3DF4" stroke-width="12"/>
+</g>
+<text x="438" y="328" font-family="Arial,Helvetica,sans-serif" font-size="176" letter-spacing="-5"><tspan fill="#0B70F1" font-weight="600">connect</tspan><tspan fill="#E73945" font-weight="800">ED</tspan></text>
+<text x="446" y="401" fill="#60708F" font-family="Arial,Helvetica,sans-serif" font-size="30" font-weight="700" letter-spacing="7">LEARNING, LINKED</text>
+</svg>

@@ -68,7 +68,23 @@ class Profile(models.Model):
         null=True,
         help_text="University registration number"
     )
+    personal_email = models.EmailField(
+        blank=True,
+        help_text="Used for notifications if different from your login email"
+    )
     onboarding_complete = models.BooleanField(default=False)
+
+class Meta:
+    constraints = [
+        models.UniqueConstraint(
+            fields=['university', 'reg_number'],
+            condition=(
+                models.Q(reg_number__isnull=False) &
+                ~models.Q(reg_number='')
+            ),
+            name='unique_reg_number_per_university'
+        )
+    ]
 
     def __str__(self):
         return f"{self.user.username}'s Profile"   
@@ -84,19 +100,15 @@ class EmployerProfile(models.Model):
     industry = models.CharField(max_length=100, blank=True)
     is_verified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+   
 
     def __str__(self):
         return f"{self.company_name} ({self.user.email})"    
-class Meta:
-    constraints = [
-        models.UniqueConstraint(
-            fields=['university', 'reg_number'],
-            condition=models.Q(reg_number__isnull=False),
-            name='unique_reg_number_per_university'
-        )
-    ]     
-    
+ 
+
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
-    if created:
+    if created and instance.user_type == 'student':
         Profile.objects.create(user=instance)    
+    # Employers: EmployerProfile is created in employer_register_view
+    # with required fields (company_name, company_email) — not here

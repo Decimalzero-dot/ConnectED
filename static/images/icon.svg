@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 320 320" role="img" aria-labelledby="title">
+<title id="title">ConnectED icon</title>
+<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#0B70F1"/><stop offset="100%" stop-color="#6B3DF4"/></linearGradient></defs>
+<g transform="translate(22 30)">
+<path d="M151 61C116 10 44 24 27 78c-18 58 27 107 79 91 25-8 41-30 45-54" fill="none" stroke="url(#g)" stroke-width="26" stroke-linecap="round"/>
+<path d="M151 61c36 51 107 37 124-17 18-58-27-107-79-91-25 8-41 30-45 54" transform="translate(0 128)" fill="none" stroke="url(#g)" stroke-width="26" stroke-linecap="round"/>
+<path d="M138 99l52 52" fill="none" stroke="#6B3DF4" stroke-width="19" stroke-linecap="round"/>
+<circle cx="151" cy="112" r="19" fill="#fff" stroke="#0B70F1" stroke-width="12"/>
+<circle cx="190" cy="151" r="19" fill="#fff" stroke="#6B3DF4" stroke-width="12"/>
+</g>
+</svg>

@@ -8,10 +8,11 @@ from django.db import IntegrityError
 from django_ratelimit.decorators import ratelimit
 from .models import User, Profile
 from .forms import UserRegistrationForm, UserLoginForm, StudentProfileForm, AdminProfileForm, EmployerRegistrationForm
+from accounts.models import EmployerProfile
 from .settings_forms import (
     AccountSettingsForm, AcademicSettingsForm,
     AppearanceSettingsForm, NotificationSettingsForm,
-    PasswordChangeSettingsForm
+    PasswordChangeSettingsForm, EmployerProfileForm
 )
 
 
@@ -122,6 +123,12 @@ def settings_view(request):
     password_form = PasswordChangeSettingsForm()
 
     active_tab = 'account'
+    employer_form = None
+    if user.user_type == 'employer':
+        try:
+            employer_form = EmployerProfileForm(instance=user.employer_profile)
+        except EmployerProfile.DoesNotExist:
+            employer_form = EmployerProfileForm()
 
     if request.method == 'POST':
         tab = request.POST.get('tab')
@@ -135,6 +142,24 @@ def settings_view(request):
                 account_form.save()
                 messages.success(request, 'Account details updated.')
                 return redirect(f"{reverse('accounts:settings')}?tab=account")
+
+                   
+
+        elif tab == 'employer':
+            try:
+                employer_form = EmployerProfileForm(
+                    request.POST,
+                    instance=user.employer_profile
+                )
+            except EmployerProfile.DoesNotExist:
+                employer_form = EmployerProfileForm(request.POST)
+
+            if employer_form.is_valid():
+                emp_profile = employer_form.save(commit=False)
+                emp_profile.user = user
+                emp_profile.save()
+                messages.success(request, 'Company information updated.')
+                return redirect(f"{reverse('accounts:settings')}?tab=employer")
 
         elif tab == 'academic':
             academic_form = AcademicSettingsForm(request.POST, instance=profile)
@@ -181,9 +206,12 @@ def settings_view(request):
         'password_form': password_form,
         'active_tab': active_tab,
         'profile': profile,
+        'employer_form': employer_form,
     }
     return render(request, 'accounts/settings.html', context)
 
+
+@ratelimit(key='ip', rate='3/m', method='POST', block=True)
 def employer_register_view(request):
     if request.user.is_authenticated:
         return redirect('dashboard:home')
@@ -197,7 +225,7 @@ def employer_register_view(request):
                 user.save()
 
                 # Create employer profile
-                from .models import EmployerProfile
+
                 EmployerProfile.objects.create(
                     user=user,
                     company_name=form.cleaned_data['company_name'],
@@ -214,22 +242,8 @@ def employer_register_view(request):
                 return redirect('accounts:login')
             except IntegrityError:
                 form.add_error('username', 'That username is already taken.')
+
         messages.error(request, 'Please correct the errors below.')
-        if user is not None:
-            # Block unverified employers
-            if user.user_type == 'employer':
-                try:
-                    if not user.employer_profile.is_verified:
-                        messages.error(
-                            request,
-                            'Your employer account is pending verification. '
-                            'You will be notified once approved.'
-                        )
-                        return render(request, 'accounts/login.html', {'form': form})
-                except Exception:
-                    pass
-            login(request, user)
-            return redirect('dashboard:home')
     else:
         form = EmployerRegistrationForm()
 

@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% block title %}ConnectED - Build Your Tech Career{% endblock %}
 
 {% block guest_content %}
@@ -31,7 +31,7 @@
             letter-spacing: 0.5px;
           "
         >
-          <i class="bi bi-lightning-charge-fill me-1"></i>
+          <img src="{% static 'images/icon.svg' %}" alt="ConnectED" style="height:60px; width:auto;">
           The Ultimate Campus Tech Pipeline
         </span>
 

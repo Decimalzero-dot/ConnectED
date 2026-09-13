@@ -251,12 +251,20 @@
                                 {{ entry.challenges_completed }}
                             </td>
 
-                            <!-- Score -->
+                            <!-- Score + View Profile -->
                             <td class="pe-4 py-3 text-end">
-                                <span class="fw-bold" style="color:var(--brand-primary); font-size:0.95rem;">
-                                    {{ entry.total_points }}
-                                </span>
-                                <small class="text-muted ms-1" style="font-size:0.7rem;">pts</small>
+                                <div class="d-flex align-items-center justify-content-end gap-2">
+                                    <div>
+                                        <span class="fw-bold" style="color:var(--brand-primary); font-size:0.95rem;">
+                                            {{ entry.total_points }}
+                                        </span>
+                                        <small class="text-muted ms-1" style="font-size:0.7rem;">pts</small>
+                                    </div>
+                                    <span class="view-profile-btn badge px-2 py-1 fw-semibold"
+                                          style="font-size:0.7rem; background:white; color:var(--brand-primary); border-radius:6px; white-space:nowrap;">
+                                        View Profile
+                                    </span>
+                                </div>
                             </td>
 
                         </tr>
@@ -443,9 +451,23 @@
 }
 
 /* Table */
-.leaderboard-row { transition: background 0.15s ease; }
-.leaderboard-you { background: rgba(24,143,159,0.05) !important; }
-.leaderboard-row:hover { background: rgba(0,71,86,0.03); }
+.leaderboard-row { transition: all 0.15s ease; }
+.leaderboard-you { background: rgba(24,143,159,0.06) !important; }
+.leaderboard-row:hover {
+    background: var(--brand-primary) !important;
+    color: white;
+    cursor: pointer;
+}
+.leaderboard-row:hover .text-dark,
+.leaderboard-row:hover .text-muted,
+.leaderboard-row:hover small { color: rgba(255,255,255,0.8) !important; }
+.leaderboard-row:hover .fw-semibold { color: white !important; }
+.leaderboard-row:hover .rank-pill { background: rgba(255,255,255,0.15) !important; color: white !important; }
+.leaderboard-row:hover .table-avatar { background: rgba(255,255,255,0.2); color: white; }
+.leaderboard-row:hover .badge { background: rgba(255,255,255,0.15) !important; color: white !important; }
+.leaderboard-row:hover [style*="color:var(--brand-primary)"] { color: white !important; }
+.leaderboard-row:hover .view-profile-btn { display: inline-flex !important; }
+.view-profile-btn { display: none; }
 
 .rank-pill {
     display: inline-flex;

@@ -1,65 +1,94 @@
 {% extends 'base.html' %}
 {% block title %}Employer Interests — ConnectED{% endblock %}
+{% block page_title %}Employer Interests{% endblock %}
 
 {% block content %}
-<h2 class="mb-4">Employer Interests</h2>
+<div class="container-fluid px-0">
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>Company</th>
-            <th>Student</th>
-            <th>Opportunity</th>
-            <th>Message</th>
-            <th>Status</th>
-            <th>Action</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for interest in interests %}
-        <tr>
-            <td>
-                {{ interest.employer.employer_profile.company_name }}<br>
-                <small class="text-muted">
-                    {{ interest.employer.employer_profile.company_email }}
-                </small>
-            </td>
-            <td>
-                {{ interest.student.username }}<br>
-                <small class="text-muted">
-                    {{ interest.student.profile.university.name }}
-                </small>
-            </td>
-            <td>{{ interest.get_job_type_display }}</td>
-            <td>{{ interest.message|truncatewords:15 }}</td>
-            <td>
-                {% if interest.status == 'forwarded' %}
-                    <span class="badge bg-success">Forwarded</span>
-                {% elif interest.status == 'closed' %}
-                    <span class="badge bg-secondary">Closed</span>
-                {% else %}
-                    <span class="badge bg-warning text-dark">Pending</span>
-                {% endif %}
-            </td>
-            <td>
-                {% if interest.status == 'pending' %}
-                <form method="post" class="d-inline">
-                    {% csrf_token %}
-                    <input type="hidden" name="interest_id" value="{{ interest.pk }}">
-                    <button type="submit" class="btn btn-sm btn-primary">
-                        Forward to Student
-                    </button>
-                </form>
-                {% endif %}
-            </td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="6" class="text-muted text-center">
-                No employer interests yet.
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+    <div class="mb-4">
+        <h4 class="fw-bold text-dark mb-1">Employer Interests</h4>
+        <p class="text-muted small mb-0">Review and forward employer interest requests to students.</p>
+    </div>
+
+    <div class="card mb-0" style="border-radius:14px; overflow:hidden;">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead style="background:#f8fafb;">
+                    <tr>
+                        <th class="px-4 py-3 text-muted text-uppercase fw-semibold" style="font-size:0.68rem; letter-spacing:0.5px;">Company</th>
+                        <th class="py-3 text-muted text-uppercase fw-semibold" style="font-size:0.68rem; letter-spacing:0.5px;">Student</th>
+                        <th class="py-3 text-muted text-uppercase fw-semibold" style="font-size:0.68rem; letter-spacing:0.5px;">Opportunity</th>
+                        <th class="py-3 text-muted text-uppercase fw-semibold" style="font-size:0.68rem; letter-spacing:0.5px;">Message</th>
+                        <th class="py-3 text-muted text-uppercase fw-semibold" style="font-size:0.68rem; letter-spacing:0.5px;">Status</th>
+                        <th class="pe-4 py-3 text-muted text-uppercase fw-semibold" style="font-size:0.68rem; letter-spacing:0.5px;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for interest in interests %}
+                    <tr>
+                        <td class="px-4 py-3">
+                            <span class="fw-semibold text-dark d-block" style="font-size:0.88rem;">{{ interest.employer.employer_profile.company_name }}</span>
+                            <small class="text-muted">{{ interest.employer.employer_profile.company_email }}</small>
+                        </td>
+                        <td class="py-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="d-flex align-items-center justify-content-center rounded-circle fw-bold flex-shrink-0"
+                                     style="width:32px; height:32px; background:rgba(0,71,86,0.1); color:var(--brand-darkest); font-size:0.68rem;">
+                                    {{ interest.student.username|slice:":2"|upper }}
+                                </div>
+                                <div>
+                                    <span class="fw-semibold text-dark d-block" style="font-size:0.85rem;">{{ interest.student.username }}</span>
+                                    <small class="text-muted">{{ interest.student.profile.university.name }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="py-3">
+                            <span class="badge px-2 py-1 fw-semibold" style="font-size:0.7rem; background:rgba(0,71,86,0.07); color:var(--brand-darkest); border-radius:6px;">
+                                {{ interest.get_job_type_display }}
+                            </span>
+                        </td>
+                        <td class="py-3 text-muted small" style="max-width:200px;">{{ interest.message|truncatewords:12 }}</td>
+                        <td class="py-3">
+                            {% if interest.status == 'forwarded' %}
+                            <span class="badge px-2 py-1 fw-semibold" style="background:rgba(16,185,129,0.1); color:#059669; border-radius:6px; font-size:0.7rem;">
+                                <i class="bi bi-check-circle me-1"></i>Forwarded
+                            </span>
+                            {% elif interest.status == 'closed' %}
+                            <span class="badge px-2 py-1 fw-semibold" style="background:rgba(0,0,0,0.06); color:#666; border-radius:6px; font-size:0.7rem;">
+                                <i class="bi bi-x-circle me-1"></i>Closed
+                            </span>
+                            {% else %}
+                            <span class="badge px-2 py-1 fw-semibold" style="background:rgba(245,158,11,0.1); color:#d97706; border-radius:6px; font-size:0.7rem;">
+                                <i class="bi bi-hourglass-split me-1"></i>Pending
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td class="pe-4 py-3">
+                            {% if interest.status == 'pending' %}
+                            <form method="post" class="d-inline">
+                                {% csrf_token %}
+                                <input type="hidden" name="interest_id" value="{{ interest.pk }}">
+                                <button type="submit" class="btn btn-sm btn-primary fw-semibold text-white" style="border-radius:6px; font-size:0.78rem;">
+                                    <i class="bi bi-send me-1"></i>Forward
+                                </button>
+                            </form>
+                            {% else %}
+                            <span class="text-muted small">—</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5">
+                            <i class="bi bi-inbox d-block mb-2" style="font-size:2rem; color:var(--brand-light);"></i>
+                            <p class="text-muted small mb-0">No employer interests yet.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
 {% endblock %}
