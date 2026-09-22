@@ -10,4 +10,5 @@ urlpatterns = [
     path('review/<int:pk>/', views.review_submission, name='review_submission'),
     path('interest/<int:student_id>/', views.express_interest, name='express_interest'),
     path('sponsor/', views.sponsor_challenge_view, name='sponsor'),
+    path('files/<int:file_id>/', views.serve_submission_file, name='serve_file'),
 ]

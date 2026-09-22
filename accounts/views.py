@@ -6,9 +6,11 @@ from django.contrib.auth.views import PasswordResetView, PasswordResetConfirmVie
 from django.urls import reverse_lazy, reverse
 from django.db import IntegrityError
 from django_ratelimit.decorators import ratelimit
-from .models import User, Profile
+from .models import User, Profile, EmployerProfile
 from .forms import UserRegistrationForm, UserLoginForm, StudentProfileForm, AdminProfileForm, EmployerRegistrationForm
-from accounts.models import EmployerProfile
+from notifications.models import Notification
+from django.core.mail import send_mail
+from django.conf import settings as django_settings
 from .settings_forms import (
     AccountSettingsForm, AcademicSettingsForm,
     AppearanceSettingsForm, NotificationSettingsForm,
@@ -218,13 +220,12 @@ def employer_register_view(request):
 
     if request.method == 'POST':
         form = EmployerRegistrationForm(request.POST)
+
         if form.is_valid():
             try:
                 user = form.save(commit=False)
                 user.user_type = 'employer'
                 user.save()
-
-                # Create employer profile
 
                 EmployerProfile.objects.create(
                     user=user,
@@ -232,19 +233,56 @@ def employer_register_view(request):
                     company_email=form.cleaned_data['email'],
                     company_website=form.cleaned_data.get('company_website', ''),
                     industry=form.cleaned_data.get('industry', ''),
-                    is_verified=False
+                    is_verified=False,
                 )
+
+                super_admins = User.objects.filter(user_type='super_admin')
+
+                for sa in super_admins:
+                    Notification.objects.create(
+                        recipient=sa,
+                        message=(
+                            f'New employer registration: '
+                            f'{form.cleaned_data["company_name"]} — awaiting verification.'
+                        ),
+                        notification_type='general',
+                        link='/management/employers/',
+                    )
+
+                super_admin_emails = [sa.email for sa in super_admins if sa.email]
+
+                if super_admin_emails:
+                    send_mail(
+                        subject='ConnectED — New Employer Registration',
+                        message=(
+                            'A new employer has registered and is awaiting verification.\n\n'
+                            f'Company: {form.cleaned_data["company_name"]}\n'
+                            f'Email: {form.cleaned_data["email"]}\n'
+                            f'Industry: {form.cleaned_data.get("industry", "Not specified")}\n\n'
+                            'Review at: /management/employers/'
+                        ),
+                        from_email=django_settings.DEFAULT_FROM_EMAIL,
+                        recipient_list=super_admin_emails,
+                        fail_silently=True,
+                    )
+
                 messages.success(
                     request,
                     'Account created. Please wait for admin verification '
-                    'before you can access the platform.'
+                    'before you can access the platform.',
                 )
                 return redirect('accounts:login')
+
             except IntegrityError:
                 form.add_error('username', 'That username is already taken.')
 
         messages.error(request, 'Please correct the errors below.')
+
     else:
         form = EmployerRegistrationForm()
 
-    return render(request, 'accounts/employer_register.html', {'form': form})
+    return render(
+        request,
+        'accounts/employer_register.html',
+        {'form': form},
+    )

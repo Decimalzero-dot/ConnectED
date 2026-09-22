@@ -7,6 +7,10 @@ from django.contrib.auth import get_user_model
 from accounts.models import Profile
 from universities.models import University
 from challenges.models import Challenge, Submission
+from django.core.mail import send_mail, send_mass_mail
+from django.conf import settings as django_settings
+from notifications.models import Notification
+
 
 User = get_user_model()
 
@@ -183,12 +187,14 @@ def challenge_create(request):
             challenge = form.save(commit=False)
             challenge.created_by = request.user
             challenge.save()
+
+            _notify_students_new_challenge(challenge)
+
             messages.success(request, 'Challenge created.')
             return redirect('challenges:list')
     else:
         form = ChallengeForm()
     return render(request, 'management/challenge_form.html', {'form': form, 'action': 'Create'})
-
 
 @login_required
 @admin_required
@@ -305,3 +311,72 @@ def employer_interests(request):
         return redirect('management:employer_interests')
 
     return render(request, 'management/employer_interests.html', {'interests': interests})
+
+def _notify_students_new_challenge(challenge):
+    """
+    Notify all students whose discipline matches the challenge
+    and who have opted in to new challenge notifications.
+    """
+    from django.contrib.auth import get_user_model
+    from notifications.models import Notification
+    from django.core.mail import send_mail
+    from django.conf import settings as django_settings
+
+    User = get_user_model()
+
+    # Get eligible students — matching discipline, opt-in enabled
+    eligible_students = User.objects.filter(
+        user_type='student',
+        profile__discipline=challenge.discipline,
+        profile__notify_on_new_challenge=True,
+    ).select_related('profile')
+
+    # In-platform notifications (bulk create — one DB hit)
+    notifications = [
+        Notification(
+            recipient=student,
+            message=(
+                f'New {challenge.get_difficulty_display()} challenge: '
+                f'"{challenge.title}" — {challenge.points} pts'
+            ),
+            notification_type='new_challenge',
+            link=f'/challenges/{challenge.pk}/'
+        )
+        for student in eligible_students
+    ]
+    Notification.objects.bulk_create(notifications)
+
+    # Email notifications — only students with email, respect personal_email preference
+    email_messages = []
+    for student in eligible_students:
+        recipient_email = (
+            student.profile.personal_email or student.email
+        )
+        if not recipient_email:
+            continue
+
+        email_messages.append((
+            f'ConnectED — New Challenge: {challenge.title}',
+            (
+                f'Hi {student.username},\n\n'
+                f'A new challenge has been posted in your discipline '
+                f'({challenge.get_discipline_display()}).\n\n'
+                f'Challenge: {challenge.title}\n'
+                f'Difficulty: {challenge.get_difficulty_display()}\n'
+                f'Points: {challenge.points}\n'
+                f'Min Year: Year {challenge.min_year}+\n'
+                + (f'Deadline: {challenge.deadline.strftime("%d %b %Y %H:%M")}\n' if challenge.deadline else '')
+                + f'\nView it at: /challenges/{challenge.pk}/\n\n'
+                f'— The ConnectED Team\n\n'
+                f'To stop these emails, update your notification preferences in Settings.'
+            ),
+            django_settings.DEFAULT_FROM_EMAIL,
+            [recipient_email],
+        ))
+
+    if email_messages:
+        from django.core.mail import send_mass_mail
+        try:
+            send_mass_mail(email_messages, fail_silently=True)
+        except Exception:
+            pass  # Never crash challenge creation because email failed

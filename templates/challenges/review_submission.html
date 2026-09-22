@@ -1,30 +1,243 @@
 {% extends 'base.html' %}
-{% block title %}Review Submission - ConnectED{% endblock %}
+{% block title %}Review Submission — ConnectED{% endblock %}
+{% block page_title %}Review Submission{% endblock %}
 
 {% block content %}
-<a href="{% url 'challenges:review_queue' %}" class="btn btn-link mb-3">&larr; Back to Queue</a>
+<div class="container-fluid px-0">
 
-<div class="card mb-3">
-    <div class="card-body">
-        <h4>{{ submission.challenge.title }}</h4>
-        <p class="text-muted">By {{ submission.student.username }} · {{ submission.student.profile.university }}</p>
-        <p>{{ submission.challenge.description }}</p>
-        <hr>
-        <p><strong>Repo:</strong> <a href="{{ submission.github_repo_url }}" target="_blank">{{ submission.github_repo_url }}</a></p>
-    </div>
-</div>
+    <a href="{% url 'challenges:review_queue' %}" class="d-inline-flex align-items-center gap-2 text-muted text-decoration-none mb-4 fw-semibold" style="font-size:0.85rem;">
+        <i class="bi bi-arrow-left"></i> Back to Queue
+    </a>
 
-<div class="card">
-    <div class="card-body">
-        <form method="post">
-            {% csrf_token %}
-            <div class="mb-3">
-                <label class="form-label">Feedback</label>
-                <textarea name="feedback" class="form-control" rows="4" placeholder="Notes for the student...">{{ submission.feedback }}</textarea>
+    <div class="row g-3">
+
+        <!-- ================================================================
+             LEFT — Submission details
+        ================================================================ -->
+        <div class="col-lg-8">
+            <div class="card mb-3" style="border-radius:14px;">
+                <div class="card-body p-4">
+
+                    <!-- Header -->
+                    <h4 class="fw-bold text-dark mb-1">{{ submission.challenge.title }}</h4>
+                    <div class="d-flex align-items-center gap-2 flex-wrap mb-3">
+                        <span class="text-muted small">
+                            <i class="bi bi-person me-1"></i>{{ submission.student.username }}
+                        </span>
+                        <span class="text-muted small">·</span>
+                        <span class="text-muted small">
+                            <i class="bi bi-building me-1"></i>{{ submission.student.profile.university.name|default:"—" }}
+                        </span>
+                        <span class="text-muted small">·</span>
+                        <span class="text-muted small">
+                            <i class="bi bi-clock me-1"></i>{{ submission.submitted_at|date:"d M Y, H:i" }}
+                        </span>
+                    </div>
+
+                    <!-- Challenge meta pills -->
+                    <div class="d-flex flex-wrap gap-2 mb-4">
+                        <span class="badge px-2 py-1 fw-semibold" style="background:rgba(0,71,86,0.08); color:var(--brand-darkest); border-radius:6px; font-size:0.7rem;">
+                            <i class="bi bi-cpu me-1"></i>{{ submission.challenge.get_discipline_display }}
+                        </span>
+                        <span class="badge px-2 py-1 fw-semibold" style="background:rgba(0,71,86,0.08); color:var(--brand-darkest); border-radius:6px; font-size:0.7rem;">
+                            <i class="bi bi-bar-chart me-1"></i>{{ submission.challenge.get_difficulty_display }}
+                        </span>
+                        <span class="badge px-2 py-1 fw-semibold" style="background:rgba(0,71,86,0.08); color:var(--brand-darkest); border-radius:6px; font-size:0.7rem;">
+                            <i class="bi bi-star me-1"></i>{{ submission.challenge.points }} pts max
+                        </span>
+                    </div>
+
+                    <hr class="opacity-10">
+
+                    <!-- Submission content -->
+                    <div class="d-flex flex-column gap-3 mt-3">
+
+                        {% if submission.github_url %}
+                        <div class="d-flex align-items-center gap-3 p-3 rounded-3" style="background:#f8fafb; border:1px solid rgba(0,0,0,0.05);">
+                            <i class="bi bi-github flex-shrink-0" style="font-size:1.2rem; color:#333;"></i>
+                            <div>
+                                <small class="text-muted d-block" style="font-size:0.68rem;">GitHub Repository</small>
+                                <a href="{{ submission.github_url }}" target="_blank" rel="noopener" class="fw-semibold small" style="color:var(--brand-primary);">
+                                    {{ submission.github_url }}
+                                </a>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if submission.external_url %}
+                        <div class="d-flex align-items-center gap-3 p-3 rounded-3" style="background:#f8fafb; border:1px solid rgba(0,0,0,0.05);">
+                            <i class="bi bi-link-45deg flex-shrink-0" style="font-size:1.2rem; color:#333;"></i>
+                            <div>
+                                <small class="text-muted d-block" style="font-size:0.68rem;">External Link</small>
+                                <a href="{{ submission.external_url }}" target="_blank" rel="noopener" class="fw-semibold small" style="color:var(--brand-primary);">
+                                    {{ submission.external_url }}
+                                </a>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if submission.text_answer %}
+                        <div class="p-3 rounded-3" style="background:#f8fafb; border:1px solid rgba(0,0,0,0.05);">
+                            <small class="text-muted fw-semibold text-uppercase d-block mb-2" style="font-size:0.68rem; letter-spacing:0.5px;">Written Answer</small>
+                            <p class="mb-0 small text-dark" style="line-height:1.7;">{{ submission.text_answer|linebreaks }}</p>
+                        </div>
+                        {% endif %}
+
+                        {% if submission.files.all %}
+                        <div class="p-3 rounded-3" style="background:#f8fafb; border:1px solid rgba(0,0,0,0.05);">
+                            <small class="text-muted fw-semibold text-uppercase d-block mb-2" style="font-size:0.68rem; letter-spacing:0.5px;">
+                                <i class="bi bi-paperclip me-1"></i>Uploaded Files
+                            </small>
+                            <div class="d-flex flex-column gap-2">
+                                {% for f in submission.files.all %}
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="bi bi-file-earmark" style="color:var(--brand-primary); font-size:0.85rem;"></i>
+                                    <a href="{% url 'challenges:serve_file' f.pk %}" class="small fw-semibold" style="color:var(--brand-primary);">
+                                        {{ f.original_filename }}
+                                    </a>
+                                    <small class="text-muted">({{ f.file_size|filesizeformat }})</small>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                    </div>
+                </div>
             </div>
-            <button type="submit" name="decision" value="passed" class="btn btn-success">Mark Passed</button>
-            <button type="submit" name="decision" value="failed" class="btn btn-danger">Mark Failed</button>
-        </form>
+
+            <!-- ============================================================
+                 REVIEW DECISION CARD
+            ============================================================ -->
+            <div class="card" style="border-radius:14px;">
+                <div class="card-body p-4">
+
+                    <h6 class="fw-bold text-dark text-uppercase mb-1" style="font-size:0.75rem; letter-spacing:0.5px;">
+                        <i class="bi bi-clipboard-check me-2" style="color:var(--brand-primary);"></i>Review Decision
+                    </h6>
+                    <p class="text-muted small mb-4">Your feedback is sent to the student after you submit.</p>
+
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+
+                        <!-- Score -->
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold text-muted text-uppercase" style="font-size:0.7rem; letter-spacing:0.5px;">
+                                Score (out of {{ submission.challenge.points }} points)
+                            </label>
+                            <input type="number" name="score" class="form-control"
+                                   min="0" max="{{ submission.challenge.points }}"
+                                   placeholder="Leave blank to skip scoring"
+                                   style="border-radius:8px;">
+                            <div class="form-text text-muted" style="font-size:0.72rem;">Optional — only fill if you want to give a partial score.</div>
+                        </div>
+
+                        <!-- Feedback -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold text-muted text-uppercase" style="font-size:0.7rem; letter-spacing:0.5px;">
+                                Feedback <span class="text-danger">*</span>
+                            </label>
+                            <textarea name="feedback" class="form-control" rows="5"
+                                      placeholder="Give the student clear, actionable feedback..."
+                                      style="border-radius:8px;">{{ submission.feedback }}</textarea>
+                        </div>
+
+                        <!-- Decision buttons -->
+                        <div class="pt-3 border-top d-flex gap-2 flex-wrap">
+                            <button type="submit" name="decision" value="passed"
+                                    class="btn fw-semibold text-white px-4 py-2"
+                                    style="background:#10b981; border:none; border-radius:8px;">
+                                <i class="bi bi-check-circle me-2"></i>Mark Passed
+                            </button>
+                            <button type="submit" name="decision" value="failed"
+                                    class="btn fw-semibold text-white px-4 py-2"
+                                    style="background:#ef4444; border:none; border-radius:8px;">
+                                <i class="bi bi-x-circle me-2"></i>Mark Failed
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ================================================================
+             RIGHT — Student + challenge quick info
+        ================================================================ -->
+        <div class="col-lg-4">
+
+            <!-- Student info -->
+            <div class="card mb-3" style="border-radius:14px;">
+                <div class="card-body p-4">
+                    <h6 class="fw-bold text-dark text-uppercase mb-3" style="font-size:0.75rem; letter-spacing:0.5px;">
+                        <i class="bi bi-person me-2" style="color:var(--brand-primary);"></i>Student
+                    </h6>
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="d-flex align-items-center justify-content-center rounded-circle fw-bold flex-shrink-0"
+                             style="width:44px; height:44px; background:rgba(0,71,86,0.1); color:var(--brand-darkest); font-size:0.85rem; border:2px solid var(--brand-light);">
+                            {{ submission.student.username|slice:":2"|upper }}
+                        </div>
+                        <div>
+                            <span class="fw-bold text-dark d-block">{{ submission.student.username }}</span>
+                            <small class="text-muted">{{ submission.student.email }}</small>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-column gap-2">
+                        <div>
+                            <small class="text-muted d-block" style="font-size:0.68rem;">University</small>
+                            <span class="fw-semibold text-dark small">{{ submission.student.profile.university.name|default:"—" }}</span>
+                        </div>
+                        <div>
+                            <small class="text-muted d-block" style="font-size:0.68rem;">Discipline</small>
+                            <span class="fw-semibold text-dark small">{{ submission.student.profile.get_discipline_display|default:"—" }}</span>
+                        </div>
+                        <div>
+                            <small class="text-muted d-block" style="font-size:0.68rem;">Year</small>
+                            <span class="fw-semibold text-dark small">{{ submission.student.profile.get_year_of_study_display|default:"—" }}</span>
+                        </div>
+                        {% if submission.student.profile.github_username %}
+                        <div>
+                            <small class="text-muted d-block" style="font-size:0.68rem;">GitHub</small>
+                            <a href="https://github.com/{{ submission.student.profile.github_username }}" target="_blank" rel="noopener" class="fw-semibold small" style="color:var(--brand-primary);">
+                                <i class="bi bi-github me-1"></i>{{ submission.student.profile.github_username }}
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Challenge quick info -->
+            <div class="card" style="border-radius:14px;">
+                <div class="card-body p-4">
+                    <h6 class="fw-bold text-dark text-uppercase mb-3" style="font-size:0.75rem; letter-spacing:0.5px;">
+                        Challenge Info
+                    </h6>
+                    <div class="d-flex flex-column gap-2">
+                        <div>
+                            <small class="text-muted d-block" style="font-size:0.68rem;">Points Available</small>
+                            <span class="fw-bold" style="color:var(--brand-primary); font-size:1.1rem;">{{ submission.challenge.points }} pts</span>
+                        </div>
+                        <div>
+                            <small class="text-muted d-block" style="font-size:0.68rem;">Difficulty</small>
+                            <span class="fw-semibold text-dark small">{{ submission.challenge.get_difficulty_display }}</span>
+                        </div>
+                        <div>
+                            <small class="text-muted d-block" style="font-size:0.68rem;">Current Status</small>
+                            {% if submission.status == 'passed' %}
+                            <span class="badge px-2 py-1 fw-semibold" style="background:rgba(16,185,129,0.1); color:#059669; border-radius:6px; font-size:0.7rem;">Passed</span>
+                            {% elif submission.status == 'failed' %}
+                            <span class="badge px-2 py-1 fw-semibold" style="background:rgba(239,68,68,0.1); color:#dc2626; border-radius:6px; font-size:0.7rem;">Failed</span>
+                            {% else %}
+                            <span class="badge px-2 py-1 fw-semibold" style="background:rgba(245,158,11,0.1); color:#d97706; border-radius:6px; font-size:0.7rem;">Pending</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
     </div>
 </div>
 {% endblock %}

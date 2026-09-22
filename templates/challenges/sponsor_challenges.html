@@ -1,110 +1,115 @@
 {% extends 'base.html' %}
 {% block title %}Sponsor Challenges — ConnectED{% endblock %}
-{% block page_title %}Sponsor Challenges{% endblock %}
 
 {% block content %}
-<div class="container-fluid px-0">
-
-    <div class="row g-3">
-
-        <!-- ================================================================
-             LEFT — How it works + CTA
-        ================================================================ -->
-        <div class="col-lg-4">
-
-            <!-- Hero card -->
-            <div class="card mb-3" style="border-radius:14px; background: linear-gradient(135deg, var(--brand-darkest) 0%, var(--brand-primary) 100%); overflow:hidden; position:relative;">
-                <div style="position:absolute; top:-40px; right:-40px; width:180px; height:180px; border-radius:50%; background:radial-gradient(circle, rgba(155,255,255,0.12) 0%, transparent 70%); pointer-events:none;"></div>
-                <div class="card-body p-4 position-relative text-white">
-                    <i class="bi bi-patch-plus d-block mb-3" style="font-size:2rem; color:var(--brand-lightest);"></i>
-                    <h5 class="fw-bold mb-2">Sponsor a Challenge</h5>
-                    <p class="text-white-50 small mb-4">
-                        Partner with ConnectED to fund discipline-specific challenges. Your brand appears on the challenge and you get first access to top performers.
-                    </p>
-                    <a href="mailto:{{ settings.DEFAULT_FROM_EMAIL }}" class="btn fw-semibold px-4 py-2"
-                       style="background:var(--brand-lightest); color:var(--brand-darkest); border-radius:8px; font-size:0.88rem;">
-                        <i class="bi bi-envelope me-2"></i>Contact Us to Sponsor
-                    </a>
-                </div>
-            </div>
-
-            <!-- How it works -->
-            <div class="card" style="border-radius:14px;">
-                <div class="card-body p-4">
-                    <h6 class="fw-bold text-dark text-uppercase mb-3" style="font-size:0.75rem; letter-spacing:0.5px;">
-                        <i class="bi bi-info-circle me-2" style="color:var(--brand-primary);"></i>How It Works
-                    </h6>
-                    <div class="d-flex flex-column gap-3">
-                        
-                        <div class="d-flex gap-3">
-                            <div class="d-flex align-items-center justify-content-center rounded-circle fw-bold flex-shrink-0"
-                                 style="width:28px; height:28px; background:rgba(0,71,86,0.08); color:var(--brand-primary); font-size:0.78rem;">1</div>
-                            <p class="small text-dark mb-0">Browse existing challenges or propose a new one</p>
-                        </div>
-                        <div class="d-flex gap-3">
-                            <div class="d-flex align-items-center justify-content-center rounded-circle fw-bold flex-shrink-0"
-                                 style="width:28px; height:28px; background:rgba(0,71,86,0.08); color:var(--brand-primary); font-size:0.78rem;">2</div>
-                            <p class="small text-dark mb-0">Contact us with your sponsorship interest</p>
-                        </div>
-                        <div class="d-flex gap-3">
-                            <div class="d-flex align-items-center justify-content-center rounded-circle fw-bold flex-shrink-0"
-                                 style="width:28px; height:28px; background:rgba(0,71,86,0.08); color:var(--brand-primary); font-size:0.78rem;">3</div>
-                            <p class="small text-dark mb-0">Your brand appears on the challenge</p>
-                        </div>
-                        <div class="d-flex gap-3">
-                            <div class="d-flex align-items-center justify-content-center rounded-circle fw-bold flex-shrink-0"
-                                 style="width:28px; height:28px; background:rgba(0,71,86,0.08); color:var(--brand-primary); font-size:0.78rem;">4</div>
-                            <p class="small text-dark mb-0">Top performers are flagged to your team first</p>
-                        </div>
-                    </div>
-                </div>
+<main class="sponsor-page">
+    <section class="sponsor-hero" aria-labelledby="sponsor-title">
+        <div class="sponsor-hero__orb sponsor-hero__orb--one" aria-hidden="true"></div>
+        <div class="sponsor-hero__orb sponsor-hero__orb--two" aria-hidden="true"></div>
+        <div class="container sponsor-hero__inner">
+            <p class="sponsor-eyebrow"><i class="bi bi-lightning-charge-fill" aria-hidden="true"></i> Build the talent pipeline</p>
+            <h1 id="sponsor-title">Sponsor a challenge.<br><span>Shape what’s next.</span></h1>
+            <p>Fund practical, discipline-specific work for Kenya’s emerging STEM talent — and connect with the people who rise to the challenge.</p>
+            <div class="sponsor-hero__signals" aria-label="Sponsorship benefits">
+                <span><i class="bi bi-patch-check-fill" aria-hidden="true"></i> Verified talent</span>
+                <span><i class="bi bi-buildings-fill" aria-hidden="true"></i> Campus reach</span>
+                <span><i class="bi bi-graph-up-arrow" aria-hidden="true"></i> Measurable impact</span>
             </div>
         </div>
+    </section>
 
-        <!-- ================================================================
-             RIGHT — Active challenges grid
-        ================================================================ -->
-        <div class="col-lg-8">
-            <div class="card" style="border-radius:14px;">
-                <div class="card-body p-4">
-                    <h6 class="fw-bold text-dark text-uppercase mb-3" style="font-size:0.75rem; letter-spacing:0.5px;">
-                        <i class="bi bi-code-slash me-2" style="color:var(--brand-primary);"></i>Active Challenges
-                    </h6>
+    <section class="sponsor-content" aria-labelledby="interest-title">
+        <div class="container">
+            <div class="sponsor-content__intro">
+                <div>
+                    <p class="sponsor-eyebrow">Partner with ConnectED</p>
+                    <h2 id="interest-title">Tell us what you want to make possible.</h2>
+                </div>
+                <p>Choose an area of interest and share your goals. Our team will help shape a challenge that connects your organisation with students doing work that matters.</p>
+            </div>
 
-                    <div class="row g-3">
-                        {% for challenge in challenges %}
-                        <div class="col-md-6">
-                            <div class="h-100 p-3 rounded-3" style="background:#f8fafb; border:1px solid rgba(0,0,0,0.06); transition:box-shadow 0.15s ease;"
-                                 onmouseover="this.style.boxShadow='0 4px 16px rgba(0,71,86,0.1)'"
-                                 onmouseout="this.style.boxShadow='none'">
-                                <div class="d-flex align-items-start justify-content-between gap-2 mb-2">
-                                    <h6 class="fw-bold text-dark mb-0" style="font-size:0.88rem;">{{ challenge.title }}</h6>
-                                    <span class="badge px-2 py-1 fw-semibold flex-shrink-0" style="font-size:0.65rem; background:rgba(0,71,86,0.08); color:var(--brand-darkest); border-radius:6px;">
-                                        {{ challenge.points }} pts
-                                    </span>
+            <div class="row g-4 g-lg-5 align-items-start">
+                <div class="col-lg-7">
+                    <div class="sponsor-form-card">
+                        <div class="sponsor-form-card__header">
+                            <span class="sponsor-form-card__icon"><i class="bi bi-send-fill" aria-hidden="true"></i></span>
+                            <div><h3>Express sponsorship interest</h3><p>We’ll be in touch to discuss the best fit.</p></div>
+                        </div>
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="sponsor-field">
+                                <label for="challenge_interest">Which discipline are you interested in?</label>
+                                <div class="sponsor-select-wrap">
+                                    <select id="challenge_interest" name="challenge_interest" class="form-control">
+                                        <option value="">Select a discipline</option>
+                                        <option>Software Engineering</option>
+                                        <option>Cybersecurity</option>
+                                        <option>Data Science / AI-ML</option>
+                                        <option>UI/UX Design</option>
+                                        <option>Networking</option>
+                                        <option>Electrical Engineering</option>
+                                        <option>Mechanical Engineering</option>
+                                        <option>Any / Open to suggestions</option>
+                                    </select>
+                                    <i class="bi bi-chevron-down" aria-hidden="true"></i>
                                 </div>
-                                <div class="d-flex flex-wrap gap-1 mb-2">
-                                    <span class="badge px-2 py-1" style="font-size:0.65rem; background:rgba(24,143,159,0.1); color:var(--brand-primary); border-radius:5px;">
-                                        {{ challenge.get_discipline_display }}
-                                    </span>
-                                    <span class="badge px-2 py-1" style="font-size:0.65rem; background:rgba(24,143,159,0.1); color:var(--brand-primary); border-radius:5px;">
-                                        {{ challenge.get_difficulty_display }}
-                                    </span>
-                                </div>
-                                <p class="text-muted small mb-0" style="font-size:0.78rem; line-height:1.5;">{{ challenge.description|truncatewords:15 }}</p>
                             </div>
-                        </div>
-                        {% empty %}
-                        <div class="col-12 text-center py-4">
-                            <i class="bi bi-inbox d-block mb-2" style="font-size:2rem; color:var(--brand-light);"></i>
-                            <p class="text-muted small mb-0">No active challenges yet.</p>
-                        </div>
-                        {% endfor %}
+                            <div class="sponsor-field">
+                                <label for="budget">Approximate budget <span>(KES)</span></label>
+                                <input id="budget" type="text" name="budget" class="form-control" placeholder="e.g. KES 50,000">
+                            </div>
+                            <div class="sponsor-field">
+                                <label for="message">What would you like to achieve?</label>
+                                <textarea id="message" name="message" class="form-control" rows="5" placeholder="Tell us what you're looking for and the kind of students you want to reach..."></textarea>
+                            </div>
+                            <button type="submit" class="sponsor-submit">Submit your interest <i class="bi bi-arrow-up-right" aria-hidden="true"></i></button>
+                        </form>
                     </div>
                 </div>
+
+                <aside class="col-lg-5" aria-label="Sponsorship information">
+                    <div class="sponsor-value-card">
+                        <p class="sponsor-eyebrow">Why sponsor?</p>
+                        <h2>Turn support into real impact.</h2>
+                        <ul>
+                            <li><span><i class="bi bi-megaphone-fill" aria-hidden="true"></i></span><div><strong>Meaningful visibility</strong><p>Your brand appears where students discover and complete the challenge.</p></div></li>
+                            <li><span><i class="bi bi-people-fill" aria-hidden="true"></i></span><div><strong>Earlier access</strong><p>See top performers and their work before the hiring queue forms.</p></div></li>
+                            <li><span><i class="bi bi-pencil-square" aria-hidden="true"></i></span><div><strong>A challenge shaped by you</strong><p>Focus on the capabilities that matter to your team and industry.</p></div></li>
+                        </ul>
+                    </div>
+
+                    <div class="sponsor-challenges-card">
+                        <div class="sponsor-challenges-card__heading"><div><p class="sponsor-eyebrow">On the platform</p><h2>Active challenges</h2></div><span class="sponsor-pulse" aria-label="Live"></span></div>
+                        <div class="sponsor-challenge-list">
+                            {% for challenge in challenges %}
+                            <article class="sponsor-challenge-item">
+                                <span class="sponsor-challenge-item__mark"><i class="bi bi-code-slash" aria-hidden="true"></i></span>
+                                <div><h3>{{ challenge.title }}</h3><p>{{ challenge.get_discipline_display }} <span>·</span> {{ challenge.get_difficulty_display }}</p></div>
+                            </article>
+                            {% empty %}
+                            <div class="sponsor-empty"><i class="bi bi-rocket-takeoff" aria-hidden="true"></i><p>No active challenges yet.</p><small>New opportunities will appear here soon.</small></div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </aside>
             </div>
         </div>
+    </section>
+</main>
 
-    </div>
-</div>
+<style>
+.sponsor-page { --ink:#102b35; --muted:#63757b; --teal:#107d79; --teal-deep:#07504f; --mint:#b7f4d8; --wash:#eaf3ed; --line:rgba(16,43,53,.14); color:var(--ink); background:#f7f8f4; min-height:100%; overflow:hidden; }
+.sponsor-page *, .sponsor-page *::before, .sponsor-page *::after { box-sizing:border-box; }
+.sponsor-hero { min-height:400px; display:flex; align-items:center; position:relative; isolation:isolate; overflow:hidden; background:var(--ink); color:#fff; }
+.sponsor-hero::before { content:''; position:absolute; z-index:-1; inset:0; background-image:linear-gradient(rgba(183,244,216,.08) 1px, transparent 1px),linear-gradient(90deg, rgba(183,244,216,.08) 1px, transparent 1px); background-size:42px 42px; mask-image:linear-gradient(90deg, #000, transparent 78%); }
+.sponsor-hero__inner { padding-top:5.5rem; padding-bottom:5.5rem; position:relative; }.sponsor-eyebrow { display:flex; align-items:center; gap:.42rem; color:var(--teal); font-size:.7rem; font-weight:800; text-transform:uppercase; letter-spacing:.13em; margin:0 0:.9rem; }.sponsor-hero .sponsor-eyebrow { color:var(--mint); }.sponsor-hero h1, .sponsor-content h2, .sponsor-value-card h2, .sponsor-challenges-card h2 { letter-spacing:-.055em; line-height:1.01; font-weight:800; margin:0; }.sponsor-hero h1 { font-size:clamp(3rem, 5.4vw, 5.2rem); max-width:770px; }.sponsor-hero h1 span { color:var(--mint); }.sponsor-hero__inner > p:not(.sponsor-eyebrow) { max-width:600px; color:rgba(255,255,255,.68); line-height:1.7; font-size:1.05rem; margin:1.35rem 0 1.75rem; }.sponsor-hero__signals { display:flex; gap:1.3rem; flex-wrap:wrap; color:rgba(255,255,255,.75); font-size:.78rem; font-weight:700; }.sponsor-hero__signals i { color:var(--mint); margin-right:.25rem; }.sponsor-hero__orb { position:absolute; z-index:-1; border-radius:50%; }.sponsor-hero__orb--one { width:520px; height:520px; right:-160px; top:-250px; border:1px solid rgba(183,244,216,.2); box-shadow:0 0 0 55px rgba(183,244,216,.025),0 0 0 110px rgba(183,244,216,.018); }.sponsor-hero__orb--two { width:210px; height:210px; right:20%; bottom:-130px; background:rgba(16,125,121,.45); filter:blur(2px); }
+.sponsor-content { padding:clamp(4rem, 8vw, 7rem) 0; }.sponsor-content__intro { display:flex; align-items:end; justify-content:space-between; gap:2rem; padding-bottom:3rem; }.sponsor-content h2 { font-size:clamp(2.15rem, 4vw, 3.65rem); }.sponsor-content__intro > p { max-width:390px; margin:0 0 .3rem; color:var(--muted); font-size:.96rem; line-height:1.7; }
+.sponsor-form-card { padding:clamp(1.5rem, 4vw, 3rem); border-radius:.75rem; background:#fff; border:1px solid #e4ece6; box-shadow:0 15px 44px rgba(16,43,53,.07); }.sponsor-form-card__header { display:flex; gap:1rem; align-items:center; padding-bottom:1.8rem; margin-bottom:1.8rem; border-bottom:1px solid var(--line); }.sponsor-form-card__icon { display:grid; place-items:center; flex:0 0 48px; height:48px; border-radius:50%; background:var(--wash); color:var(--teal); font-size:1.1rem; }.sponsor-form-card h3 { font-size:1.1rem; font-weight:800; letter-spacing:-.025em; margin:0 0 .2rem; }.sponsor-form-card__header p { color:var(--muted); font-size:.83rem; margin:0; }.sponsor-field { margin-bottom:1.35rem; }.sponsor-field label { display:block; color:var(--ink); font-weight:750; font-size:.84rem; margin-bottom:.55rem; }.sponsor-field label span { color:var(--muted); font-weight:550; }.sponsor-page .form-control { border:1px solid rgba(16,43,53,.18); background:#fbfcfa; color:var(--ink); border-radius:.38rem; padding:.78rem .9rem; min-height:48px; box-shadow:none; font-size:.92rem; transition:border-color .2s ease, box-shadow .2s ease, background .2s ease; }.sponsor-page .form-control::placeholder { color:#9aa8a8; }.sponsor-page .form-control:focus { background:#fff; border-color:var(--teal); box-shadow:0 0 0 3px rgba(16,125,121,.12); }.sponsor-page textarea.form-control { min-height:132px; resize:vertical; }.sponsor-select-wrap { position:relative; }.sponsor-select-wrap select { appearance:none; -webkit-appearance:none; }.sponsor-select-wrap > i { position:absolute; right:.9rem; top:50%; transform:translateY(-50%); color:var(--teal); font-size:.75rem; pointer-events:none; }.sponsor-submit { display:inline-flex; align-items:center; justify-content:center; gap:.65rem; min-height:50px; border:0; border-radius:.4rem; padding:.75rem 1.15rem; background:var(--teal); color:#fff; font-size:.9rem; font-weight:750; box-shadow:0 10px 20px rgba(16,125,121,.2); transition:transform .2s ease, background .2s ease, box-shadow .2s ease; }.sponsor-submit:hover { transform:translateY(-2px); background:var(--teal-deep); box-shadow:0 13px 24px rgba(16,125,121,.26); }
+.sponsor-value-card { padding:clamp(1.6rem, 4vw, 2.5rem); background:var(--teal-deep); color:#fff; border-radius:.75rem; }.sponsor-value-card .sponsor-eyebrow { color:var(--mint); }.sponsor-value-card h2 { font-size:clamp(1.85rem, 3vw, 2.65rem); max-width:330px; }.sponsor-value-card ul { padding:0; list-style:none; margin:2rem 0 0; }.sponsor-value-card li { display:flex; gap:.9rem; padding:.95rem 0; border-top:1px solid rgba(255,255,255,.13); }.sponsor-value-card li > span { display:grid; place-items:center; flex:0 0 32px; height:32px; margin-top:.1rem; border-radius:50%; background:rgba(183,244,216,.14); color:var(--mint); font-size:.78rem; }.sponsor-value-card strong { font-size:.88rem; font-weight:750; }.sponsor-value-card p { color:rgba(255,255,255,.64); margin:.15rem 0 0; font-size:.79rem; line-height:1.55; }
+.sponsor-challenges-card { margin-top:1.5rem; padding:1.7rem; background:#fff; border:1px solid #e4ece6; border-radius:.75rem; }.sponsor-challenges-card__heading { display:flex; justify-content:space-between; align-items:start; padding-bottom:1.15rem; border-bottom:1px solid var(--line); }.sponsor-challenges-card__heading .sponsor-eyebrow { margin-bottom:.35rem; }.sponsor-challenges-card h2 { font-size:1.3rem; }.sponsor-pulse { width:10px; height:10px; margin-top:.25rem; border-radius:50%; background:#55d687; box-shadow:0 0 0 5px rgba(85,214,135,.16); }.sponsor-challenge-list { margin-top:.65rem; }.sponsor-challenge-item { display:flex; gap:.75rem; align-items:center; padding:.85rem 0; border-bottom:1px solid rgba(16,43,53,.1); }.sponsor-challenge-item:last-child { border-bottom:0; }.sponsor-challenge-item__mark { display:grid; place-items:center; flex:0 0 34px; height:34px; color:var(--teal); background:var(--wash); border-radius:.3rem; font-size:.85rem; }.sponsor-challenge-item h3 { margin:0 0 .16rem; font-size:.84rem; font-weight:750; letter-spacing:-.015em; }.sponsor-challenge-item p { margin:0; color:var(--muted); font-size:.7rem; }.sponsor-challenge-item p span { color:var(--teal); padding:0 .18rem; }.sponsor-empty { padding:1.6rem .5rem 1rem; text-align:center; color:var(--muted); }.sponsor-empty i { display:grid; place-items:center; width:40px; height:40px; margin:0 auto .7rem; border-radius:50%; background:var(--wash); color:var(--teal); }.sponsor-empty p { color:var(--ink); font-size:.84rem; font-weight:750; margin:0 0 .1rem; }.sponsor-empty small { font-size:.72rem; }
+.sponsor-page input:focus-visible, .sponsor-page select:focus-visible, .sponsor-page textarea:focus-visible, .sponsor-page button:focus-visible { outline:3px solid var(--mint); outline-offset:2px; }
+@media (max-width:991.98px) { .sponsor-hero__inner { padding-top:4.5rem; padding-bottom:4.5rem; }.sponsor-content__intro { display:block; }.sponsor-content__intro > p { margin-top:1.1rem; }.sponsor-value-card { margin-top:.25rem; } }
+@media (max-width:575.98px) { .sponsor-hero { min-height:auto; }.sponsor-hero__inner { padding-top:3.5rem; padding-bottom:3.5rem; }.sponsor-hero h1 { font-size:clamp(2.7rem, 13vw, 3.8rem); }.sponsor-hero__signals { display:grid; gap:.55rem; }.sponsor-content { padding:3.5rem 0; }.sponsor-content__intro { padding-bottom:2rem; }.sponsor-form-card, .sponsor-value-card { border-radius:.55rem; }.sponsor-challenges-card { padding:1.35rem; }.sponsor-submit { width:100%; }.sponsor-hero__orb--one { right:-350px; } }
+@media (prefers-reduced-motion:reduce) { .sponsor-page * { transition:none !important; } }
+</style>
 {% endblock %}
