@@ -35,10 +35,14 @@ ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
     ".ngrok-free.dev",
+    "connected-production-505e.up.railway.app",
+
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     "https://*.ngrok-free.dev",
+    "https://connected-production-505e.up.railway.app",
+
 ]
 
 
