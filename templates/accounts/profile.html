@@ -2,175 +2,1273 @@
 {% block title %}My Profile - ConnectED{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-<div class="container-fluid py-4">
+<div class="container-fluid py-4 profile-page">
 
-    <!-- Header -->
-    <div class="mb-4">
-        <h4 class="fw-bold text-dark mb-1">Account Settings</h4>
-        <p class="text-muted small mb-0">Manage your platform identity and cohort details.</p>
+    <!-- ================================================================
+         PAGE HEADER
+    ================================================================= -->
+    <div class="mb-4 profile-page-header">
+
+        <div>
+            <h4 class="fw-bold text-dark mb-1">
+                My Profile
+            </h4>
+
+            <p class="text-muted small mb-0">
+                Manage your identity and view your academic profile.
+            </p>
+        </div>
+
     </div>
+
 
     <div class="row g-4">
 
-        <!-- Identity Card-->
-
+        <!-- ============================================================
+             LEFT — PROFILE IDENTITY
+        ============================================================= -->
         <div class="col-lg-4">
-            <div class="card border-0 shadow-sm p-4 text-center" style="border-radius: 14px;">
 
-                <!-- Avatar -->
-                <div class="position-relative d-inline-block mx-auto mb-3">
-                    {% if user.profile_image %}
-                        <img src="{{ user.profile_image.url }}"
-                             alt="Profile"
-                             class="rounded-circle"
-                             style="width:100px; height:100px; object-fit:cover; border: 3px solid var(--brand-light);">
-                    {% else %}
-                        <div class="rounded-circle d-flex align-items-center justify-content-center mx-auto fw-bold"
-                             style="width:100px; height:100px; font-size:2rem; background: var(--brand-primary); color:#fff; border: 3px solid var(--brand-light);">
-                            {{ user.username|slice:":2"|upper }}
+            <div class="card border-0 shadow-sm profile-identity-card">
+
+                <div class="card-body p-4">
+
+                    <!-- Profile visual -->
+                    <div class="profile-visual">
+
+                        <div class="profile-avatar-wrapper">
+
+                            <div class="profile-avatar" id="profileAvatarPreview">
+
+                                {% if user.profile_image %}
+
+                                    <img src="{{ user.profile_image.url }}"
+                                         alt="Profile photo">
+
+                                {% else %}
+
+                                    <span>
+                                        {{ user.username|slice:":2"|upper }}
+                                    </span>
+
+                                {% endif %}
+
+                            </div>
+
+                            <!-- Decorative camera indicator -->
+                            <div class="profile-camera-indicator">
+                                <i class="bi bi-camera-fill"></i>
+                            </div>
+
                         </div>
-                    {% endif %}
-                </div>
 
-                <h5 class="fw-bold text-dark mb-0">{{ user.get_full_name|default:user.username }}</h5>
-                <p class="text-muted small mb-3">@{{ user.username }}</p>
 
-                <span class="badge rounded-pill px-3 py-2 mb-4 text-capitalize fw-semibold"
-                      style="background: rgba(0,71,86,0.08); color: var(--brand-darkest); font-size: 0.78rem;">
-                    <i class="bi bi-shield-check me-1"></i>{{ user.get_user_type_display }}
-                </span>
+                        <!-- Name -->
+                        <div class="text-center mt-3">
 
-                <hr class="opacity-10">
+                            {% if user.get_full_name %}
 
-                <!-- Cohort details -->
-                <div class="text-start mt-3 d-flex flex-column gap-3">
+                                <h5 class="profile-name text-dark fw-bold mb-1">
+                                    {{ user.get_full_name }}
+                                </h5>
 
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="d-flex align-items-center justify-content-center rounded-3 flex-shrink-0"
-                             style="width:38px; height:38px; background: rgba(0,71,86,0.07);">
-                            <i class="bi bi-building" style="color: var(--brand-primary);"></i>
-                        </div>
-                        <div>
-                            <small class="text-muted d-block" style="font-size:0.7rem;">University</small>
-                            <span class="fw-semibold text-dark small">{{ user.profile.university.name|default:"Not Linked" }}</span>
-                        </div>
-                    </div>
+                            {% else %}
 
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="d-flex align-items-center justify-content-center rounded-3 flex-shrink-0"
-                             style="width:38px; height:38px; background: rgba(0,71,86,0.07);">
-                            <i class="bi bi-cpu" style="color: var(--brand-primary);"></i>
-                        </div>
-                        <div>
-                            <small class="text-muted d-block" style="font-size:0.7rem;">Discipline Track</small>
-                            <span class="fw-semibold text-dark small">{{ user.profile.get_discipline_display|default:"Unassigned" }}</span>
-                        </div>
-                    </div>
+                                <h5 class="profile-name text-dark fw-bold mb-1">
+                                    {{ user.username }}
+                                </h5>
 
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="d-flex align-items-center justify-content-center rounded-3 flex-shrink-0"
-                             style="width:38px; height:38px; background: rgba(0,71,86,0.07);">
-                            <i class="bi bi-calendar2-check" style="color: var(--brand-primary);"></i>
-                        </div>
-                        <div>
-                            <small class="text-muted d-block" style="font-size:0.7rem;">Year of Study</small>
-                            <span class="fw-semibold text-dark small">{{ user.profile.get_year_of_study_display|default:"Not Configured" }}</span>
-                        </div>
-                    </div>
-
-                    {% if user.user_type == 'student' %}
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="d-flex align-items-center justify-content-center rounded-3 flex-shrink-0"
-                             style="width:38px; height:38px; background: rgba(0,71,86,0.07);">
-                            <i class="bi bi-card-text" style="color: var(--brand-primary);"></i>
-                        </div>
-                        <div>
-                            <small class="text-muted d-block" style="font-size:0.7rem;">Reg Number</small>
-                            <span class="fw-semibold text-dark small">{{ user.profile.reg_number|default:"Not Set" }}</span>
-                        </div>
-                    </div>
-                    {% endif %}
-
-                </div>
-            </div>
-        </div>
-
-        <!-- RIGHT Edit Form-->
-
-        <div class="col-lg-8">
-            <div class="card border-0 shadow-sm p-4" style="border-radius: 14px;">
-
-                <h6 class="fw-bold text-dark mb-1 text-uppercase" style="font-size: 0.75rem; letter-spacing: 0.5px;">
-                    <i class="bi bi-pencil-square me-2" style="color: var(--brand-primary);"></i>Edit Profile
-                </h6>
-                <p class="text-muted small mb-4">Changes to username or email take effect immediately.</p>
-
-                <form method="post" enctype="multipart/form-data" novalidate>
-                    {% csrf_token %}
-
-                    <div class="row g-3">
-
-                        <!-- Username -->
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold text-muted text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px;">Username</label>
-                            {{ form.username }}
-                            {% if form.username.errors %}
-                            <div class="text-danger small mt-1">{{ form.username.errors|striptags }}</div>
                             {% endif %}
+
+                            <p class="text-muted small mb-3">
+                                @{{ user.username }}
+                            </p>
+
+
+                            <!-- User type -->
+                            <span class="profile-role-badge">
+
+                                <i class="bi bi-shield-check me-1"></i>
+
+                                {{ user.get_user_type_display }}
+
+                            </span>
+
                         </div>
 
-                        <!-- Email -->
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold text-muted text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px;">Email</label>
-                            {{ form.email }}
-                            {% if form.email.errors %}
-                            <div class="text-danger small mt-1">{{ form.email.errors|striptags }}</div>
-                            {% endif %}
+                    </div>
+
+
+                    <!-- ==================================================
+                         ACADEMIC / COHORT INFORMATION
+                    =================================================== -->
+
+                    <div class="profile-divider"></div>
+
+                    <div class="profile-info-heading">
+                        <span>Profile Information</span>
+                    </div>
+
+
+                    <div class="profile-info-list">
+
+                        <!-- University -->
+                        <div class="profile-info-item">
+
+                            <div class="profile-info-icon">
+                                <i class="bi bi-building"></i>
+                            </div>
+
+                            <div class="profile-info-content">
+
+                                <small class="text-muted d-block">
+                                    University
+                                </small>
+
+                                <span class="fw-semibold text-dark">
+                                    {{ user.profile.university.name|default:"Not Linked" }}
+                                </span>
+
+                            </div>
+
                         </div>
 
-                        <!-- Reg Number for students only -->
 
+                        <!-- Discipline -->
+                        <div class="profile-info-item">
+
+                            <div class="profile-info-icon">
+                                <i class="bi bi-cpu"></i>
+                            </div>
+
+                            <div class="profile-info-content">
+
+                                <small class="text-muted d-block">
+                                    Discipline Track
+                                </small>
+
+                                <span class="fw-semibold text-dark">
+                                    {{ user.profile.get_discipline_display|default:"Unassigned" }}
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Year -->
+                        <div class="profile-info-item">
+
+                            <div class="profile-info-icon">
+                                <i class="bi bi-calendar2-check"></i>
+                            </div>
+
+                            <div class="profile-info-content">
+
+                                <small class="text-muted d-block">
+                                    Year of Study
+                                </small>
+
+                                <span class="fw-semibold text-dark">
+                                    {{ user.profile.get_year_of_study_display|default:"Not Configured" }}
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Registration number — students only -->
                         {% if user.user_type == 'student' %}
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold text-muted text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px;">Reg Number</label>
-                            {{ form.reg_number }}
-                            {% if form.reg_number.errors %}
-                            <div class="text-danger small mt-1">{{ form.reg_number.errors|striptags }}</div>
-                            {% endif %}
+
+                        <div class="profile-info-item">
+
+                            <div class="profile-info-icon">
+                                <i class="bi bi-card-text"></i>
+                            </div>
+
+                            <div class="profile-info-content">
+
+                                <small class="text-muted d-block">
+                                    Registration Number
+                                </small>
+
+                                <span class="fw-semibold text-dark profile-reg-number">
+                                    {{ user.profile.reg_number|default:"Not Set" }}
+                                </span>
+
+                            </div>
+
                         </div>
+
                         {% endif %}
 
-                        <!-- Profile Image -->
-                        <div class="col-12">
-                            <label class="form-label fw-semibold text-muted text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px;">
-                                <i class="bi bi-camera me-1"></i>Profile Photo
-                            </label>
-                            {{ form.profile_image }}
-                            <div class="form-text text-muted" style="font-size: 0.75rem;">
-                                JPG, PNG or GIF. Displayed in sidebar and leaderboard.
-                            </div>
-                            {% if form.profile_image.errors %}
-                            <div class="text-danger small mt-1">{{ form.profile_image.errors|striptags }}</div>
-                            {% endif %}
+                    </div>
+
+
+                    <!-- Account status -->
+                    <div class="profile-status">
+
+                        <div class="profile-status-icon">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+
+                        <div>
+
+                            <span class="profile-status-title">
+                                Account Active
+                            </span>
+
+                            <small class="text-muted d-block">
+                                Your ConnectED account is active.
+                            </small>
+
                         </div>
 
                     </div>
 
-                    <div class="mt-4 pt-3 border-top d-flex align-items-center gap-3">
-                        <button type="submit" class="btn btn-primary px-4 py-2 fw-semibold text-white" style="border-radius: 8px;">
-                            <i class="bi bi-check2 me-2"></i>Save Changes
-                        </button>
-                        <a href="{% url 'dashboard:home' %}" class="btn py-2 px-3 fw-semibold text-muted"
-                           style="border-radius: 8px; background: rgba(0,0,0,0.04); border: none; font-size: 0.9rem;">
-                            Cancel
-                        </a>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ============================================================
+             RIGHT — EDIT PROFILE
+        ============================================================= -->
+        <div class="col-lg-8">
+
+            <div class="card border-0 shadow-sm profile-edit-card">
+
+                <div class="card-body p-4">
+
+                    <!-- Form heading -->
+                    <div class="profile-edit-header">
+
+                        <div class="profile-edit-heading-icon">
+                            <i class="bi bi-pencil-square"></i>
+                        </div>
+
+                        <div>
+
+                            <h6 class="fw-bold text-dark mb-1">
+                                Edit Profile
+                            </h6>
+
+                            <p class="text-muted small mb-0">
+                                Update the information associated with your ConnectED profile.
+                            </p>
+
+                        </div>
+
                     </div>
 
-                </form>
+
+                    <div class="profile-section-divider"></div>
+
+
+                    <!-- ==================================================
+                         PROFILE FORM
+                    =================================================== -->
+
+                    <form method="post"
+                          enctype="multipart/form-data"
+                          novalidate>
+
+                        {% csrf_token %}
+
+
+                        <div class="row g-3">
+
+                            <!-- ==================================================
+                                 USERNAME
+                            =================================================== -->
+                            <div class="col-md-6">
+
+                                <label for="{{ form.username.id_for_label }}"
+                                       class="form-label profile-form-label">
+
+                                    Username
+
+                                </label>
+
+                                {{ form.username }}
+
+                                {% if form.username.errors %}
+
+                                <div class="text-danger small mt-1">
+                                    {{ form.username.errors|striptags }}
+                                </div>
+
+                                {% endif %}
+
+                            </div>
+
+
+                            <!-- ==================================================
+                                 EMAIL
+                            =================================================== -->
+                            <div class="col-md-6">
+
+                                <label for="{{ form.email.id_for_label }}"
+                                       class="form-label profile-form-label">
+
+                                    Email
+
+                                </label>
+
+                                {{ form.email }}
+
+                                {% if form.email.errors %}
+
+                                <div class="text-danger small mt-1">
+                                    {{ form.email.errors|striptags }}
+                                </div>
+
+                                {% endif %}
+
+                            </div>
+
+
+                            <!-- ==================================================
+                                 REGISTRATION NUMBER
+                                 STUDENTS ONLY
+                            =================================================== -->
+                            {% if user.user_type == 'student' %}
+
+                            <div class="col-md-6">
+
+                                <label for="{{ form.reg_number.id_for_label }}"
+                                       class="form-label profile-form-label">
+
+                                    Registration Number
+
+                                </label>
+
+                                {{ form.reg_number }}
+
+                                {% if form.reg_number.errors %}
+
+                                <div class="text-danger small mt-1">
+                                    {{ form.reg_number.errors|striptags }}
+                                </div>
+
+                                {% endif %}
+
+                            </div>
+
+                            {% endif %}
+
+
+                            <!-- ==================================================
+                                 PROFILE PHOTO
+                            =================================================== -->
+                            <div class="col-12">
+
+                                <label class="form-label profile-form-label">
+
+                                    <i class="bi bi-camera me-1"></i>
+                                    Profile Photo
+
+                                </label>
+
+
+                                <div class="profile-upload-box">
+
+                                    <!-- Small current preview -->
+                                    <div class="profile-upload-preview"
+                                         id="uploadPreview">
+
+                                        {% if user.profile_image %}
+
+                                            <img src="{{ user.profile_image.url }}"
+                                                 alt="Current profile photo">
+
+                                        {% else %}
+
+                                            <span>
+                                                {{ user.username|slice:":2"|upper }}
+                                            </span>
+
+                                        {% endif %}
+
+                                    </div>
+
+
+                                    <!-- Upload information -->
+                                    <div class="profile-upload-content">
+
+                                        <div class="fw-semibold text-dark small">
+                                            Update your profile photo
+                                        </div>
+
+                                        <div class="text-muted profile-upload-help">
+                                            Choose a JPG, PNG or GIF image.
+                                        </div>
+
+                                    </div>
+
+
+                                    <!-- Actual Django file field -->
+                                    <div class="profile-upload-input">
+
+                                        {{ form.profile_image }}
+
+                                    </div>
+
+                                </div>
+
+
+                                <div class="form-text text-muted profile-upload-note">
+
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Your profile photo may appear in the sidebar,
+                                    leaderboard and other ConnectED areas.
+
+                                </div>
+
+
+                                {% if form.profile_image.errors %}
+
+                                <div class="text-danger small mt-1">
+                                    {{ form.profile_image.errors|striptags }}
+                                </div>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- ==================================================
+                             FORM ACTIONS
+                        =================================================== -->
+
+                        <div class="profile-form-actions">
+
+                            <div class="profile-form-note">
+
+                                <i class="bi bi-shield-check me-1"></i>
+
+                                Your profile information is stored securely.
+
+                            </div>
+
+
+                            <div class="profile-action-buttons">
+
+                                <a href="{% url 'dashboard:home' %}"
+                                   class="btn profile-cancel-btn">
+
+                                    Cancel
+
+                                </a>
+
+
+                                <button type="submit"
+                                        class="btn btn-primary profile-save-btn">
+
+                                    <i class="bi bi-check2 me-2"></i>
+
+                                    Save Changes
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
             </div>
+
         </div>
+
     </div>
+
 </div>
+
+
+<!-- ====================================================================
+     PROFILE PAGE STYLES
+     These styles are page-specific.
+     They do not modify style.css or main.js.
+===================================================================== -->
+
+<style>
+
+/* ========================================================================
+   PAGE HEADER
+   ======================================================================== */
+
+.profile-page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+
+/* ========================================================================
+   IDENTITY CARD
+   ======================================================================== */
+
+.profile-identity-card {
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+.profile-identity-card .card-body {
+    min-height: 100%;
+}
+
+
+/* ========================================================================
+   PROFILE AVATAR
+   ======================================================================== */
+
+.profile-visual {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.profile-avatar-wrapper {
+    position: relative;
+    display: inline-flex;
+}
+
+.profile-avatar {
+    width: 112px;
+    height: 112px;
+    border-radius: 50%;
+    overflow: hidden;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: var(--brand-primary);
+    color: #fff;
+
+    border: 4px solid var(--brand-light);
+
+    font-size: 2rem;
+    font-weight: 700;
+
+    box-shadow: 0 6px 20px rgba(0, 71, 86, 0.14);
+}
+
+.profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+
+/* Camera indicator */
+
+.profile-camera-indicator {
+    position: absolute;
+    right: 2px;
+    bottom: 2px;
+
+    width: 32px;
+    height: 32px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: var(--brand-primary);
+    color: #fff;
+
+    border: 3px solid var(--bg-card);
+
+    font-size: 0.75rem;
+}
+
+
+/* ========================================================================
+   PROFILE NAME / ROLE
+   ======================================================================== */
+
+.profile-name {
+    font-size: 1.05rem;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+}
+
+.profile-role-badge {
+    display: inline-flex;
+    align-items: center;
+
+    padding: 0.4rem 0.75rem;
+
+    border-radius: 999px;
+
+    background: rgba(0, 106, 122, 0.09);
+    color: var(--brand-primary);
+
+    font-size: 0.72rem;
+    font-weight: 600;
+}
+
+
+/* ========================================================================
+   PROFILE DIVIDER
+   ======================================================================== */
+
+.profile-divider {
+    height: 1px;
+    margin: 1.4rem 0 1.1rem;
+
+    background: rgba(0, 71, 86, 0.08);
+}
+
+
+/* ========================================================================
+   INFORMATION HEADING
+   ======================================================================== */
+
+.profile-info-heading {
+    margin-bottom: 0.7rem;
+
+    color: #64748b;
+
+    font-size: 0.68rem;
+    font-weight: 700;
+
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+}
+
+
+/* ========================================================================
+   INFORMATION ITEMS
+   ======================================================================== */
+
+.profile-info-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.profile-info-item {
+    display: flex;
+    align-items: center;
+
+    gap: 0.75rem;
+
+    padding: 0.7rem 0;
+
+    border-bottom: 1px solid rgba(0, 71, 86, 0.06);
+}
+
+.profile-info-item:last-child {
+    border-bottom: none;
+}
+
+.profile-info-icon {
+    width: 38px;
+    height: 38px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 9px;
+
+    background: rgba(0, 71, 86, 0.07);
+
+    color: var(--brand-primary);
+
+    font-size: 0.9rem;
+}
+
+.profile-info-content {
+    min-width: 0;
+}
+
+.profile-info-content small {
+    font-size: 0.68rem;
+    margin-bottom: 2px;
+}
+
+.profile-info-content span {
+    display: block;
+
+    font-size: 0.82rem;
+
+    overflow-wrap: anywhere;
+}
+
+.profile-reg-number {
+    word-break: break-word;
+}
+
+
+/* ========================================================================
+   ACCOUNT STATUS
+   ======================================================================== */
+
+.profile-status {
+    display: flex;
+    align-items: center;
+
+    gap: 0.7rem;
+
+    margin-top: 1.25rem;
+    padding: 0.75rem;
+
+    border-radius: 10px;
+
+    background: rgba(25, 135, 84, 0.06);
+    border: 1px solid rgba(25, 135, 84, 0.10);
+}
+
+.profile-status-icon {
+    width: 32px;
+    height: 32px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 8px;
+
+    background: rgba(25, 135, 84, 0.10);
+
+    color: #198754;
+
+    font-size: 0.85rem;
+}
+
+.profile-status-title {
+    display: block;
+
+    color: #198754;
+
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+
+/* ========================================================================
+   EDIT PROFILE CARD
+   ======================================================================== */
+
+.profile-edit-card {
+    border-radius: 14px;
+}
+
+.profile-edit-header {
+    display: flex;
+    align-items: center;
+
+    gap: 0.8rem;
+}
+
+.profile-edit-heading-icon {
+    width: 40px;
+    height: 40px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 10px;
+
+    background: rgba(0, 106, 122, 0.08);
+
+    color: var(--brand-primary);
+
+    font-size: 1rem;
+}
+
+.profile-section-divider {
+    height: 1px;
+
+    margin: 1.25rem 0 1.4rem;
+
+    background: rgba(0, 0, 0, 0.06);
+}
+
+
+/* ========================================================================
+   FORM LABELS
+   ======================================================================== */
+
+.profile-form-label {
+    display: block;
+
+    margin-bottom: 0.4rem;
+
+    color: #64748b;
+
+    font-size: 0.7rem;
+    font-weight: 700;
+
+    letter-spacing: 0.5px;
+
+    text-transform: uppercase;
+}
+
+
+/* ========================================================================
+   FORM CONTROLS
+   ======================================================================== */
+
+.profile-edit-card .form-control,
+.profile-edit-card .form-select {
+    border-radius: 8px;
+}
+
+.profile-edit-card .form-control:focus,
+.profile-edit-card .form-select:focus {
+    border-color: var(--brand-primary);
+
+    box-shadow:
+        0 0 0 0.2rem rgba(0, 106, 122, 0.10);
+}
+
+
+/* ========================================================================
+   PROFILE PHOTO UPLOAD
+   ======================================================================== */
+
+.profile-upload-box {
+    display: flex;
+    align-items: center;
+
+    gap: 0.9rem;
+
+    min-height: 78px;
+
+    padding: 0.75rem 0.9rem;
+
+    border: 1px dashed rgba(0, 71, 86, 0.22);
+
+    border-radius: 10px;
+
+    background: rgba(0, 71, 86, 0.025);
+
+    transition:
+        border-color 0.2s ease,
+        background 0.2s ease;
+}
+
+.profile-upload-box:hover {
+    border-color: var(--brand-hover);
+
+    background: rgba(66, 182, 198, 0.05);
+}
+
+
+/* Small upload preview */
+
+.profile-upload-preview {
+    width: 48px;
+    height: 48px;
+
+    flex-shrink: 0;
+
+    overflow: hidden;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: var(--brand-primary);
+    color: #fff;
+
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.profile-upload-preview img {
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+}
+
+
+/* Upload text */
+
+.profile-upload-content {
+    min-width: 0;
+    flex: 1;
+}
+
+.profile-upload-help {
+    margin-top: 2px;
+
+    font-size: 0.73rem;
+}
+
+
+/* Actual Django file input */
+
+.profile-upload-input {
+    flex-shrink: 0;
+}
+
+.profile-upload-input .form-control {
+    max-width: 250px;
+
+    font-size: 0.78rem;
+}
+
+
+/* Upload note */
+
+.profile-upload-note {
+    margin-top: 0.45rem;
+
+    font-size: 0.72rem;
+}
+
+
+/* ========================================================================
+   FORM ACTIONS
+   ======================================================================== */
+
+.profile-form-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 1rem;
+
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.profile-form-note {
+    color: #64748b;
+
+    font-size: 0.72rem;
+}
+
+.profile-action-buttons {
+    display: flex;
+    align-items: center;
+
+    gap: 0.5rem;
+}
+
+.profile-save-btn {
+    padding: 0.55rem 1.1rem;
+
+    border-radius: 8px;
+
+    font-weight: 600;
+}
+
+.profile-cancel-btn {
+    padding: 0.55rem 1rem;
+
+    border: none;
+
+    border-radius: 8px;
+
+    background: rgba(0, 0, 0, 0.04);
+
+    color: #64748b;
+
+    font-size: 0.85rem;
+}
+
+.profile-cancel-btn:hover {
+    background: rgba(0, 0, 0, 0.07);
+
+    color: #334155;
+}
+
+
+/* ========================================================================
+   DARK MODE
+   ======================================================================== */
+
+html.dark-mode .profile-divider,
+html.dark-mode .profile-section-divider {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+html.dark-mode .profile-info-item {
+    border-color: rgba(255, 255, 255, 0.07);
+}
+
+html.dark-mode .profile-info-icon {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+html.dark-mode .profile-role-badge {
+    background: rgba(112, 221, 233, 0.10);
+    color: var(--brand-light);
+}
+
+html.dark-mode .profile-status {
+    background: rgba(25, 135, 84, 0.08);
+    border-color: rgba(25, 135, 84, 0.15);
+}
+
+html.dark-mode .profile-upload-box {
+    background: rgba(255, 255, 255, 0.025);
+
+    border-color: rgba(255, 255, 255, 0.14);
+}
+
+html.dark-mode .profile-upload-box:hover {
+    background: rgba(66, 182, 198, 0.06);
+
+    border-color: var(--brand-hover);
+}
+
+html.dark-mode .profile-form-actions {
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+html.dark-mode .profile-cancel-btn {
+    background: rgba(255, 255, 255, 0.06);
+
+    color: #94a3b8;
+}
+
+html.dark-mode .profile-cancel-btn:hover {
+    background: rgba(255, 255, 255, 0.09);
+
+    color: #e2e8f0;
+}
+
+
+/* ========================================================================
+   MOBILE
+   ======================================================================== */
+
+@media (max-width: 767.98px) {
+
+    /* Reduce page padding on small screens */
+    .profile-page {
+        padding-top: 1rem !important;
+        padding-bottom: 1rem !important;
+    }
+
+
+    /* Smaller heading */
+    .profile-page-header {
+        margin-bottom: 1.25rem !important;
+    }
+
+    .profile-page-header h4 {
+        font-size: 1.1rem;
+    }
+
+
+    /* Identity card */
+    .profile-identity-card .card-body,
+    .profile-edit-card .card-body {
+        padding: 1.15rem !important;
+    }
+
+
+    /* Slightly smaller avatar */
+    .profile-avatar {
+        width: 96px;
+        height: 96px;
+
+        font-size: 1.7rem;
+    }
+
+
+    /* Identity information */
+    .profile-info-item {
+        padding: 0.65rem 0;
+    }
+
+
+    /* Upload area */
+    .profile-upload-box {
+        align-items: flex-start;
+
+        flex-wrap: wrap;
+
+        padding: 0.85rem;
+    }
+
+    .profile-upload-content {
+        padding-top: 0.15rem;
+    }
+
+    .profile-upload-input {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .profile-upload-input .form-control {
+        width: 100%;
+        max-width: none;
+    }
+
+
+    /* Actions */
+    .profile-form-actions {
+        flex-direction: column;
+        align-items: stretch;
+
+        gap: 0.85rem;
+    }
+
+    .profile-form-note {
+        text-align: center;
+    }
+
+    .profile-action-buttons {
+        width: 100%;
+
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .profile-action-buttons .btn {
+        width: 100%;
+    }
+
+}
+
+
+/* ========================================================================
+   EXTRA SMALL PHONES
+   ======================================================================== */
+
+@media (max-width: 400px) {
+
+    .profile-action-buttons {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-cancel-btn,
+    .profile-save-btn {
+        width: 100%;
+    }
+
+}
+
+</style>
+
+
+<!-- ====================================================================
+     PROFILE-SPECIFIC JAVASCRIPT
+     main.js remains untouched.
+===================================================================== -->
+
+<script>
+(function () {
+
+    'use strict';
+
+
+    /* ================================================================
+       PROFILE IMAGE PREVIEW
+       ================================================================ */
+
+    const profileInput =
+        document.getElementById('id_profile_image');
+
+    const mainAvatar =
+        document.getElementById('profileAvatarPreview');
+
+    const uploadPreview =
+        document.getElementById('uploadPreview');
+
+
+    /* Stop if the profile image field is not present. */
+    if (!profileInput) {
+        return;
+    }
+
+
+    /* Listen for a newly selected image. */
+    profileInput.addEventListener('change', function () {
+
+        const file = this.files[0];
+
+
+        /* Ignore empty selections. */
+        if (!file) {
+            return;
+        }
+
+
+        /* Ignore non-image files. */
+        if (!file.type.startsWith('image/')) {
+            return;
+        }
+
+
+        /* Create a local preview without uploading anything yet. */
+        const reader = new FileReader();
+
+
+        reader.onload = function (event) {
+
+            const imageUrl = event.target.result;
+
+
+            /* Update the large profile avatar. */
+            if (mainAvatar) {
+
+                mainAvatar.innerHTML = '';
+
+                const image =
+                    document.createElement('img');
+
+                image.src = imageUrl;
+                image.alt = 'Profile photo preview';
+
+                mainAvatar.appendChild(image);
+            }
+
+
+            /* Update the smaller upload preview. */
+            if (uploadPreview) {
+
+                uploadPreview.innerHTML = '';
+
+                const image =
+                    document.createElement('img');
+
+                image.src = imageUrl;
+                image.alt = 'Selected profile photo';
+
+                uploadPreview.appendChild(image);
+            }
+
+        };
+
+
+        /* Read the selected file locally. */
+        reader.readAsDataURL(file);
+
+    });
+
+})();
+</script>
+
 {% endblock %}

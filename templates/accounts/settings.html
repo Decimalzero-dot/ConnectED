@@ -8,7 +8,7 @@
 
         <!-- ================================================================
              LEFT — Tab navigation
-        ================================================================ -->
+        ================================================================= -->
         <div class="col-md-3">
             <div class="card mb-0" style="border-radius:14px;">
                 <div class="card-body p-2">
@@ -35,9 +35,11 @@
                         <a class="settings-nav-link {% if active_tab == 'security' %}active{% endif %}" data-tab="security" href="?tab=security">
                             <i class="bi bi-shield-lock settings-nav-icon"></i>Security
                         </a>
+
                         <a class="settings-nav-link {% if active_tab == 'notifications' %}active{% endif %}" data-tab="notifications" href="?tab=notifications">
                             <i class="bi bi-bell settings-nav-icon"></i>Notifications
                         </a>
+
                         <a class="settings-nav-link {% if active_tab == 'appearance' %}active{% endif %}" data-tab="appearance" href="?tab=appearance">
                             <i class="bi bi-palette settings-nav-icon"></i>Appearance
                         </a>
@@ -47,40 +49,279 @@
             </div>
         </div>
 
+
         <!-- ================================================================
              RIGHT — Tab content
-        ================================================================ -->
+        ================================================================= -->
         <div class="col-md-9">
 
-            <!-- ACCOUNT -->
+            <!-- ============================================================
+                 ACCOUNT
+            ============================================================= -->
             <div class="tab-section {% if active_tab != 'account' %}d-none{% endif %}" id="tab-account">
-                <div class="card mb-0" style="border-radius:14px;">
+
+                <div class="card mb-0 account-settings-card" style="border-radius:14px;">
+
                     <div class="card-body p-4">
-                        <h6 class="fw-bold text-dark text-uppercase mb-1" style="font-size:0.75rem; letter-spacing:0.5px;">
-                            <i class="bi bi-person-circle me-2" style="color:var(--brand-primary);"></i>Account Details
-                        </h6>
-                        <p class="text-muted small mb-4">Update your username, email and profile photo.</p>
+
+                        <!-- Account heading -->
+                        <div class="account-settings-heading mb-4">
+                            <div>
+                                <h6 class="fw-bold text-dark text-uppercase mb-1"
+                                    style="font-size:0.75rem; letter-spacing:0.5px;">
+                                    <i class="bi bi-person-circle me-2"
+                                       style="color:var(--brand-primary);"></i>
+                                    Account Details
+                                </h6>
+
+                                <p class="text-muted small mb-0">
+                                    Manage your platform identity and profile information.
+                                </p>
+                            </div>
+                        </div>
+
+
                         <form method="post" enctype="multipart/form-data">
+
                             {% csrf_token %}
                             <input type="hidden" name="tab" value="account">
-                            <div class="row g-3">
-                                {% for field in account_form %}
-                                <div class="col-md-6">
-                                    <label class="form-label fw-semibold text-muted text-uppercase" style="font-size:0.7rem; letter-spacing:0.5px;">{{ field.label }}</label>
-                                    {{ field }}
-                                    {% if field.errors %}<div class="text-danger small mt-1">{{ field.errors|striptags }}</div>{% endif %}
+
+
+                            <div class="row g-4">
+
+                                <!-- ==================================================
+                                     PROFILE IDENTITY
+                                =================================================== -->
+                                <div class="col-lg-4">
+
+                                    <div class="account-profile-panel">
+
+                                        <!-- Avatar -->
+                                        <div class="account-avatar-wrapper">
+
+                                            <div class="account-avatar"
+                                                 id="accountAvatarPreview">
+
+                                                {% if user.profile_image %}
+                                                    <img src="{{ user.profile_image.url }}"
+                                                         alt="Profile photo">
+                                                {% else %}
+                                                    <span>
+                                                        {{ user.username|slice:":2"|upper }}
+                                                    </span>
+                                                {% endif %}
+
+                                            </div>
+
+                                            <div class="account-avatar-camera">
+                                                <i class="bi bi-camera-fill"></i>
+                                            </div>
+
+                                        </div>
+
+
+                                        <!-- Identity -->
+                                        <div class="text-center mt-3">
+
+                                            <h5 class="account-display-name text-dark fw-bold mb-1">
+                                                {{ user.get_full_name|default:user.username }}
+                                            </h5>
+
+                                            <p class="text-muted small mb-2">
+                                                @{{ user.username }}
+                                            </p>
+
+                                            <span class="account-type-badge">
+                                                <i class="bi bi-shield-check me-1"></i>
+                                                {{ user.get_user_type_display }}
+                                            </span>
+
+                                        </div>
+
+
+                                        <!-- Account email -->
+                                        <div class="account-identity-detail mt-4">
+
+                                            <div class="account-detail-icon">
+                                                <i class="bi bi-envelope"></i>
+                                            </div>
+
+                                            <div class="min-w-0">
+                                                <small class="text-muted d-block">
+                                                    Email
+                                                </small>
+
+                                                <span class="account-detail-value">
+                                                    {{ user.email }}
+                                                </span>
+                                            </div>
+
+                                        </div>
+
+
+                                        <!-- Member status -->
+                                        <div class="account-identity-detail">
+
+                                            <div class="account-detail-icon">
+                                                <i class="bi bi-person-check"></i>
+                                            </div>
+
+                                            <div>
+                                                <small class="text-muted d-block">
+                                                    Account Status
+                                                </small>
+
+                                                <span class="account-detail-value">
+                                                    Active
+                                                </span>
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
                                 </div>
-                                {% endfor %}
+
+
+                                <!-- ==================================================
+                                     ACCOUNT FORM
+                                =================================================== -->
+                                <div class="col-lg-8">
+
+                                    <div class="account-edit-panel">
+
+                                        <div class="account-edit-heading mb-3">
+                                            <div class="account-section-icon">
+                                                <i class="bi bi-pencil-square"></i>
+                                            </div>
+
+                                            <div>
+                                                <h6 class="fw-bold text-dark mb-0">
+                                                    Edit Account
+                                                </h6>
+
+                                                <small class="text-muted">
+                                                    Update the information associated with your account.
+                                                </small>
+                                            </div>
+                                        </div>
+
+
+                                        <div class="row g-3">
+
+                                            <!-- Username -->
+                                            <div class="col-md-6">
+
+                                                <label for="{{ account_form.username.id_for_label }}"
+                                                       class="form-label fw-semibold text-muted text-uppercase"
+                                                       style="font-size:0.7rem; letter-spacing:0.5px;">
+                                                    {{ account_form.username.label }}
+                                                </label>
+
+                                                {{ account_form.username }}
+
+                                                {% if account_form.username.errors %}
+                                                <div class="text-danger small mt-1">
+                                                    {{ account_form.username.errors|striptags }}
+                                                </div>
+                                                {% endif %}
+
+                                            </div>
+
+
+                                            <!-- Email -->
+                                            <div class="col-md-6">
+
+                                                <label for="{{ account_form.email.id_for_label }}"
+                                                       class="form-label fw-semibold text-muted text-uppercase"
+                                                       style="font-size:0.7rem; letter-spacing:0.5px;">
+                                                    {{ account_form.email.label }}
+                                                </label>
+
+                                                {{ account_form.email }}
+
+                                                {% if account_form.email.errors %}
+                                                <div class="text-danger small mt-1">
+                                                    {{ account_form.email.errors|striptags }}
+                                                </div>
+                                                {% endif %}
+
+                                            </div>
+
+
+                                            <!-- Profile Photo -->
+                                            <div class="col-12">
+
+                                                <label for="{{ account_form.profile_image.id_for_label }}"
+                                                       class="form-label fw-semibold text-muted text-uppercase"
+                                                       style="font-size:0.7rem; letter-spacing:0.5px;">
+                                                    <i class="bi bi-image me-1"></i>
+                                                    {{ account_form.profile_image.label }}
+                                                </label>
+
+                                                <div class="account-upload-box">
+
+                                                    <div class="account-upload-icon">
+                                                        <i class="bi bi-cloud-arrow-up"></i>
+                                                    </div>
+
+                                                    <div class="account-upload-content">
+                                                        <div class="fw-semibold text-dark small">
+                                                            Choose a profile photo
+                                                        </div>
+
+                                                        <div class="text-muted"
+                                                             style="font-size:0.75rem;">
+                                                            JPG, PNG or GIF
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="account-upload-input">
+                                                        {{ account_form.profile_image }}
+                                                    </div>
+
+                                                </div>
+
+                                                {% if account_form.profile_image.errors %}
+                                                <div class="text-danger small mt-1">
+                                                    {{ account_form.profile_image.errors|striptags }}
+                                                </div>
+                                                {% endif %}
+
+                                            </div>
+
+                                        </div>
+
+
+                                        <!-- Actions -->
+                                        <div class="account-form-actions mt-4 pt-3">
+
+                                            <div class="text-muted small">
+                                                <i class="bi bi-info-circle me-1"></i>
+                                                Changes to your account are saved immediately.
+                                            </div>
+
+                                            <button type="submit"
+                                                    class="btn btn-primary fw-semibold text-white px-4 account-save-btn">
+                                                <i class="bi bi-check2 me-2"></i>
+                                                Save Changes
+                                            </button>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
                             </div>
-                            <div class="mt-4 pt-3 border-top">
-                                <button type="submit" class="btn btn-primary fw-semibold text-white px-4" style="border-radius:8px;">
-                                    <i class="bi bi-check2 me-2"></i>Save Changes
-                                </button>
-                            </div>
+
                         </form>
+
                     </div>
                 </div>
+
             </div>
+
 
             <!-- ACADEMIC (students only) -->
             {% if user.user_type == 'student' %}
@@ -127,8 +368,9 @@
             </div>
             {% endif %}
 
+
             <!-- COMPANY INFO (employers only) -->
-           {% if user.user_type == 'employer' %}
+            {% if user.user_type == 'employer' %}
             <div class="tab-section {% if active_tab != 'employer' %}d-none{% endif %}" id="tab-employer">
                 <div class="card border-0 shadow-sm p-4">
                     <h5 class="fw-bold mb-1">Company Information</h5>
@@ -154,32 +396,31 @@
                                     </div>
                                 {% endif %}
                             </div>
-            {% endfor %}
+                        {% endfor %}
 
-            <div class="mt-4 pt-2 border-top d-flex align-items-center justify-content-between">
-                <button type="submit" class="btn btn-primary px-4">
-                    Save Changes
-                </button>
+                        <div class="mt-4 pt-2 border-top d-flex align-items-center justify-content-between">
+                            <button type="submit" class="btn btn-primary px-4">
+                                Save Changes
+                            </button>
 
-                <div>
-                    <strong>Verification Status:</strong>
+                            <div>
+                                <strong>Verification Status:</strong>
 
-                    {% if user.employer_profile.is_verified %}
-                        <span class="badge bg-success ms-2">
-                            Verified
-                        </span>
-                    {% else %}
-                        <span class="badge bg-warning text-dark ms-2">
-                            Pending Verification
-                        </span>
-                    {% endif %}
+                                {% if user.employer_profile.is_verified %}
+                                    <span class="badge bg-success ms-2">
+                                        Verified
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark ms-2">
+                                        Pending Verification
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </form>
                 </div>
             </div>
-        </form>
-    </div>
-</div>
-{% endif %}
-                           
+            {% endif %}
 
 
             <!-- SECURITY -->
@@ -220,6 +461,7 @@
                 </div>
             </div>
 
+
             <!-- NOTIFICATIONS -->
             <div class="tab-section {% if active_tab != 'notifications' %}d-none{% endif %}" id="tab-notifications">
                 <div class="card mb-0" style="border-radius:14px;">
@@ -241,6 +483,7 @@
                                         {{ notification_form.notify_on_review }}
                                     </div>
                                 </div>
+
                                 <div class="d-flex align-items-center justify-content-between p-3 rounded-3" style="background:#f8fafb; border:1px solid rgba(0,0,0,0.05);">
                                     <div>
                                         <p class="fw-semibold text-dark mb-0" style="font-size:0.9rem;">New Challenges</p>
@@ -251,6 +494,7 @@
                                     </div>
                                 </div>
                             </div>
+
                             <div class="mt-4 pt-3 border-top">
                                 <button type="submit" class="btn btn-primary fw-semibold text-white px-4" style="border-radius:8px;">
                                     <i class="bi bi-check2 me-2"></i>Save Preferences
@@ -261,6 +505,7 @@
                 </div>
             </div>
 
+
             <!-- APPEARANCE -->
             <div class="tab-section {% if active_tab != 'appearance' %}d-none{% endif %}" id="tab-appearance">
                 <div class="card mb-0" style="border-radius:14px;">
@@ -269,11 +514,12 @@
                             <i class="bi bi-palette me-2" style="color:var(--brand-primary);"></i>Appearance
                         </h6>
                         <p class="text-muted small mb-4">Customize how ConnectED looks for you.</p>
+
+                        <!-- Dark mode -->
                         <form method="post">
                             {% csrf_token %}
                             <input type="hidden" name="tab" value="appearance">
 
-                            <!-- Dark mode -->
                             <div class="d-flex align-items-center justify-content-between p-3 rounded-3 mb-3" style="background:#f8fafb; border:1px solid rgba(0,0,0,0.05);">
                                 <div>
                                     <p class="fw-semibold text-dark mb-0" style="font-size:0.9rem;">
@@ -292,20 +538,24 @@
                                     <i class="bi bi-type me-2" style="color:var(--brand-primary);"></i>Font Size
                                 </p>
                                 <small class="text-muted d-block mb-3">Affects text size across the platform.</small>
+
                                 <div class="d-flex gap-2" id="font-size-picker">
                                     <label class="font-size-option" data-value="small">
                                         <input type="radio" name="font_size_visual" value="small" class="d-none">
                                         <span>Small</span>
                                     </label>
+
                                     <label class="font-size-option" data-value="medium">
                                         <input type="radio" name="font_size_visual" value="medium" class="d-none">
                                         <span>Medium</span>
                                     </label>
+
                                     <label class="font-size-option" data-value="large">
                                         <input type="radio" name="font_size_visual" value="large" class="d-none">
                                         <span>Large</span>
                                     </label>
                                 </div>
+
                                 <div class="d-none">{{ appearance_form.font_size }}</div>
                             </div>
 
@@ -314,6 +564,7 @@
                                     <i class="bi bi-check2 me-2"></i>Save Appearance
                                 </button>
                             </div>
+
                         </form>
                     </div>
                 </div>
@@ -323,43 +574,441 @@
     </div>
 </div>
 
+
 <style>
-.settings-nav { display:flex; flex-direction:column; gap:2px; padding:0.25rem; }
-.settings-nav-link {
-    display:flex; align-items:center; gap:0.65rem;
-    padding:0.65rem 1rem; border-radius:10px;
-    font-size:0.87rem; font-weight:500; color:#555;
-    text-decoration:none; transition:all 0.15s ease; cursor:pointer;
+
+/* ========================================================================
+   EXISTING SETTINGS NAV
+   ======================================================================== */
+
+.settings-nav {
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+    padding:0.25rem;
 }
-.settings-nav-link:hover { background:rgba(0,71,86,0.06); color:var(--brand-darkest); }
-.settings-nav-link.active { background:var(--brand-primary); color:white; font-weight:600; }
-.settings-nav-icon { font-size:1rem; width:18px; text-align:center; opacity:0.6; flex-shrink:0; }
-.settings-nav-link.active .settings-nav-icon { opacity:1; }
+
+.settings-nav-link {
+    display:flex;
+    align-items:center;
+    gap:0.65rem;
+    padding:0.65rem 1rem;
+    border-radius:10px;
+    font-size:0.87rem;
+    font-weight:500;
+    color:#555;
+    text-decoration:none;
+    transition:all 0.15s ease;
+    cursor:pointer;
+}
+
+.settings-nav-link:hover {
+    background:rgba(66,182,198,0.08);
+    color:var(--brand-hover);
+}
+
+.settings-nav-link.active {
+    background:var(--brand-primary);
+    color:white;
+    font-weight:600;
+}
+
+.settings-nav-icon {
+    font-size:1rem;
+    width:18px;
+    text-align:center;
+    opacity:0.6;
+    flex-shrink:0;
+}
+
+.settings-nav-link.active .settings-nav-icon {
+    opacity:1;
+}
+
+
+/* ========================================================================
+   ACCOUNT — PROFILE PANEL
+   ======================================================================== */
+
+.account-profile-panel {
+    height:100%;
+    min-height:390px;
+    padding:1.5rem;
+    border-radius:12px;
+    background:rgba(0,71,86,0.035);
+    border:1px solid rgba(0,71,86,0.08);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+}
+
+.account-avatar-wrapper {
+    position:relative;
+    display:inline-flex;
+}
+
+.account-avatar {
+    width:112px;
+    height:112px;
+    border-radius:50%;
+    overflow:hidden;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:var(--brand-primary);
+    color:#fff;
+    font-size:2rem;
+    font-weight:700;
+    border:4px solid var(--brand-light);
+    box-shadow:0 5px 18px rgba(0,71,86,0.12);
+}
+
+.account-avatar img {
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+
+.account-avatar-camera {
+    position:absolute;
+    right:3px;
+    bottom:3px;
+    width:30px;
+    height:30px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:var(--brand-primary);
+    color:#fff;
+    border:3px solid var(--bg-card);
+    font-size:0.75rem;
+}
+
+.account-display-name {
+    font-size:1rem;
+}
+
+.account-type-badge {
+    display:inline-flex;
+    align-items:center;
+    padding:0.35rem 0.7rem;
+    border-radius:999px;
+    background:rgba(0,106,122,0.09);
+    color:var(--brand-primary);
+    font-size:0.72rem;
+    font-weight:600;
+}
+
+.account-identity-detail {
+    width:100%;
+    display:flex;
+    align-items:center;
+    gap:0.7rem;
+    padding:0.75rem 0;
+    border-top:1px solid rgba(0,71,86,0.08);
+}
+
+.account-detail-icon {
+    width:34px;
+    height:34px;
+    flex-shrink:0;
+    border-radius:8px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:rgba(0,106,122,0.07);
+    color:var(--brand-primary);
+    font-size:0.9rem;
+}
+
+.account-detail-value {
+    display:block;
+    max-width:180px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    font-size:0.8rem;
+    font-weight:600;
+    color:#334155;
+}
+
+
+/* ========================================================================
+   ACCOUNT — EDIT PANEL
+   ======================================================================== */
+
+.account-edit-panel {
+    height:100%;
+    padding:1.35rem;
+    border-radius:12px;
+    border:1px solid rgba(0,0,0,0.06);
+    background:var(--bg-card);
+}
+
+.account-edit-heading {
+    display:flex;
+    align-items:center;
+    gap:0.75rem;
+}
+
+.account-section-icon {
+    width:38px;
+    height:38px;
+    flex-shrink:0;
+    border-radius:9px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:rgba(0,106,122,0.08);
+    color:var(--brand-primary);
+}
+
+.account-edit-panel .form-control {
+    border-radius:8px;
+}
+
+.account-edit-panel .form-control:focus {
+    border-color:var(--brand-primary);
+    box-shadow:0 0 0 0.2rem rgba(0,106,122,0.10);
+}
+
+
+/* ========================================================================
+   ACCOUNT — PHOTO UPLOAD
+   ======================================================================== */
+
+.account-upload-box {
+    position:relative;
+    display:flex;
+    align-items:center;
+    gap:0.85rem;
+    min-height:72px;
+    padding:0.8rem 1rem;
+    border:1px dashed rgba(0,71,86,0.22);
+    border-radius:10px;
+    background:rgba(0,71,86,0.025);
+    transition:border-color 0.2s ease,
+               background 0.2s ease;
+}
+
+.account-upload-box:hover {
+    border-color:var(--brand-hover);
+    background:rgba(66,182,198,0.05);
+}
+
+.account-upload-icon {
+    width:38px;
+    height:38px;
+    flex-shrink:0;
+    border-radius:9px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:rgba(0,106,122,0.08);
+    color:var(--brand-primary);
+    font-size:1.05rem;
+}
+
+.account-upload-content {
+    min-width:0;
+}
+
+.account-upload-input {
+    margin-left:auto;
+}
+
+.account-upload-input .form-control {
+    max-width:230px;
+    font-size:0.78rem;
+}
+
+
+/* ========================================================================
+   ACCOUNT — ACTIONS
+   ======================================================================== */
+
+.account-form-actions {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:1rem;
+    border-top:1px solid rgba(0,0,0,0.06);
+}
+
+.account-save-btn {
+    border-radius:8px;
+}
+
+
+/* ========================================================================
+   FONT SIZE
+   ======================================================================== */
 
 .font-size-option {
-    flex:1; text-align:center; padding:0.5rem; border-radius:8px;
-    border:1.5px solid rgba(0,71,86,0.15); cursor:pointer;
-    font-weight:600; font-size:0.82rem; color:#555;
-    transition:all 0.15s ease; user-select:none;
+    flex:1;
+    text-align:center;
+    padding:0.5rem;
+    border-radius:8px;
+    border:1.5px solid rgba(0,71,86,0.15);
+    cursor:pointer;
+    font-weight:600;
+    font-size:0.82rem;
+    color:#555;
+    transition:all 0.15s ease;
+    user-select:none;
 }
-.font-size-option:hover { border-color:var(--brand-secondary); color:var(--brand-darkest); }
-.font-size-option.selected { background:var(--brand-primary); border-color:var(--brand-primary); color:white; }
 
-.password-wrapper { position:relative; }
-.password-wrapper input { padding-right:2.75rem; }
+.font-size-option:hover {
+    border-color:var(--brand-hover);
+    color:var(--brand-hover);
+}
+
+.font-size-option.selected {
+    background:var(--brand-primary);
+    border-color:var(--brand-primary);
+    color:white;
+}
+
+
+/* ========================================================================
+   PASSWORD
+   ======================================================================== */
+
+.password-wrapper {
+    position:relative;
+}
+
+.password-wrapper input {
+    padding-right:2.75rem;
+}
+
 .password-toggle {
-    position:absolute; top:50%; right:0.75rem;
-    transform:translateY(-50%); background:none; border:none;
-    color:#888; cursor:pointer; padding:0; font-size:1rem; line-height:1;
+    position:absolute;
+    top:50%;
+    right:0.75rem;
+    transform:translateY(-50%);
+    background:none;
+    border:none;
+    color:#888;
+    cursor:pointer;
+    padding:0;
+    font-size:1rem;
+    line-height:1;
 }
-.password-toggle:hover { color:var(--brand-primary); }
 
-/* Dark mode overrides for settings page rows */
-html.dark-mode .settings-nav-link       { color:#94a3b8; }
-html.dark-mode .settings-nav-link:hover { background:rgba(255,255,255,0.06); color:#e2e8f0; }
-html.dark-mode .font-size-option        { border-color:rgba(255,255,255,0.15); color:#94a3b8; }
-html.dark-mode .font-size-option:hover  { color:#e2e8f0; }
+.password-toggle:hover {
+    color:var(--brand-hover);
+}
+
+
+/* ========================================================================
+   DARK MODE
+   ======================================================================== */
+
+html.dark-mode .settings-nav-link {
+    color:#94a3b8;
+}
+
+html.dark-mode .settings-nav-link:hover {
+    background:rgba(255,255,255,0.06);
+    color:var(--brand-hover);
+}
+
+html.dark-mode .font-size-option {
+    border-color:rgba(255,255,255,0.15);
+    color:#94a3b8;
+}
+
+html.dark-mode .font-size-option:hover {
+    color:var(--brand-hover);
+}
+
+
+/* Account dark mode */
+html.dark-mode .account-profile-panel {
+    background:rgba(255,255,255,0.025);
+    border-color:rgba(255,255,255,0.08);
+}
+
+html.dark-mode .account-edit-panel {
+    border-color:rgba(255,255,255,0.08);
+}
+
+html.dark-mode .account-display-name,
+html.dark-mode .account-detail-value {
+    color:#e2e8f0 !important;
+}
+
+html.dark-mode .account-type-badge {
+    background:rgba(112,221,233,0.10);
+    color:var(--brand-light);
+}
+
+html.dark-mode .account-identity-detail,
+html.dark-mode .account-form-actions {
+    border-color:rgba(255,255,255,0.08);
+}
+
+html.dark-mode .account-upload-box {
+    background:rgba(255,255,255,0.025);
+    border-color:rgba(255,255,255,0.14);
+}
+
+html.dark-mode .account-upload-box:hover {
+    background:rgba(66,182,198,0.06);
+    border-color:var(--brand-hover);
+}
+
+
+/* ========================================================================
+   MOBILE
+   ======================================================================== */
+
+@media (max-width:767.98px) {
+
+    .settings-nav {
+        flex-direction:row;
+        overflow-x:auto;
+        padding:0.25rem;
+    }
+
+    .settings-nav-link {
+        white-space:nowrap;
+        flex-shrink:0;
+    }
+
+    .account-profile-panel {
+        min-height:auto;
+    }
+
+    .account-form-actions {
+        flex-direction:column;
+        align-items:stretch;
+    }
+
+    .account-form-actions .account-save-btn {
+        width:100%;
+    }
+
+    .account-upload-box {
+        align-items:flex-start;
+        flex-wrap:wrap;
+    }
+
+    .account-upload-input {
+        width:100%;
+        margin-left:0;
+    }
+
+    .account-upload-input .form-control {
+        max-width:none;
+        width:100%;
+    }
+}
+
 </style>
+
 
 <script>
 (function () {
@@ -368,50 +1017,151 @@ html.dark-mode .font-size-option:hover  { color:#e2e8f0; }
     document.querySelectorAll('.settings-nav-link').forEach(link => {
         link.addEventListener('click', function (e) {
             e.preventDefault();
+
             const tab = this.dataset.tab;
-            document.querySelectorAll('.settings-nav-link').forEach(l => l.classList.remove('active'));
+
+            document.querySelectorAll('.settings-nav-link')
+                .forEach(l => l.classList.remove('active'));
+
             this.classList.add('active');
-            document.querySelectorAll('.tab-section').forEach(s => s.classList.add('d-none'));
+
+            document.querySelectorAll('.tab-section')
+                .forEach(s => s.classList.add('d-none'));
+
             const target = document.getElementById('tab-' + tab);
-            if (target) target.classList.remove('d-none');
+
+            if (target) {
+                target.classList.remove('d-none');
+            }
+
             history.replaceState(null, '', '?tab=' + tab);
         });
     });
 
+
     /* Font size picker */
     const hiddenSelect = document.querySelector('[name="font_size"]');
-    const options      = document.querySelectorAll('.font-size-option');
+    const options = document.querySelectorAll('.font-size-option');
 
     function setFontSize(val) {
-        options.forEach(o => o.classList.toggle('selected', o.dataset.value === val));
-        if (hiddenSelect) hiddenSelect.value = val;
-        document.documentElement.setAttribute('data-font-size', val);
+
+        options.forEach(o =>
+            o.classList.toggle(
+                'selected',
+                o.dataset.value === val
+            )
+        );
+
+        if (hiddenSelect) {
+            hiddenSelect.value = val;
+        }
+
+        document.documentElement.setAttribute(
+            'data-font-size',
+            val
+        );
     }
-    if (hiddenSelect) setFontSize(hiddenSelect.value || 'medium');
-    options.forEach(opt => opt.addEventListener('click', function () { setFontSize(this.dataset.value); }));
+
+    if (hiddenSelect) {
+        setFontSize(hiddenSelect.value || 'medium');
+    }
+
+    options.forEach(opt => {
+        opt.addEventListener('click', function () {
+            setFontSize(this.dataset.value);
+        });
+    });
+
 
     /* Dark mode preview toggle */
     const darkToggle = document.querySelector('[name="dark_mode"]');
-    function applyDarkMode(on) { document.documentElement.classList.toggle('dark-mode', on); }
-    if (darkToggle) {
-        applyDarkMode(darkToggle.checked);
-        darkToggle.addEventListener('change', function () { applyDarkMode(this.checked); });
+
+    function applyDarkMode(on) {
+        document.documentElement.classList.toggle('dark-mode', on);
     }
+
+    if (darkToggle) {
+
+        applyDarkMode(darkToggle.checked);
+
+        darkToggle.addEventListener('change', function () {
+            applyDarkMode(this.checked);
+        });
+
+    }
+
 
     /* Show/hide password in security tab */
     document.querySelectorAll('.password-toggle').forEach(btn => {
+
         btn.addEventListener('click', function () {
-            const input = this.closest('.password-wrapper').querySelector('input');
-            const icon  = this.querySelector('i');
+
+            const input =
+                this.closest('.password-wrapper').querySelector('input');
+
+            const icon = this.querySelector('i');
+
             if (input.type === 'password') {
+
                 input.type = 'text';
-                icon.classList.replace('bi-eye', 'bi-eye-slash');
+
+                icon.classList.replace(
+                    'bi-eye',
+                    'bi-eye-slash'
+                );
+
             } else {
+
                 input.type = 'password';
-                icon.classList.replace('bi-eye-slash', 'bi-eye');
+
+                icon.classList.replace(
+                    'bi-eye-slash',
+                    'bi-eye'
+                );
+
             }
+
         });
+
     });
+
+
+    /* Account profile image preview */
+    const profileInput =
+        document.getElementById('id_profile_image');
+
+    const avatar =
+        document.getElementById('accountAvatarPreview');
+
+    if (profileInput && avatar) {
+
+        profileInput.addEventListener('change', function () {
+
+            const file = this.files[0];
+
+            if (!file || !file.type.startsWith('image/')) {
+                return;
+            }
+
+            const reader = new FileReader();
+
+            reader.onload = function (event) {
+
+                avatar.innerHTML = '';
+
+                const image =
+                    document.createElement('img');
+
+                image.src = event.target.result;
+                image.alt = 'Profile photo preview';
+
+                avatar.appendChild(image);
+            };
+
+            reader.readAsDataURL(file);
+        });
+
+    }
 
 })();
 </script>
