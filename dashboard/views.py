@@ -256,3 +256,6 @@ def employer_home(request):
         'forwarded': interests_sent.filter(status='forwarded').count(),
     }
     return render(request, 'dashboard/employer_home.html', context)
+@login_required
+def messages_view(request):
+    return render(request, 'messages.html')

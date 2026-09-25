@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% block title %}Messages — ConnectED{% endblock %}
+{% block page_title %}Messages{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <div class="d-flex align-items-center justify-content-center" style="min-height: 72vh;">
+        <div class="text-center" style="max-width: 480px;">
+
+            <!-- Animated icon stack -->
+            <div class="messages-icon-stack mx-auto mb-4">
+                <div class="messages-bubble messages-bubble-1">
+                    <i class="bi bi-chat-dots-fill"></i>
+                </div>
+                <div class="messages-bubble messages-bubble-2">
+                    <i class="bi bi-chat-fill"></i>
+                </div>
+                <div class="messages-bubble messages-bubble-3">
+                    <i class="bi bi-chat-left-fill"></i>
+                </div>
+            </div>
+
+            <!-- Label -->
+            <span class="badge px-3 py-2 mb-3 fw-semibold text-uppercase d-inline-block"
+                  style="background:rgba(24,143,159,0.1); color:var(--brand-primary); border-radius:20px; font-size:0.7rem; letter-spacing:0.5px;">
+                <i class="bi bi-stars me-1"></i>Coming Soon
+            </span>
+
+            <h3 class="fw-bold text-dark mb-2">Messages are on the way</h3>
+
+            <p class="text-muted mb-4" style="font-size:0.95rem; line-height:1.7;">
+                We're building a direct messaging system so students can connect with peers,
+                admins can reach their cohorts, and employers can communicate through
+                university-mediated channels — all in one place.
+            </p>
+
+            <!-- Feature preview chips -->
+            <div class="d-flex flex-wrap gap-2 justify-content-center mb-5">
+                <span class="feature-chip"><i class="bi bi-person-check me-1"></i>Peer DMs</span>
+                <span class="feature-chip"><i class="bi bi-building me-1"></i>Admin Broadcasts</span>
+                <span class="feature-chip"><i class="bi bi-briefcase me-1"></i>Employer Channels</span>
+                <span class="feature-chip"><i class="bi bi-bell me-1"></i>Notification Threads</span>
+            </div>
+
+            <!-- Actions -->
+            <div class="d-flex gap-3 justify-content-center flex-wrap">
+                <a href="{% url 'dashboard:home' %}" class="btn btn-primary fw-semibold text-white px-4 py-2" style="border-radius:8px;">
+                    <i class="bi bi-house me-2"></i>Back to Dashboard
+                </a>
+                <a href="{% url 'notifications:list' %}" class="btn fw-semibold px-4 py-2"
+                   style="border-radius:8px; background:rgba(0,71,86,0.07); color:var(--brand-darkest); border:none;">
+                    <i class="bi bi-bell me-2"></i>Check Notifications
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<style>
+/* Icon stack */
+.messages-icon-stack {
+    position: relative;
+    width: 90px;
+    height: 90px;
+}
+.messages-bubble {
+    position: absolute;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    animation: float 3s ease-in-out infinite;
+}
+.messages-bubble-1 {
+    width: 60px; height: 60px;
+    background: linear-gradient(135deg, var(--brand-darkest), var(--brand-primary));
+    color: white;
+    top: 15px; left: 15px;
+    z-index: 3;
+    animation-delay: 0s;
+}
+.messages-bubble-2 {
+    width: 36px; height: 36px;
+    background: var(--brand-hover);
+    color: white;
+    top: 0; right: 0;
+    z-index: 2;
+    animation-delay: 0.4s;
+    font-size: 0.85rem;
+}
+.messages-bubble-3 {
+    width: 28px; height: 28px;
+    background: var(--brand-light);
+    color: var(--brand-darkest);
+    bottom: 0; left: 0;
+    z-index: 1;
+    animation-delay: 0.8s;
+    font-size: 0.7rem;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50%       { transform: translateY(-6px); }
+}
+
+/* Feature chips */
+.feature-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.4rem 0.85rem;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--brand-darkest);
+    background: rgba(0,71,86,0.06);
+    border: 1px solid rgba(0,71,86,0.1);
+}
+</style>
+{% endblock %}
