@@ -7,7 +7,7 @@ class PublicMediaStorage(S3Boto3Storage):
     bucket_name = settings.PUBLIC_BUCKET_NAME
     default_acl = 'public-read'
     querystring_auth = False  # No signed URLs needed — public
-    custom_domain = None      # Use R2 public URL directly
+    custom_domain = settings.PUBLIC_MEDIA_URL # Use R2 public URL directly
 
 
 class PrivateMediaStorage(S3Boto3Storage):
