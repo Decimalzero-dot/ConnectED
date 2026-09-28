@@ -642,3 +642,183 @@ html.dark-mode .scope-pill.active {
     background: var(--brand-primary);
     color: white;
 }
+
+/* ==========================================================================
+   Dark Mode — Extended fixes for tables, badges, inline backgrounds
+   ========================================================================== */
+
+/* Table rows — tbody background was transparent, showing white card bg */
+html.dark-mode tbody tr {
+    background-color: var(--bg-card);
+    border-color: rgba(255,255,255,0.06);
+}
+html.dark-mode .table {
+    --bs-table-bg: var(--bg-card);
+    --bs-table-striped-bg: rgba(255,255,255,0.03);
+    --bs-table-hover-bg: rgba(255,255,255,0.05);
+    --bs-table-border-color: rgba(255,255,255,0.07);
+    color: #e2e8f0;
+}
+html.dark-mode .table td,
+html.dark-mode .table th { border-color: rgba(255,255,255,0.07); }
+
+/* Thead text */
+html.dark-mode thead th { color: #94a3b8 !important; }
+
+/* Table row hover override for leaderboard brand-hover color */
+html.dark-mode .leaderboard-row:hover {
+    background: var(--brand-primary) !important;
+    color: white !important;
+}
+
+/* Badges — light backgrounds become invisible on dark */
+html.dark-mode .badge[style*="background:rgba(0,71,86"] {
+    background: rgba(155,255,255,0.1) !important;
+    color: var(--brand-lightest) !important;
+}
+html.dark-mode .badge[style*="background:rgba(16,185,129"] {
+    background: rgba(16,185,129,0.15) !important;
+    color: #6ee7b7 !important;
+}
+html.dark-mode .badge[style*="background:rgba(239,68,68"] {
+    background: rgba(239,68,68,0.15) !important;
+    color: #fca5a5 !important;
+}
+html.dark-mode .badge[style*="background:rgba(245,158,11"] {
+    background: rgba(245,158,11,0.15) !important;
+    color: #fcd34d !important;
+}
+html.dark-mode .badge[style*="background:rgba(0,0,0"] {
+    background: rgba(255,255,255,0.1) !important;
+    color: #94a3b8 !important;
+}
+
+/* White inline backgrounds — cards and rows with style="background:white" or "#ffffff" */
+html.dark-mode [style*="background:white"],
+html.dark-mode [style*="background: white"],
+html.dark-mode [style*="background:#ffffff"],
+html.dark-mode [style*="background: #ffffff"],
+html.dark-mode [style*="background-color:#ffffff"],
+html.dark-mode [style*="background-color: #ffffff"] {
+    background: var(--bg-card) !important;
+}
+
+/* bg-white Bootstrap class */
+html.dark-mode .bg-white { background-color: var(--bg-card) !important; }
+
+/* bg-light Bootstrap class */
+html.dark-mode .bg-light { background-color: rgba(255,255,255,0.05) !important; }
+
+/* table-light thead Bootstrap class */
+html.dark-mode .table-light,
+html.dark-mode .table-light th { 
+    background-color: #1e2d3d !important;
+    color: #94a3b8 !important;
+}
+
+/* Inline style backgrounds used in management templates — f8fafb rows */
+html.dark-mode [style*="background:#f8fafb"],
+html.dark-mode [style*="background: #f8fafb"],
+html.dark-mode [style*="background-color:#f8fafb"] {
+    background: rgba(255,255,255,0.04) !important;
+}
+
+/* Inline borders */
+html.dark-mode [style*="border:1px solid rgba(0,0,0"] {
+    border-color: rgba(255,255,255,0.07) !important;
+}
+html.dark-mode [style*="border: 1px solid rgba(0,0,0"] {
+    border-color: rgba(255,255,255,0.07) !important;
+}
+
+/* Inline text colors — dark text on white backgrounds */
+html.dark-mode [style*="color:#1a1a2e"],
+html.dark-mode [style*="color: #1a1a2e"],
+html.dark-mode [style*="color:#333"],
+html.dark-mode [style*="color: #333"],
+html.dark-mode [style*="color:#444"],
+html.dark-mode [style*="color: #444"],
+html.dark-mode [style*="color:#555"],
+html.dark-mode [style*="color: #555"] {
+    color: #e2e8f0 !important;
+}
+html.dark-mode [style*="color:#666"],
+html.dark-mode [style*="color: #666"],
+html.dark-mode [style*="color:#777"],
+html.dark-mode [style*="color: #777"],
+html.dark-mode [style*="color:#888"],
+html.dark-mode [style*="color: #888"],
+html.dark-mode [style*="color:#999"],
+html.dark-mode [style*="color: #999"] {
+    color: #94a3b8 !important;
+}
+
+/* Avatar initials circles */
+html.dark-mode [style*="background:rgba(0,71,86,0.1)"],
+html.dark-mode [style*="background: rgba(0,71,86,0.1)"] {
+    background: rgba(155,255,255,0.08) !important;
+    color: var(--brand-lightest) !important;
+}
+html.dark-mode [style*="background:rgba(0,71,86,0.08)"],
+html.dark-mode [style*="background: rgba(0,71,86,0.08)"] {
+    background: rgba(155,255,255,0.06) !important;
+}
+html.dark-mode [style*="background:rgba(0,71,86,0.07)"],
+html.dark-mode [style*="background: rgba(0,71,86,0.07)"] {
+    background: rgba(155,255,255,0.06) !important;
+}
+html.dark-mode [style*="background:rgba(0,71,86,0.06)"],
+html.dark-mode [style*="background: rgba(0,71,86,0.06)"] {
+    background: rgba(255,255,255,0.05) !important;
+}
+html.dark-mode [style*="background:rgba(0,71,86,0.05)"],
+html.dark-mode [style*="background: rgba(0,71,86,0.05)"] {
+    background: rgba(255,255,255,0.04) !important;
+}
+html.dark-mode [style*="background:rgba(0,71,86,0.04)"],
+html.dark-mode [style*="background: rgba(0,71,86,0.04)"] {
+    background: rgba(255,255,255,0.03) !important;
+}
+
+/* Dashed empty states */
+html.dark-mode [style*="border:1.5px dashed"],
+html.dark-mode [style*="border: 1.5px dashed"] {
+    border-color: rgba(255,255,255,0.12) !important;
+    background: rgba(255,255,255,0.02) !important;
+}
+
+/* Stat hero cards — keep gradient, fix subtext */
+html.dark-mode .stat-hero-card .stat-hero-sublabel { color: rgba(255,255,255,0.6); }
+
+/* Quick action buttons in dashboards */
+html.dark-mode [style*="background:rgba(0,71,86,0.06)"],
+html.dark-mode [style*="background: rgba(0,71,86,0.06)"] {
+    background: rgba(255,255,255,0.07) !important;
+    color: #e2e8f0 !important;
+}
+
+/* Submission method labels in challenge form */
+html.dark-mode .submission-method-label:hover {
+    background: rgba(255,255,255,0.06) !important;
+    border-color: rgba(255,255,255,0.15) !important;
+}
+
+/* Top3 leaderboard rows */
+html.dark-mode .top3-row {
+    border-bottom-color: rgba(255,255,255,0.06);
+}
+html.dark-mode .top3-row:hover {
+    background: rgba(66,182,198,0.12) !important;
+}
+html.dark-mode .top3-you {
+    background: rgba(24,143,159,0.08) !important;
+}
+html.dark-mode .top3-pts { color: var(--brand-lightest); }
+html.dark-mode .top3-rank-num { color: #94a3b8; }
+
+/* Password toggle buttons */
+html.dark-mode .password-toggle { color: #94a3b8; }
+html.dark-mode .password-toggle:hover { color: var(--brand-lightest); }
+
+/* Mini profile card in sidebar — already dark, no changes needed */
+/* Landing page — not affected by dark mode (guest content) */
