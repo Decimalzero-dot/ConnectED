@@ -821,4 +821,6 @@ html.dark-mode .password-toggle { color: #94a3b8; }
 html.dark-mode .password-toggle:hover { color: var(--brand-lightest); }
 
 /* Mini profile card in sidebar — already dark, no changes needed */
+
 /* Landing page — not affected by dark mode (guest content) */
+
