@@ -5,6 +5,8 @@ from django.utils import timezone
 from django.http import FileResponse, Http404
 from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
+
+from connected import settings
 from .models import Challenge, Submission, SubmissionFile, EmployerInterest
 from .forms import SubmissionForm, ChallengeForm, EmployerInterestForm
 from .utils import validate_submission_file
@@ -184,6 +186,36 @@ def serve_submission_file(request, file_id):
         filename=sub_file.original_filename
     )
 
+@login_required
+def serve_submission_file(request, file_id):
+    sub_file = get_object_or_404(SubmissionFile, pk=file_id)
+    submission = sub_file.submission
+    user = request.user
+
+    is_owner = submission.student == user
+    is_campus_admin = (
+        user.user_type == 'campus_admin' and
+        hasattr(user, 'profile') and
+        user.profile.university == submission.student.profile.university
+    )
+    is_super_admin = user.user_type == 'super_admin'
+
+    if not (is_owner or is_campus_admin or is_super_admin):
+        raise Http404
+
+    # In production: generate signed URL and redirect
+    # In development: serve directly
+    if not settings.DEBUG:
+        from storages.backends.s3boto3 import S3Boto3Storage
+        storage = S3Boto3Storage()
+        url = storage.url(sub_file.file.name)
+        return redirect(url)
+    else:
+        return FileResponse(
+            sub_file.file.open('rb'),
+            as_attachment=True,
+            filename=sub_file.original_filename
+        )
 
 # ─── Review Queue ─────────────────────────────────────────────────────────────
 

@@ -65,7 +65,7 @@ Kenya's tech graduates enter the job market with theoretical knowledge but no ve
  Backend > Python 3.12, Django 6.1 
  Database > PostgreSQL (production), SQLite (development) 
  Frontend > Bootstrap 5, Vanilla JS 
- File Storage > Cloudinary (profile images), Local/Railway (submission files) 
+ File Storage > Cloudflare R2 (all media — profile images and submission files)
  Email > Gmail SMTP via django.core.mail 
  Auth > Django auth + django-allauth (GitHub OAuth) 
  Rate Limiting > django-ratelimit 

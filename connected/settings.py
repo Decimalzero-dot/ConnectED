@@ -248,14 +248,45 @@ STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
 
-STORAGES = {
-    "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
-    },
-    "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-    },
-}
+
+if not DEBUG:
+    AWS_ACCESS_KEY_ID = os.getenv("CLOUDFLARE_R2_ACCESS_KEY_ID")
+    AWS_SECRET_ACCESS_KEY = os.getenv("CLOUDFLARE_R2_SECRET_ACCESS_KEY")
+
+    AWS_S3_REGION_NAME = "auto"
+    AWS_S3_ENDPOINT_URL = (
+        f"https://{os.getenv('CLOUDFLARE_R2_ACCOUNT_ID')}"
+        ".r2.cloudflarestorage.com"
+    )
+
+    AWS_S3_FILE_OVERWRITE = False
+
+    # Public bucket — profile images
+    PUBLIC_BUCKET_NAME = os.getenv("CLOUDFLARE_R2_PUBLIC_BUCKET")
+    PUBLIC_MEDIA_URL = os.getenv("CLOUDFLARE_R2_PUBLIC_URL")
+
+    # Private bucket — challenge submissions
+    PRIVATE_BUCKET_NAME = os.getenv("CLOUDFLARE_R2_PRIVATE_BUCKET")
+
+    STORAGES = {
+        "default": {
+            "BACKEND": "connected.storage_backends.PrivateMediaStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
+
+else:
+    # Local development
+    STORAGES = {
+        "default": {
+            "BACKEND": "django.core.files.storage.FileSystemStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'

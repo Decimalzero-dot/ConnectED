@@ -6,12 +6,11 @@ import uuid
 import os
 
 
+
 def submission_file_path(instance, filename):
-    """Randomize stored filename to prevent enumeration attacks."""
     ext = os.path.splitext(filename)[1].lower()
     random_name = f"{uuid.uuid4().hex}{ext}"
-    return f"submissions/{instance.submission.student.id}/{random_name}"
-
+    return f"submissions/{random_name}"
 
 class Challenge(models.Model):
     DISCIPLINE_CHOICES = (
@@ -154,6 +153,11 @@ class Submission(models.Model):
             self.files.exists()
         )
 
+def get_private_storage():
+    if settings.DEBUG:
+        return None
+    from connected.storage_backends import PrivateMediaStorage
+    return PrivateMediaStorage()
 
 class SubmissionFile(models.Model):
     ALLOWED_EXTENSIONS = [
@@ -166,7 +170,10 @@ class SubmissionFile(models.Model):
         on_delete=models.CASCADE,
         related_name='files'
     )
-    file = models.FileField(upload_to=submission_file_path)
+    file = models.FileField(
+            upload_to=submission_file_path,
+            storage=get_private_storage()
+        )
     original_filename = models.CharField(max_length=255)
     file_size = models.PositiveIntegerField(help_text="Size in bytes")
     uploaded_at = models.DateTimeField(auto_now_add=True)

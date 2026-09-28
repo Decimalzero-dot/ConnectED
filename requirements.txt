@@ -9,3 +9,5 @@ gunicorn
 requests
 django-ratelimit
 python-magic
+django-storages
+boto3

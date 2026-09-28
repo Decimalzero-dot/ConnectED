@@ -5,7 +5,13 @@ from django.contrib.auth.models import AbstractUser
 from universities.models import University
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.conf import settings
 
+def get_profile_image_storage():
+    if settings.DEBUG:
+        return None  # default local storage
+    from connected.storage_backends import PublicMediaStorage
+    return PublicMediaStorage()
 
 class User(AbstractUser):
     USER_TYPE_CHOICES = (
@@ -15,7 +21,12 @@ class User(AbstractUser):
         ('employer', 'Employer'),
     )
     user_type = models.CharField(max_length=20, choices=USER_TYPE_CHOICES, default='student')
-    profile_image = models.ImageField(upload_to='profiles/', blank=True, null=True)
+    profile_image = models.ImageField(
+            upload_to='profiles/',
+            blank=True,
+            null=True,
+            storage=get_profile_image_storage()
+        )
 
     def __str__(self):
         return f"{self.username} - {self.email} - {self.user_type}"
@@ -112,3 +123,4 @@ def create_user_profile(sender, instance, created, **kwargs):
         Profile.objects.create(user=instance)    
     # Employers: EmployerProfile is created in employer_register_view
     # with required fields (company_name, company_email) — not here
+    
