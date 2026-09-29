@@ -36,16 +36,30 @@ def is_verified_employer(user):
 
 @login_required
 def challenge_list(request):
-    # Employers see sponsor page, not student challenge list
     if request.user.user_type == 'employer':
         return redirect('challenges:sponsor')
+
+    # Auto-deactivate expired
+    from django.utils import timezone
+    Challenge.objects.filter(
+        deadline__lt=timezone.now(),
+        is_active=True,
+        deadline__isnull=False
+    ).update(is_active=False)
 
     challenges = Challenge.objects.filter(is_active=True)
     profile = request.user.profile
 
+    # Discipline filter is now optional — user can filter if they want
     discipline_filter = request.GET.get('discipline')
     if discipline_filter:
         challenges = challenges.filter(discipline=discipline_filter)
+
+    # Year filter — only show challenges student is eligible for by default
+    # but allow them to browse all if they choose
+    show_all = request.GET.get('show_all')
+    if not show_all and profile.year_of_study:
+        challenges = challenges.filter(min_year__lte=profile.year_of_study)
 
     challenge_data = []
     for challenge in challenges:
@@ -58,8 +72,9 @@ def challenge_list(request):
         'challenge_data': challenge_data,
         'discipline_choices': Challenge.DISCIPLINE_CHOICES,
         'selected_discipline': discipline_filter,
+        'show_all': show_all,
+        'profile': profile,
     })
-
 
 # ─── Challenge Detail + Submission ────────────────────────────────────────────
 

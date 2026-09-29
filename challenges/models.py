@@ -75,13 +75,11 @@ class Challenge(models.Model):
         return f"{self.title} ({self.get_difficulty_display()})"
 
     def is_eligible_for(self, profile):
-        if not profile.discipline or not profile.year_of_study:
+        """Year-based eligibility only. Discipline is advisory."""
+        if not profile.year_of_study:
             return False
-        return (
-            profile.discipline == self.discipline and
-            profile.year_of_study >= self.min_year
-        )
-
+        return (profile.year_of_study >= self.min_year)
+ 
     def allowed_submission_types(self):
         types = []
         if self.allows_github:
