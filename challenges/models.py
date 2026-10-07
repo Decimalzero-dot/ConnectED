@@ -39,6 +39,14 @@ class Challenge(models.Model):
     objective = models.TextField(blank=True)
     requirements = models.TextField(blank=True)
     submission_instructions = models.TextField(blank=True)
+    assessment_criteria = models.TextField(
+        blank=True,
+        help_text=(
+            "What a strong submission demonstrates — visible to students before "
+            "submitting and to reviewers when assessing. Be specific: what separates "
+            "a pass from a fail for this challenge."
+        )
+    )
     expected_skills = models.TextField(blank=True)
     discipline = models.CharField(max_length=20, choices=DISCIPLINE_CHOICES)
     difficulty = models.CharField(max_length=20, choices=DIFFICULTY_CHOICES)

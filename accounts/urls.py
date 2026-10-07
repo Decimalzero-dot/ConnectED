@@ -14,7 +14,8 @@ urlpatterns = [
     path('logout/', LogoutView.as_view(next_page='accounts:login'), name='logout'),
     path('profile/', views.profile_view, name='profile'),
     path('settings/', views.settings_view, name='settings'),
-    path('employer/register/', views.employer_register_view, name='employer_register'),  # ← add this
+    path('employer/register/', views.employer_register_view, name='employer_register'),
+    path('profile/<str:username>/', views.portfolio_view, name='portfolio'),
 
 
     # Password reset 

@@ -84,6 +84,10 @@ class Profile(models.Model):
         help_text="Used for notifications if different from your login email"
     )
     onboarding_complete = models.BooleanField(default=False)
+    portfolio_public = models.BooleanField(
+        default=True,
+        help_text="If enabled, your portfolio is visible to employers and the public."
+    )
 
 class Meta:
     constraints = [

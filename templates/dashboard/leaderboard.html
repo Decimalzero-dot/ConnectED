@@ -220,7 +220,10 @@
                                     <div class="table-avatar">{{ entry.student__username|slice:":2"|upper }}</div>
                                     <div>
                                         <span class="fw-semibold text-dark" style="font-size:0.88rem;">
-                                            {{ entry.student__username }}
+                                                <a href="{% url 'accounts:portfolio' entry.student__username %}"
+                                                class="text-decoration-none fw-semibold">
+                                                    {{ entry.student__username }}
+                                                </a>
                                         </span>
                                         {% if entry.student__username == user.username %}
                                         <span class="badge ms-1 px-2 text-white" style="font-size:0.6rem; background:var(--brand-darkest); border-radius:4px;">You</span>

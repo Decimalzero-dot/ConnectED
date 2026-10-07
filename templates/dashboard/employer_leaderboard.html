@@ -31,7 +31,12 @@
                 {% elif forloop.counter == 3 %}🥉
                 {% else %}{{ forloop.counter }}{% endif %}
             </td>
-            <td>{{ entry.student__username }}</td>
+            <td>
+                <a href="{% url 'accounts:portfolio' entry.student__username %}"
+                class="text-decoration-none fw-semibold">
+                    {{ entry.student__username }}
+                </a>
+            </td>
             <td>{{ entry.student__profile__university__name|default:"—" }}</td>
             <td>{{ entry.student__profile__discipline|default:"—" }}</td>
             <td>{{ entry.student__profile__year_of_study|default:"—" }}</td>

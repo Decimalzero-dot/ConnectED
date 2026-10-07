@@ -38,15 +38,14 @@ class AcademicSettingsForm(forms.ModelForm):
 
 
 class AppearanceSettingsForm(forms.ModelForm):
-    """Dark mode, font size"""
     class Meta:
         model = Profile
-        fields = ('dark_mode', 'font_size')
+        fields = ('dark_mode', 'font_size', 'portfolio_public')
         widgets = {
             'dark_mode': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'font_size': forms.Select(attrs={'class': 'form-control'}),
+            'portfolio_public': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
-
 
 class NotificationSettingsForm(forms.ModelForm):
     """Email notification toggles"""

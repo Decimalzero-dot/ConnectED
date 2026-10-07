@@ -1,5 +1,5 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth import login, authenticate, update_session_auth_hash
+from django.shortcuts import get_object_or_404, render, redirect
+from django.contrib.auth import login, authenticate, update_session_auth_hash, get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.views import PasswordResetView, PasswordResetConfirmView
@@ -11,6 +11,7 @@ from .forms import UserRegistrationForm, UserLoginForm, StudentProfileForm, Admi
 from notifications.models import Notification
 from django.core.mail import send_mail
 from django.conf import settings as django_settings
+from django.http import Http404
 from .settings_forms import (
     AccountSettingsForm, AcademicSettingsForm,
     AppearanceSettingsForm, NotificationSettingsForm,
@@ -212,6 +213,53 @@ def settings_view(request):
     }
     return render(request, 'accounts/settings.html', context)
 
+def portfolio_view(request, username):
+    from challenges.models import Submission
+
+    User = get_user_model()
+    student = get_object_or_404(User, username=username, user_type='student')
+    profile = get_object_or_404(Profile, user=student)
+
+    # Privacy check
+    # Owners always see their own portfolio
+    # Others only see it if portfolio_public = True
+    is_owner = request.user.is_authenticated and request.user == student
+    is_admin = request.user.is_authenticated and request.user.user_type in ('campus_admin', 'super_admin')
+    is_employer = request.user.is_authenticated and request.user.user_type == 'employer'
+
+    if not profile.portfolio_public and not is_owner and not is_admin:
+        raise Http404
+
+    # Get passed submissions — ordered by most recent
+    passed_submissions = Submission.objects.filter(
+        student=student,
+        status='passed'
+    ).select_related('challenge').order_by('-reviewed_at')
+
+    # Stats
+    total_points = sum(s.score or s.challenge.points for s in passed_submissions)
+    disciplines_covered = list(
+        passed_submissions.values_list(
+            'challenge__discipline', flat=True
+        ).distinct()
+    )
+
+    context = {
+        'student': student,
+        'profile': profile,
+        'passed_submissions': passed_submissions,
+        'total_points': total_points,
+        'total_completed': passed_submissions.count(),
+        'disciplines_covered': disciplines_covered,
+        'is_owner': is_owner,
+        'is_employer': is_employer,
+        'can_express_interest': (
+            is_employer and
+            hasattr(request.user, 'employer_profile') and
+            request.user.employer_profile.is_verified
+        ),
+    }
+    return render(request, 'accounts/portfolio.html', context)
 
 @ratelimit(key='ip', rate='3/m', method='POST', block=True)
 def employer_register_view(request):

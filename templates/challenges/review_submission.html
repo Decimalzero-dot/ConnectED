@@ -109,6 +109,17 @@
             <!-- ============================================================
                  REVIEW DECISION CARD
             ============================================================ -->
+            {% if submission.challenge.assessment_criteria %}
+            <div class="card border-0 shadow-sm mb-3">
+                <div class="card-body p-4">
+                    <h6 class="fw-bold mb-2" style="color: #006a7a;">Assessment Criteria</h6>
+                    <p class="text-muted small mb-0">
+                        Use the criteria below when scoring and writing feedback.
+                    </p>
+                    <div class="mt-2">{{ submission.challenge.assessment_criteria|linebreaks }}</div>
+                </div>
+            </div>
+            {% endif %}
             <div class="card" style="border-radius:14px;">
                 <div class="card-body p-4">
 
@@ -137,10 +148,26 @@
                             <label class="form-label fw-semibold text-muted text-uppercase" style="font-size:0.7rem; letter-spacing:0.5px;">
                                 Feedback <span class="text-danger">*</span>
                             </label>
-                            <textarea name="feedback" class="form-control" rows="5"
-                                      placeholder="Give the student clear, actionable feedback..."
-                                      style="border-radius:8px;">{{ submission.feedback }}</textarea>
+                            <textarea
+                                name="feedback"
+                                class="form-control"
+                                rows="6"
+                                minlength="80"
+                                placeholder="Write specific feedback the student can act on (minimum 80 characters).
+                            What did they do well? What needs improvement? Reference the assessment criteria above."
+                            >{{ submission.feedback }}</textarea>
+                            <div class="form-text text-muted">
+                                Be specific — vague feedback like "good job" is not useful.
+                                Reference what the student did or didn't demonstrate.
+                            </div>
+                            feedback = request.POST.get('feedback', '')
+                                if len(feedback.strip()) < 80:
+                                    messages.error(request, 'Feedback must be at least 80 characters. Be specific.')
+                                    return render(request, 'challenges/review_submission.html', {
+                                        'submission': submission,
+                                    })
                         </div>
+                        
 
                         <!-- Decision buttons -->
                         <div class="pt-3 border-top d-flex gap-2 flex-wrap">

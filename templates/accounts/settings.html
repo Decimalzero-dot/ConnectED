@@ -558,6 +558,19 @@
 
                                 <div class="d-none">{{ appearance_form.font_size }}</div>
                             </div>
+                            <div class="mb-4">
+                                <div class="form-check form-switch">
+                                    {{ appearance_form.portfolio_public }}
+                                    <label class="form-check-label ms-2 fw-semibold">
+                                        Public Portfolio
+                                    </label>
+                                </div>
+                                <small class="text-muted d-block mt-1">
+                                    When enabled, employers and anyone with your profile link can see
+                                    your completed challenges, scores, and reviewer feedback.
+                                    Only you can see it when disabled.
+                                </small>
+                            </div>
 
                             <div class="pt-3 border-top">
                                 <button type="submit" class="btn btn-primary fw-semibold text-white px-4" style="border-radius:8px;">

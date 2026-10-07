@@ -117,6 +117,14 @@
                     </div>
                     {% endif %}
 
+                    {% if challenge.assessment_criteria %}
+                        <hr>
+                        <h6 class="fw-bold">How You Will Be Assessed</h6>
+                        <div class="p-3 rounded" style="background-color: #f0f9fa; border-left: 4px solid #006a7a;">
+                            {{ challenge.assessment_criteria|linebreaks }}
+                        </div>
+                    {% endif %}
+
                 </div>
             </div>
 

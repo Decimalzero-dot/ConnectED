@@ -8,7 +8,7 @@ class ChallengeForm(forms.ModelForm):
         model = Challenge
         fields = (
             'title', 'description', 'objective', 'requirements',
-            'submission_instructions', 'expected_skills',
+            'submission_instructions', 'expected_skills', 'assessment_criteria',
             'discipline', 'track', 'difficulty', 'min_year', 'points',
             'deadline', 'is_active',
             'allows_github', 'allows_file_upload',
@@ -23,6 +23,17 @@ class ChallengeForm(forms.ModelForm):
                 'placeholder': 'One requirement per line'
             }),
             'submission_instructions': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'assessment_criteria': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 4,
+                'placeholder': (
+                    'Describe what a strong submission looks like. '
+                    'e.g. "Code is readable and well-commented. '
+                    'README explains setup and approach. '
+                    'All 5 requirements are implemented and tested. '
+                    'Edge cases are handled."'
+                )
+            }),
             'expected_skills': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'e.g. Python, conditionals, functions'
