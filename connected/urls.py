@@ -18,7 +18,24 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib.sitemaps.views import sitemap
+from django.contrib.sitemaps import Sitemap
 # from django.views.generic import RedirectView
+
+class PublicPagesSitemap(Sitemap):
+    protocol = "https"
+
+    def items(self):
+        return ["/"]
+
+    def location(self, item):
+        return item
+
+    def get_domain(self, site=None):
+        return "connected.co.ke"
+
+
+sitemaps = {"public": PublicPagesSitemap()}
 
 urlpatterns = [
     # path('', RedirectView.as_view(pattern_name='dashboard:home', permanent=False)),
@@ -29,6 +46,12 @@ urlpatterns = [
     path('challenges/', include('challenges.urls')),
     path('notifications/', include('notifications.urls')),
     path('management/', include('management.urls')),
+    path(
+    "sitemap.xml",
+    sitemap,
+    {"sitemaps": sitemaps},
+    name="django.contrib.sitemaps.views.sitemap",
+),
 ]
 
 if settings.DEBUG:
