@@ -36,12 +36,14 @@ ALLOWED_HOSTS = [
     "127.0.0.1",
     ".ngrok-free.dev",
     "connected-production-505e.up.railway.app",
+    "connected.co.ke",
 
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     "https://*.ngrok-free.dev",
     "https://connected-production-505e.up.railway.app",
+    "https://connected.co.ke",
 
 ]
 
