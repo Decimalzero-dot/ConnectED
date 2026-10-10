@@ -5,7 +5,8 @@ from django.http import JsonResponse
 from django.db.models import Sum, Count
 from .forms import OnboardingForm
 from challenges.models import Submission, Challenge
-from accounts.models import Profile, EmployerProfile
+from accounts.models import Profile, EmployerProfile, User
+from django.urls import reverse
 
 
 @login_required
@@ -27,7 +28,7 @@ def home_view(request):
             'access_level': 'admin',
             'message': 'Manage your campus from the Admin Panel.',
         }
-        return render(request, 'dashboard/home.html', context)
+        return render(request, 'dashboard/admin_home.html', context)
 
     # Students
     profile, _ = Profile.objects.get_or_create(user=user)
@@ -93,6 +94,42 @@ def home_stats_api(request):
         'recent': recent_list,
     })
 
+@login_required
+def admin_stats_api(request):
+    """JSON API — platform/campus stats for the admin dashboard."""
+    user = request.user
+ 
+    if user.user_type not in ('campus_admin', 'super_admin'):
+        return JsonResponse({'error': 'forbidden'}, status=403)
+ 
+    students = User.objects.filter(user_type='student')
+    submissions = Submission.objects.select_related('student', 'challenge')
+ 
+    # Campus admins only see their own university's data
+    if user.user_type == 'campus_admin':
+        uni = getattr(user.profile, 'university', None)
+        students = students.filter(profile__university=uni)
+        submissions = submissions.filter(student__profile__university=uni)
+ 
+    pending = submissions.filter(status='pending')
+ 
+    recent_pending = [
+        {
+            'student': s.student.username,
+            'challenge': s.challenge.title,
+            'submitted_at': s.submitted_at.strftime('%d %b %Y'),
+            'review_url': reverse('challenges:review_submission', args=[s.pk]),
+        }
+        for s in pending.order_by('-submitted_at')[:6]
+    ]
+ 
+    return JsonResponse({
+        'students': students.count(),
+        'pending_reviews': pending.count(),
+        'active_challenges': Challenge.objects.filter(is_active=True).count(),
+        'total_submissions': submissions.count(),
+        'recent_pending': recent_pending,
+    })
 
 @login_required
 def leaderboard_view(request):

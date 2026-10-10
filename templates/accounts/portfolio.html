@@ -1,223 +1,276 @@
 {% extends 'base.html' %}
 {% block title %}{{ student.username }}'s Portfolio — ConnectED{% endblock %}
+{% block page_title %}Portfolio{% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4">
+<div class="container-fluid px-0">
 
-    <!-- Header -->
-    <div class="row mb-4">
+    <a href="{% if is_owner %}{% url 'dashboard:home' %}{% else %}{% url 'dashboard:leaderboard' %}{% endif %}"
+       class="d-inline-flex align-items-center gap-2 text-muted text-decoration-none mb-4 fw-semibold" style="font-size:0.85rem;">
+        <i class="bi bi-arrow-left"></i> {% if is_owner %}Back to Dashboard{% else %}Back to Leaderboard{% endif %}
+    </a>
+
+    <!-- =====================================================================
+         PROFILE HERO
+    ====================================================================== -->
+    <div class="row g-3 mb-3">
+
         <div class="col-lg-8">
-            <div class="d-flex align-items-center gap-3 mb-3">
-                {% if student.profile_image %}
-                    <img src="{{ student.profile_image.url }}"
-                         class="rounded-circle"
-                         style="width:72px;height:72px;object-fit:cover;">
-                {% else %}
-                    <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold"
-                         style="width:72px;height:72px;background-color:#004756;font-size:1.4rem;">
+            <div class="stat-hero-card h-100">
+                <div class="d-flex align-items-center gap-3 mb-3 position-relative">
+                    {% if student.profile_image %}
+                    <img src="{{ student.profile_image.url }}" alt="{{ student.username }}" class="rounded-circle flex-shrink-0"
+                         style="width:76px; height:76px; object-fit:cover; border:3px solid var(--brand-lightest);">
+                    {% else %}
+                    <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold flex-shrink-0"
+                         style="width:76px; height:76px; background:rgba(255,255,255,0.15); border:3px solid var(--brand-lightest); color:white; font-size:1.5rem;">
                         {{ student.username|slice:":2"|upper }}
                     </div>
-                {% endif %}
-                <div>
-                    <h2 class="fw-bold mb-0">{{ student.get_full_name|default:student.username }}</h2>
-                    <p class="text-muted mb-0">@{{ student.username }}</p>
+                    {% endif %}
+                    <div class="min-w-0">
+                        <h3 class="fw-bold text-white mb-0 text-truncate">{{ student.get_full_name|default:student.username }}</h3>
+                        <p class="text-white-50 mb-0" style="font-size:0.9rem;">@{{ student.username }}</p>
+                    </div>
+                </div>
+
+                <div class="d-flex flex-wrap gap-2 mb-3 position-relative">
+                    {% if profile.university %}
+                    <span class="badge px-3 py-2 fw-semibold" style="background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.2); border-radius:20px; font-size:0.72rem;">
+                        <i class="bi bi-building me-1"></i>{{ profile.university.name }}
+                    </span>
+                    {% endif %}
+                    {% if profile.year_of_study %}
+                    <span class="badge px-3 py-2 fw-semibold" style="background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.2); border-radius:20px; font-size:0.72rem;">
+                        <i class="bi bi-calendar2-check me-1"></i>{{ profile.get_year_of_study_display }}
+                    </span>
+                    {% endif %}
+                    {% if profile.discipline %}
+                    <span class="badge px-3 py-2 fw-semibold" style="background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.2); border-radius:20px; font-size:0.72rem;">
+                        <i class="bi bi-cpu me-1"></i>{{ profile.get_discipline_display }}
+                    </span>
+                    {% endif %}
+                </div>
+
+                <div class="d-flex flex-wrap gap-2 position-relative">
+                    {% if profile.github_username %}
+                    <a href="https://github.com/{{ profile.github_username }}" target="_blank" rel="noopener"
+                       class="btn btn-sm fw-semibold" style="background:white; color:var(--brand-darkest); border-radius:8px; font-size:0.8rem;">
+                        <i class="bi bi-github me-1"></i>@{{ profile.github_username }}
+                    </a>
+                    {% endif %}
+
+                    {% if can_express_interest %}
+                    <a href="{% url 'challenges:express_interest' student.pk %}" class="btn btn-sm fw-semibold"
+                       style="background:var(--brand-lightest); color:var(--brand-darkest); border-radius:8px; font-size:0.8rem;">
+                        <i class="bi bi-briefcase me-1"></i>Express Interest
+                    </a>
+                    {% endif %}
+
+                    {% if is_owner %}
+                    <a href="{% url 'accounts:settings' %}?tab=appearance" class="btn btn-sm fw-semibold"
+                       style="background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.25); color:white; border-radius:8px; font-size:0.8rem;">
+                        {% if profile.portfolio_public %}
+                        <i class="bi bi-globe2 me-1"></i>Portfolio is Public
+                        {% else %}
+                        <i class="bi bi-lock me-1"></i>Portfolio is Private
+                        {% endif %}
+                        &middot; Change in Settings
+                    </a>
+                    {% endif %}
                 </div>
             </div>
-
-            <div class="d-flex flex-wrap gap-2 mb-3">
-                {% if profile.university %}
-                    <span class="badge rounded-pill px-3 py-2"
-                          style="background:#e6f4f6;color:#004756;">
-                        {{ profile.university.name }}
-                    </span>
-                {% endif %}
-                {% if profile.year_of_study %}
-                    <span class="badge rounded-pill px-3 py-2"
-                          style="background:#e6f4f6;color:#004756;">
-                        {{ profile.get_year_of_study_display }}
-                    </span>
-                {% endif %}
-                {% if profile.discipline %}
-                    <span class="badge rounded-pill px-3 py-2"
-                          style="background:#e6f4f6;color:#004756;">
-                        {{ profile.get_discipline_display }}
-                    </span>
-                {% endif %}
-            </div>
-
-            {% if profile.github_username %}
-            <a href="https://github.com/{{ profile.github_username }}"
-               target="_blank"
-               class="btn btn-sm btn-outline-secondary me-2">
-                GitHub: @{{ profile.github_username }}
-            </a>
-            {% endif %}
-
-            {% if can_express_interest %}
-            <a href="{% url 'challenges:express_interest' student.pk %}"
-               class="btn btn-sm btn-primary">
-                Express Interest
-            </a>
-            {% endif %}
-
-            {% if is_owner %}
-            <a href="{% url 'accounts:settings' %}?tab=appearance"
-               class="btn btn-sm btn-outline-secondary">
-                {% if profile.portfolio_public %}
-                    Portfolio is Public
-                {% else %}
-                    Portfolio is Private
-                {% endif %}
-                — Change in Settings
-            </a>
-            {% endif %}
         </div>
 
         <!-- Stats -->
         <div class="col-lg-4">
-            <div class="row g-2">
-                <div class="col-6">
-                    <div class="card border-0 shadow-sm text-center p-3">
-                        <h3 class="fw-bold mb-0" style="color:#004756;">
-                            {{ total_completed }}
-                        </h3>
-                        <small class="text-muted">Challenges Completed</small>
+            <div class="d-flex flex-column gap-3 h-100">
+                <div class="stat-mini-card">
+                    <div class="stat-mini-icon" style="background:rgba(16,185,129,0.1);">
+                        <i class="bi bi-check2-circle" style="color:#10b981;"></i>
+                    </div>
+                    <div>
+                        <div class="stat-mini-label">Challenges Completed</div>
+                        <div class="stat-mini-number">{{ total_completed }}</div>
                     </div>
                 </div>
-                <div class="col-6">
-                    <div class="card border-0 shadow-sm text-center p-3">
-                        <h3 class="fw-bold mb-0" style="color:#004756;">
-                            {{ total_points }}
-                        </h3>
-                        <small class="text-muted">Total Points</small>
+                <div class="stat-mini-card">
+                    <div class="stat-mini-icon" style="background:rgba(24,143,159,0.1);">
+                        <i class="bi bi-trophy" style="color:var(--brand-secondary);"></i>
+                    </div>
+                    <div>
+                        <div class="stat-mini-label">Total Points</div>
+                        <div class="stat-mini-number">{{ total_points }}</div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Portfolio note for employers -->
+    <!-- Verified note for employers -->
     {% if is_employer %}
-    <div class="alert mb-4" style="background:#e6f4f6;border-left:4px solid #006a7a;">
-        <strong>Verified Portfolio</strong> — Each item below was submitted by
-        {{ student.username }} and reviewed by a campus reviewer against published
-        assessment criteria. Scores and feedback are shown as reviewed.
+    <div class="d-flex align-items-start gap-3 p-3 rounded-3 mb-3" style="background:rgba(0,71,86,0.06); border:1px solid rgba(0,71,86,0.12); border-left:4px solid var(--brand-primary);">
+        <i class="bi bi-patch-check-fill flex-shrink-0" style="color:var(--brand-primary); font-size:1.2rem;"></i>
+        <p class="mb-0 small text-dark" style="line-height:1.6;">
+            <strong>Verified Portfolio</strong> — each item below was submitted by {{ student.username }}
+            and reviewed by a campus reviewer against published assessment criteria.
+            Scores and feedback are shown as reviewed.
+        </p>
     </div>
     {% endif %}
 
-    <!-- Completed Challenges -->
-    <h4 class="fw-bold mb-3">Completed Challenges</h4>
+    <!-- =====================================================================
+         COMPLETED CHALLENGES
+    ====================================================================== -->
+    <h6 class="fw-bold text-dark text-uppercase mb-3 mt-4" style="font-size:0.75rem; letter-spacing:0.5px;">
+        <i class="bi bi-award me-2" style="color:var(--brand-primary);"></i>Completed Challenges
+    </h6>
 
     {% if passed_submissions %}
-        {% for sub in passed_submissions %}
-        <div class="card border-0 shadow-sm mb-4">
-            <div class="card-body p-4">
+    {% for sub in passed_submissions %}
+    <div class="card mb-3" style="border-radius:14px;">
+        <div class="card-body p-4">
 
-                <!-- Challenge header -->
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                    <div>
-                        <h5 class="fw-bold mb-1">{{ sub.challenge.title }}</h5>
-                        <div class="d-flex flex-wrap gap-2">
-                            <span class="badge"
-                                  style="background:#e6f4f6;color:#004756;">
-                                {{ sub.challenge.get_discipline_display }}
-                            </span>
-                            <span class="badge"
-                                  style="background:#f4f6f7;color:#555;">
-                                {{ sub.challenge.get_difficulty_display }}
-                            </span>
-                            {% if sub.reviewed_at %}
-                            <span class="text-muted small">
-                                Completed {{ sub.reviewed_at|date:"M Y" }}
-                            </span>
-                            {% endif %}
-                        </div>
-                    </div>
-                    <div class="text-end">
-                        {% if sub.score %}
-                            <span class="fw-bold fs-5" style="color:#004756;">
-                                {{ sub.score }}/{{ sub.challenge.points }}
-                            </span>
-                            <div class="text-muted small">points</div>
-                        {% else %}
-                            <span class="badge bg-success px-3 py-2">Passed</span>
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+                <div class="min-w-0">
+                    <h5 class="fw-bold text-dark mb-2">{{ sub.challenge.title }}</h5>
+                    <div class="d-flex flex-wrap align-items-center gap-2">
+                        <span class="badge px-2 py-1 fw-semibold" style="background:rgba(0,71,86,0.08); color:var(--brand-darkest); border-radius:6px; font-size:0.7rem;">
+                            <i class="bi bi-cpu me-1"></i>{{ sub.challenge.get_discipline_display }}
+                        </span>
+                        <span class="badge px-2 py-1 fw-semibold" style="background:rgba(24,143,159,0.1); color:var(--brand-primary); border-radius:6px; font-size:0.7rem;">
+                            <i class="bi bi-bar-chart me-1"></i>{{ sub.challenge.get_difficulty_display }}
+                        </span>
+                        {% if sub.reviewed_at %}
+                        <span class="text-muted" style="font-size:0.75rem;">
+                            <i class="bi bi-calendar-check me-1"></i>Completed {{ sub.reviewed_at|date:"M Y" }}
+                        </span>
                         {% endif %}
                     </div>
                 </div>
 
-                <!-- Skills tested -->
+                <div class="text-end flex-shrink-0">
+                    {% if sub.score %}
+                    <div class="fw-bold" style="color:var(--brand-primary); font-size:1.4rem; line-height:1;">
+                        {{ sub.score }}<span class="text-muted fw-semibold" style="font-size:0.85rem;">/{{ sub.challenge.points }}</span>
+                    </div>
+                    <small class="text-muted" style="font-size:0.7rem;">points</small>
+                    {% else %}
+                    <span class="badge px-3 py-2 fw-semibold" style="background:rgba(16,185,129,0.1); color:#059669; border-radius:8px; font-size:0.75rem;">
+                        <i class="bi bi-check-circle-fill me-1"></i>Passed
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="d-flex flex-column gap-3">
+
+                <!-- Skills -->
                 {% if sub.challenge.expected_skills %}
-                <div class="mb-3">
-                    <p class="text-muted small fw-semibold mb-1">SKILLS ASSESSED</p>
-                    <p class="mb-0 small">{{ sub.challenge.expected_skills }}</p>
+                <div>
+                    <small class="text-muted fw-semibold text-uppercase d-block mb-1" style="font-size:0.66rem; letter-spacing:0.5px;">
+                        <i class="bi bi-tools me-1"></i>Skills Assessed
+                    </small>
+                    <p class="mb-0 small text-dark">{{ sub.challenge.expected_skills }}</p>
                 </div>
                 {% endif %}
 
-                <!-- Assessment criteria (what they were tested against) -->
+                <!-- Assessment criteria -->
                 {% if sub.challenge.assessment_criteria %}
-                <div class="mb-3 p-3 rounded"
-                     style="background:#f8f9fa;border-left:3px solid #42b6c6;">
-                    <p class="text-muted small fw-semibold mb-1">ASSESSED AGAINST</p>
-                    <p class="mb-0 small">{{ sub.challenge.assessment_criteria|truncatewords:40 }}</p>
+                <div class="p-3 rounded-3" style="background:rgba(0,71,86,0.04); border-left:3px solid var(--brand-hover);">
+                    <small class="text-muted fw-semibold text-uppercase d-block mb-1" style="font-size:0.66rem; letter-spacing:0.5px;">Assessed Against</small>
+                    <p class="mb-0 small text-dark" style="line-height:1.6;">{{ sub.challenge.assessment_criteria|truncatewords:40 }}</p>
                 </div>
                 {% endif %}
 
                 <!-- Submission links -->
-                <div class="mb-3">
-                    <p class="text-muted small fw-semibold mb-1">SUBMISSION</p>
+                {% if sub.github_url or sub.external_url or sub.files.exists %}
+                <div>
+                    <small class="text-muted fw-semibold text-uppercase d-block mb-2" style="font-size:0.66rem; letter-spacing:0.5px;">
+                        <i class="bi bi-send-check me-1"></i>Submission
+                    </small>
                     <div class="d-flex flex-wrap gap-2">
                         {% if sub.github_url %}
-                        <a href="{{ sub.github_url }}"
-                           target="_blank"
-                           class="btn btn-sm btn-outline-dark">
-                            GitHub Repository
+                        <a href="{{ sub.github_url }}" target="_blank" rel="noopener" class="portfolio-link-btn">
+                            <i class="bi bi-github me-1"></i>GitHub Repository
                         </a>
                         {% endif %}
                         {% if sub.external_url %}
-                        <a href="{{ sub.external_url }}"
-                           target="_blank"
-                           class="btn btn-sm btn-outline-secondary">
-                            External Link
+                        <a href="{{ sub.external_url }}" target="_blank" rel="noopener" class="portfolio-link-btn">
+                            <i class="bi bi-link-45deg me-1"></i>External Link
                         </a>
                         {% endif %}
-                        {% if sub.files.exists %}
-                            {% for f in sub.files.all %}
-                            <a href="{% url 'challenges:serve_file' f.pk %}"
-                               class="btn btn-sm btn-outline-secondary">
-                                {{ f.original_filename }}
-                            </a>
-                            {% endfor %}
-                        {% endif %}
+                        {% for f in sub.files.all %}
+                        <a href="{% url 'challenges:serve_file' f.pk %}" class="portfolio-link-btn">
+                            <i class="bi bi-file-earmark me-1"></i>{{ f.original_filename }}
+                        </a>
+                        {% endfor %}
                     </div>
                 </div>
+                {% endif %}
 
                 <!-- Reviewer feedback -->
                 {% if sub.feedback %}
-                <div class="p-3 rounded"
-                     style="background:#f0f9fa;border-left:3px solid #006a7a;">
-                    <p class="text-muted small fw-semibold mb-1">
-                        REVIEWER FEEDBACK
-                    </p>
-                    <p class="mb-0 small">{{ sub.feedback|linebreaks }}</p>
+                <div class="p-3 rounded-3" style="background:rgba(0,71,86,0.06); border-left:3px solid var(--brand-primary);">
+                    <small class="text-muted fw-semibold text-uppercase d-block mb-1" style="font-size:0.66rem; letter-spacing:0.5px;">
+                        <i class="bi bi-chat-quote me-1"></i>Reviewer Feedback
+                    </small>
+                    <div class="small text-dark" style="line-height:1.6;">{{ sub.feedback|linebreaks }}</div>
                 </div>
                 {% endif %}
 
             </div>
         </div>
-        {% endfor %}
+    </div>
+    {% endfor %}
 
     {% else %}
-        <div class="card border-0 shadow-sm p-4 text-center">
-            <p class="text-muted mb-0">
-                {% if is_owner %}
-                    You haven't completed any challenges yet.
-                    <a href="{% url 'challenges:list' %}">Browse challenges</a> to get started.
-                {% else %}
-                    No completed challenges to display yet.
-                {% endif %}
-            </p>
+    <div class="card" style="border-radius:14px;">
+        <div class="card-body text-center py-5">
+            <i class="bi bi-folder2-open d-block mb-3" style="font-size:2.5rem; color:var(--brand-light);"></i>
+            {% if is_owner %}
+            <p class="fw-semibold text-dark mb-1">No completed challenges yet</p>
+            <p class="text-muted small mb-3">Finish your first challenge and it will appear here.</p>
+            <a href="{% url 'challenges:list' %}" class="btn btn-primary btn-sm text-white fw-semibold px-4" style="border-radius:8px;">
+                <i class="bi bi-play-fill me-1"></i>Browse Challenges
+            </a>
+            {% else %}
+            <p class="fw-semibold text-dark mb-1">Nothing to show yet</p>
+            <p class="text-muted small mb-0">No completed challenges to display.</p>
+            {% endif %}
         </div>
+    </div>
     {% endif %}
 
 </div>
+
+<style>
+.portfolio-link-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.4rem 0.85rem;
+    border-radius: 8px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-decoration: none;
+    color: var(--brand-darkest);
+    background: rgba(0,71,86,0.07);
+    border: 1px solid rgba(0,71,86,0.1);
+    transition: all 0.15s ease;
+}
+.portfolio-link-btn:hover {
+    background: var(--brand-primary);
+    border-color: var(--brand-primary);
+    color: white;
+}
+html.dark-mode .portfolio-link-btn {
+    color: #e2e8f0;
+    background: rgba(255,255,255,0.07);
+    border-color: rgba(255,255,255,0.12);
+}
+html.dark-mode .portfolio-link-btn:hover {
+    background: var(--brand-primary);
+    color: white;
+}
+</style>
 {% endblock %}
