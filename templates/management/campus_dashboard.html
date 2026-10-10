@@ -40,13 +40,19 @@
 <h5>Recent Submissions</h5>
 <table class="table">
     <thead>
-        <tr><th>Student</th><th>Challenge</th><th>Status</th><th>Submitted</th><th>Action</th></tr>
+        <tr><th>Student</th><th>Challenge</th><th>Actions</th><th>Status</th><th>Submitted</th><th>Action</th></tr>
     </thead>
     <tbody>
         {% for sub in recent_submissions %}
         <tr>
             <td>{{ sub.student.username }}</td>
             <td>{{ sub.challenge.title }}</td>
+            <td>
+                <a href="{% url 'management:challenge_edit' sub.challenge.pk %}"
+                class="btn btn-sm btn-outline-secondary">Edit</a>
+                <a href="{% url 'management:challenge_delete' sub.challenge.pk %}"
+                class="btn btn-sm btn-outline-danger">Delete</a>
+            </td>
             <td>
                 {% if sub.status == 'passed' %}<span class="badge bg-success">Passed</span>
                 {% elif sub.status == 'failed' %}<span class="badge bg-danger">Failed</span>

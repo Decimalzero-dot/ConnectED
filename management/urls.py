@@ -22,4 +22,5 @@ urlpatterns = [
     path('employers/', views.employer_list, name='employer_list'),
     path('employers/<int:pk>/verify/', views.verify_employer, name='verify_employer'),
     path('employer-interests/', views.employer_interests, name='employer_interests'),
+    path('campus/challenges/<int:pk>/delete/', views.challenge_delete, name='challenge_delete'),
 ]

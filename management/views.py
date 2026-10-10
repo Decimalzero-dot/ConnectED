@@ -218,6 +218,28 @@ def challenge_edit(request, pk):
     return render(request, 'management/challenge_form.html', {'form': form, 'action': 'Edit'})
 
 @login_required
+@admin_required
+def challenge_delete(request, pk):
+    from challenges.models import Challenge
+    challenge = get_object_or_404(Challenge, pk=pk)
+
+    # Campus admin can only delete their own challenges
+    if request.user.user_type == 'campus_admin' and challenge.created_by != request.user:
+        messages.error(request, 'You can only delete challenges you created.')
+        return redirect('challenges:list')
+
+    if request.method == 'POST':
+        title = challenge.title
+        challenge.delete()
+        messages.success(request, f'"{title}" has been deleted.')
+        return redirect('challenges:list')
+
+    # GET — show confirmation page
+    return render(request, 'management/challenge_confirm_delete.html', {
+        'challenge': challenge,
+    })
+
+@login_required
 @super_admin_required
 def change_user_role(request, pk):
     target_user = get_object_or_404(User, pk=pk)

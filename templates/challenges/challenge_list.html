@@ -83,6 +83,16 @@
                        class="btn btn-outline-primary btn-sm">
                         View Details
                     </a>
+                    {% if user.user_type == 'campus_admin' or user.user_type == 'super_admin' %}
+                    <a href="{% url 'management:challenge_edit' item.challenge.pk %}"
+                    class="btn btn-outline-secondary btn-sm">
+                        Edit
+                    </a>
+                    <a href="{% url 'management:challenge_delete' item.challenge.pk %}"
+                    class="btn btn-outline-danger btn-sm">
+                        Delete
+                    </a>
+                    {% endif %}
 
                 </div>
 

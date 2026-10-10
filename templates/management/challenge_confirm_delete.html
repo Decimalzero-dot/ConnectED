@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% block title %}Delete Challenge — ConnectED{% endblock %}
+{% block page_title %}Delete Challenge{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+
+    <a href="{% url 'challenges:list' %}" class="d-inline-flex align-items-center gap-2 text-muted text-decoration-none mb-4 fw-semibold" style="font-size:0.85rem;">
+        <i class="bi bi-arrow-left"></i> Back to Challenges
+    </a>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            <div class="card mb-0" style="border-radius:14px; overflow:hidden;">
+
+                <!-- Danger header strip -->
+                <div class="px-4 py-3 d-flex align-items-center gap-3" style="background:rgba(239,68,68,0.08); border-bottom:1px solid rgba(239,68,68,0.15);">
+                    <div class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
+                         style="width:44px; height:44px; background:rgba(239,68,68,0.12);">
+                        <i class="bi bi-exclamation-triangle-fill" style="color:#ef4444; font-size:1.2rem;"></i>
+                    </div>
+                    <div>
+                        <h5 class="fw-bold mb-0" style="color:#dc2626;">Delete Challenge</h5>
+                        <small class="text-muted">This action cannot be undone</small>
+                    </div>
+                </div>
+
+                <div class="card-body p-4">
+
+                    <p class="text-dark mb-3" style="font-size:0.92rem; line-height:1.7;">
+                        You are about to permanently delete
+                        <strong>"{{ challenge.title }}"</strong>.
+                    </p>
+
+                    <!-- Challenge summary -->
+                    <div class="d-flex flex-wrap gap-2 mb-4">
+                        <span class="badge px-2 py-1 fw-semibold" style="background:rgba(0,71,86,0.08); color:var(--brand-darkest); border-radius:6px; font-size:0.7rem;">
+                            <i class="bi bi-cpu me-1"></i>{{ challenge.get_discipline_display }}
+                        </span>
+                        <span class="badge px-2 py-1 fw-semibold" style="background:rgba(0,71,86,0.08); color:var(--brand-darkest); border-radius:6px; font-size:0.7rem;">
+                            <i class="bi bi-bar-chart me-1"></i>{{ challenge.get_difficulty_display }}
+                        </span>
+                        <span class="badge px-2 py-1 fw-semibold" style="background:rgba(0,71,86,0.08); color:var(--brand-darkest); border-radius:6px; font-size:0.7rem;">
+                            <i class="bi bi-star me-1"></i>{{ challenge.points }} pts
+                        </span>
+                    </div>
+
+                    <!-- Submission warning -->
+                    {% with count=challenge.submissions.count %}
+                    {% if count > 0 %}
+                    <div class="d-flex align-items-start gap-3 p-3 rounded-3 mb-4"
+                         style="background:rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.2);">
+                        <i class="bi bi-people-fill flex-shrink-0 mt-1" style="color:#ef4444;"></i>
+                        <p class="mb-0 small" style="color:#dc2626; line-height:1.6;">
+                            This challenge has <strong>{{ count }} submission{{ count|pluralize }}</strong>.
+                            Deleting it will also permanently remove all student submissions,
+                            feedback and uploaded files.
+                        </p>
+                    </div>
+                    {% else %}
+                    <div class="d-flex align-items-start gap-3 p-3 rounded-3 mb-4"
+                         style="background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.25);">
+                        <i class="bi bi-info-circle-fill flex-shrink-0 mt-1" style="color:#d97706;"></i>
+                        <p class="mb-0 small" style="color:#b45309; line-height:1.6;">
+                            No students have submitted to this challenge yet.
+                        </p>
+                    </div>
+                    {% endif %}
+                    {% endwith %}
+
+                    <!-- Actions -->
+                    <div class="pt-3 border-top d-flex gap-2 flex-wrap">
+                        <form method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn fw-semibold text-white px-4 py-2" style="background:#ef4444; border:none; border-radius:8px;">
+                                <i class="bi bi-trash3 me-2"></i>Yes, Delete Permanently
+                            </button>
+                        </form>
+                        <a href="{% url 'challenges:list' %}" class="btn fw-semibold px-4 py-2"
+                           style="border-radius:8px; background:rgba(0,0,0,0.04); border:none; color:#555;">
+                            Cancel
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
