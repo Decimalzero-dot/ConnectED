@@ -5,6 +5,7 @@ from django.utils import timezone
 from django.http import FileResponse, Http404
 from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
+from notifications.utils import safe_send_mail
 
 from connected import settings
 from .models import Challenge, Submission, SubmissionFile, EmployerInterest
@@ -148,7 +149,7 @@ def challenge_detail(request, pk):
 
                     admin_emails = [a.email for a in campus_admins if a.email]
                     if admin_emails:
-                        send_mail(
+                        safe_send_mail(
                             subject=f'ConnectED — New Submission: {challenge.title}',
                             message=(
                                 f'A student has submitted a solution for "{challenge.title}".\n\n'
@@ -156,9 +157,7 @@ def challenge_detail(request, pk):
                                 f'University: {request.user.profile.university}\n\n'
                                 f'Review it at: /challenges/review/{submission.pk}/'
                             ),
-                            from_email=django_settings.DEFAULT_FROM_EMAIL,
                             recipient_list=admin_emails,
-                            fail_silently=True,
                         )
 
                     messages.success(request, 'Submission received! Awaiting review.')
@@ -299,7 +298,7 @@ def review_submission(request, pk):
                     submission.student.email
                 )
                 if recipient_email:
-                    send_mail(
+                    safe_send_mail(
                         subject=(
                             f'ConnectED — Submission {decision.title()}: '
                             f'{submission.challenge.title}'
@@ -319,9 +318,7 @@ def review_submission(request, pk):
                             + f'View your submission: /challenges/{submission.challenge.pk}/\n\n'
                             f'Keep building — The ConnectED Team'
                         ),
-                        from_email=django_settings.DEFAULT_FROM_EMAIL,
                         recipient_list=[recipient_email],
-                        fail_silently=True,
                     )
 
             messages.success(request, f'Submission marked as {decision}.')
@@ -363,7 +360,7 @@ def express_interest(request, student_id):
 
             admin_emails = [a.email for a in campus_admins if a.email]
             if admin_emails:
-                send_mail(
+                safe_send_mail(
                     subject=f'ConnectED — Employer Interest in {student.username}',
                     message=(
                         f'An employer has expressed interest in one of your students.\n\n'
@@ -374,9 +371,7 @@ def express_interest(request, student_id):
                         f'Message:\n{interest.message}\n\n'
                         f'Review at: /management/employer-interests/'
                     ),
-                    from_email=django_settings.DEFAULT_FROM_EMAIL,
                     recipient_list=admin_emails,
-                    fail_silently=True,
                 )
 
             for admin in campus_admins:
@@ -433,7 +428,7 @@ def sponsor_challenge_view(request):
 
         super_admin_emails = [sa.email for sa in super_admins if sa.email]
         if super_admin_emails:
-            send_mail(
+            safe_send_mail(
                 subject='ConnectED — Sponsorship Interest',
                 message=(
                     f'An employer is interested in sponsoring a challenge.\n\n'
@@ -443,9 +438,7 @@ def sponsor_challenge_view(request):
                     f'Budget: {budget}\n\n'
                     f'Message:\n{message}'
                 ),
-                from_email=django_settings.DEFAULT_FROM_EMAIL,
                 recipient_list=super_admin_emails,
-                fail_silently=True,
             )
 
         messages.success(

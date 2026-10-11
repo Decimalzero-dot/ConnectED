@@ -336,69 +336,76 @@ def employer_interests(request):
 
 def _notify_students_new_challenge(challenge):
     """
-    Notify all students whose discipline matches the challenge
-    and who have opted in to new challenge notifications.
+    Notify students who can attempt this challenge:
+    - year of study meets the challenge's minimum year
+    - discipline matches OR hasn't been chosen yet
+    - opted in to new-challenge notifications
     """
     from django.contrib.auth import get_user_model
-    from notifications.models import Notification
-    from django.core.mail import send_mail
     from django.conf import settings as django_settings
+    from django.db.models import Q
+    from notifications.models import Notification
+    from notifications.utils import safe_send_mass_mail, send_in_background
 
     User = get_user_model()
 
-    # Get eligible students — matching discipline, opt-in enabled
-    eligible_students = User.objects.filter(
-        user_type='student',
-        profile__discipline=challenge.discipline,
-        profile__notify_on_new_challenge=True,
-    ).select_related('profile')
+    students = list(
+        User.objects.filter(
+            user_type='student',
+            profile__notify_on_new_challenge=True,
+            profile__year_of_study__gte=challenge.min_year,
+        ).filter(
+            Q(profile__discipline=challenge.discipline) |
+            Q(profile__discipline__isnull=True) |
+            Q(profile__discipline='')
+        ).select_related('profile')
+    )
 
-    # In-platform notifications (bulk create — one DB hit)
-    notifications = [
+    if not students:
+        return
+
+    # In-platform notifications: one DB hit
+    Notification.objects.bulk_create([
         Notification(
-            recipient=student,
+            recipient=s,
             message=(
                 f'New {challenge.get_difficulty_display()} challenge: '
                 f'"{challenge.title}" — {challenge.points} pts'
             ),
             notification_type='new_challenge',
-            link=f'/challenges/{challenge.pk}/'
+            link=f'/challenges/{challenge.pk}/',
         )
-        for student in eligible_students
-    ]
-    Notification.objects.bulk_create(notifications)
+        for s in students
+    ])
 
-    # Email notifications — only students with email, respect personal_email preference
-    email_messages = []
-    for student in eligible_students:
-        recipient_email = (
-            student.profile.personal_email or student.email
-        )
-        if not recipient_email:
+    # Emails: built here, sent in the background
+    url = f'{django_settings.SITE_URL}/challenges/{challenge.pk}/'
+    deadline_line = (
+        f'Deadline: {challenge.deadline.strftime("%d %b %Y %H:%M")}\n'
+        if challenge.deadline else ''
+    )
+
+    datatuple = []
+    for s in students:
+        to = s.profile.personal_email or s.email
+        if not to:
             continue
-
-        email_messages.append((
+        datatuple.append((
             f'ConnectED — New Challenge: {challenge.title}',
             (
-                f'Hi {student.username},\n\n'
-                f'A new challenge has been posted in your discipline '
-                f'({challenge.get_discipline_display()}).\n\n'
+                f'Hi {s.username},\n\n'
+                f'A new challenge is open to you.\n\n'
                 f'Challenge: {challenge.title}\n'
+                f'Field: {challenge.get_discipline_display()}\n'
                 f'Difficulty: {challenge.get_difficulty_display()}\n'
                 f'Points: {challenge.points}\n'
-                f'Min Year: Year {challenge.min_year}+\n'
-                + (f'Deadline: {challenge.deadline.strftime("%d %b %Y %H:%M")}\n' if challenge.deadline else '')
-                + f'\nView it at: /challenges/{challenge.pk}/\n\n'
+                f'{deadline_line}\n'
+                f'View it: {url}\n\n'
                 f'— The ConnectED Team\n\n'
-                f'To stop these emails, update your notification preferences in Settings.'
+                f'To stop these emails, turn them off in Settings → Notifications.'
             ),
             django_settings.DEFAULT_FROM_EMAIL,
-            [recipient_email],
+            [to],
         ))
 
-    if email_messages:
-        from django.core.mail import send_mass_mail
-        try:
-            send_mass_mail(email_messages, fail_silently=True)
-        except Exception:
-            pass  # Never crash challenge creation because email failed
+    send_in_background(safe_send_mass_mail, datatuple)

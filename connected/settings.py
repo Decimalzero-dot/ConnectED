@@ -47,6 +47,7 @@ CSRF_TRUSTED_ORIGINS = [
 
 ]
 
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Application definition
 
@@ -78,13 +79,16 @@ INSTALLED_APPS = [
     'management',
 ]
 
-EMAIL_BACKEND = os.getenv("EMAIL_BACKEND")
-# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-EMAIL_HOST = os.getenv("EMAIL_HOST")
-EMAIL_PORT = os.getenv("EMAIL_PORT")
-EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS") == "True"
+EMAIL_BACKEND = os.getenv(
+    'EMAIL_BACKEND',
+    'django.core.mail.backends.smtp.EmailBackend'
+)
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+EMAIL_TIMEOUT = 10  # don't let a slow mail server hang the request
 DEFAULT_FROM_EMAIL = f'ConnectED <{EMAIL_HOST_USER}>'
 
 MIDDLEWARE = [
@@ -102,6 +106,7 @@ AUTH_USER_MODEL = 'accounts.User'
 
 ROOT_URLCONF = 'connected.urls'
 
+SITE_URL = os.getenv('SITE_URL', 'http://127.0.0.1:8000')
 SITE_ID = 2
 
 AUTHENTICATION_BACKENDS = [
