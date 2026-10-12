@@ -23,4 +23,5 @@ urlpatterns = [
     path('employers/<int:pk>/verify/', views.verify_employer, name='verify_employer'),
     path('employer-interests/', views.employer_interests, name='employer_interests'),
     path('campus/challenges/<int:pk>/delete/', views.challenge_delete, name='challenge_delete'),
+    path('sponsorships/', views.sponsorship_list, name='sponsorship_list'),
 ]

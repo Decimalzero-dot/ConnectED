@@ -90,6 +90,12 @@
                 </a></li>
                 {% endif %}
 
+                {% if user.user_type == 'student' %}
+                <li><a href="{% url 'dashboard:opportunities' %}" class="sidebar-link">
+                    <i class="bi bi-briefcase sidebar-icon"></i>Opportunities
+                </a></li>
+                {% endif %}
+
                 {% if user.user_type == 'campus_admin' or user.user_type == 'super_admin' %}
                 <li><a href="{% url 'challenges:review_queue' %}" class="sidebar-link">
                     <i class="bi bi-clipboard-check sidebar-icon"></i>Review Queue
@@ -139,8 +145,9 @@
                 <li><a href="{% url 'management:admin_list' %}" class="sidebar-link">
                     <i class="bi bi-shield-check sidebar-icon"></i>Admins
                 </a></li>
-                <li><a href="{% url 'management:all_students' %}" class="sidebar-link">
-                    <i class="bi bi-person-lines-fill sidebar-icon"></i>All Students
+                
+                <li><a href="{% url 'management:sponsorship_list' %}" class="sidebar-link">
+                    <i class="bi bi-handshake sidebar-icon"></i>Sponsorship Inquiries
                 </a></li>
                 <li><a href="{% url 'management:employer_list' %}" class="sidebar-link">
                     <i class="bi bi-buildings sidebar-icon"></i>Employers

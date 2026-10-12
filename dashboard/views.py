@@ -296,3 +296,17 @@ def employer_home(request):
 @login_required
 def messages_view(request):
     return render(request, 'messages.html')
+
+@login_required
+def opportunities_view(request):
+    if request.user.user_type != 'student':
+        return redirect('dashboard:home')
+
+    from challenges.models import EmployerInterest
+    interests = (
+        EmployerInterest.objects
+        .filter(student=request.user, status='forwarded')
+        .select_related('employer__employer_profile')
+        .order_by('-created_at')
+    )
+    return render(request, 'dashboard/opportunities.html', {'interests': interests})

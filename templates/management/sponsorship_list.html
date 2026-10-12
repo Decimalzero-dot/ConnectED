@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block title %}Sponsorship Inquiries — ConnectED{% endblock %}
+
+{% block content %}
+<h2 class="fw-bold mb-4">Sponsorship Inquiries</h2>
+
+<div class="table-responsive">
+<table class="table align-middle">
+    <thead>
+        <tr>
+            <th>Company</th><th>Discipline</th><th>Budget</th>
+            <th>Message</th><th>Received</th><th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for q in inquiries %}
+        <tr>
+            <td>
+                {{ q.employer.employer_profile.company_name }}<br>
+                <small class="text-muted">{{ q.employer.employer_profile.company_email }}</small>
+            </td>
+            <td>{{ q.discipline_interest|default:"Open" }}</td>
+            <td>{{ q.budget|default:"—" }}</td>
+            <td style="max-width:320px;">{{ q.message|linebreaksbr }}</td>
+            <td>{{ q.created_at|date:"d M Y" }}</td>
+            <td>
+                <form method="post" class="d-flex gap-1">
+                    {% csrf_token %}
+                    <input type="hidden" name="inquiry_id" value="{{ q.pk }}">
+                    <select name="status" class="form-select form-select-sm"
+                            onchange="this.form.submit()">
+                        <option value="new" {% if q.status == 'new' %}selected{% endif %}>New</option>
+                        <option value="contacted" {% if q.status == 'contacted' %}selected{% endif %}>Contacted</option>
+                        <option value="closed" {% if q.status == 'closed' %}selected{% endif %}>Closed</option>
+                    </select>
+                </form>
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="text-muted text-center">No sponsorship inquiries yet.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+{% endblock %}

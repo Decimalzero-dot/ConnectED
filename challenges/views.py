@@ -8,7 +8,7 @@ from django.contrib.auth import get_user_model
 from notifications.utils import safe_send_mail
 
 from connected import settings
-from .models import Challenge, Submission, SubmissionFile, EmployerInterest
+from .models import Challenge, Submission, SubmissionFile, EmployerInterest, SponsorshipInquiry
 from .forms import SubmissionForm, ChallengeForm, EmployerInterestForm
 from .utils import validate_submission_file
 from notifications.models import Notification
@@ -402,6 +402,7 @@ def express_interest(request, student_id):
 
 # ─── Sponsor Challenges ───────────────────────────────────────────────────────
 
+
 @login_required
 def sponsor_challenge_view(request):
     if request.user.user_type != 'employer':
@@ -409,37 +410,37 @@ def sponsor_challenge_view(request):
         return redirect('dashboard:home')
 
     if request.method == 'POST':
-        challenge_interest = request.POST.get('challenge_interest', '')
-        budget = request.POST.get('budget', '')
-        message = request.POST.get('message', '')
+        company = request.user.employer_profile.company_name
+
+        inquiry = SponsorshipInquiry.objects.create(
+            employer=request.user,
+            discipline_interest=request.POST.get('challenge_interest', '')[:100],
+            budget=request.POST.get('budget', '')[:100],
+            message=request.POST.get('message', ''),
+        )
 
         super_admins = User.objects.filter(user_type='super_admin')
-
         for sa in super_admins:
             Notification.objects.create(
                 recipient=sa,
-                message=(
-                    f'{request.user.employer_profile.company_name} '
-                    f'expressed interest in sponsoring a challenge.'
-                ),
+                message=f'{company} wants to sponsor a challenge '
+                        f'({inquiry.discipline_interest or "any discipline"}).',
                 notification_type='general',
-                link='/management/employers/'
+                link='/management/sponsorships/',
             )
 
-        super_admin_emails = [sa.email for sa in super_admins if sa.email]
-        if super_admin_emails:
-            safe_send_mail(
-                subject='ConnectED — Sponsorship Interest',
-                message=(
-                    f'An employer is interested in sponsoring a challenge.\n\n'
-                    f'Company: {request.user.employer_profile.company_name}\n'
-                    f'Contact: {request.user.employer_profile.company_email}\n'
-                    f'Challenge interest: {challenge_interest}\n'
-                    f'Budget: {budget}\n\n'
-                    f'Message:\n{message}'
-                ),
-                recipient_list=super_admin_emails,
-            )
+        safe_send_mail(
+            subject='ConnectED — Sponsorship Interest',
+            message=(
+                f'{company} is interested in sponsoring a challenge.\n\n'
+                f'Contact: {request.user.employer_profile.company_email}\n'
+                f'Discipline: {inquiry.discipline_interest or "Open"}\n'
+                f'Budget: {inquiry.budget or "Not stated"}\n\n'
+                f'Message:\n{inquiry.message}\n\n'
+                f'Manage it: {django_settings.SITE_URL}/management/sponsorships/'
+            ),
+            recipient_list=[sa.email for sa in super_admins],
+        )
 
         messages.success(
             request,
@@ -449,6 +450,4 @@ def sponsor_challenge_view(request):
         return redirect('challenges:sponsor')
 
     challenges = Challenge.objects.filter(is_active=True)
-    return render(request, 'challenges/sponsor_challenges.html', {
-        'challenges': challenges,
-    })
+    return render(request, 'challenges/sponsor_challenges.html', {'challenges': challenges})

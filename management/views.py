@@ -296,40 +296,42 @@ def verify_employer(request, pk):
 
     return redirect('management:employer_list')
 
-
 @login_required
 @admin_required
 def employer_interests(request):
     from challenges.models import EmployerInterest
+    from notifications.models import Notification
+
     if request.user.user_type == 'super_admin':
-        interests = EmployerInterest.objects.select_related(
-            'employer__employer_profile', 'student__profile'
-        ).all()
+        interests = EmployerInterest.objects.all()
     else:
         interests = EmployerInterest.objects.filter(
             student__profile__university=request.user.profile.university
-        ).select_related('employer__employer_profile', 'student__profile')
+        )
+    interests = interests.select_related(
+        'employer__employer_profile', 'student__profile__university'
+    )
 
     if request.method == 'POST':
-        interest_id = request.POST.get('interest_id')
-        from challenges.models import EmployerInterest
-        interest = get_object_or_404(EmployerInterest, pk=interest_id)
-        interest.status = 'forwarded'
-        interest.save()
+        # Scoped queryset: a campus admin can only act on their own campus
+        interest = get_object_or_404(interests, pk=request.POST.get('interest_id'))
 
-        # Notify student
-        from notifications.models import Notification
-        Notification.objects.create(
-            recipient=interest.student,
-            message=(
-                f'{interest.employer.employer_profile.company_name} has expressed '
-                f'interest in you for a {interest.get_job_type_display()} opportunity. '
-                f'Your campus admin will be in touch.'
-            ),
-            notification_type='general',
-            link='/accounts/profile/'
-        )
-        messages.success(request, 'Interest forwarded to student.')
+        if interest.status == 'pending':
+            interest.status = 'forwarded'
+            interest.save()
+            Notification.objects.create(
+                recipient=interest.student,
+                message=(
+                    f'{interest.employer.employer_profile.company_name} has expressed '
+                    f'interest in you for a {interest.get_job_type_display()} '
+                    f'opportunity. Tap to view the details.'
+                ),
+                notification_type='general',
+                link='/dashboard/opportunities/',
+            )
+            messages.success(request, 'Interest forwarded to student.')
+        else:
+            messages.info(request, 'This interest was already forwarded.')
         return redirect('management:employer_interests')
 
     return render(request, 'management/employer_interests.html', {'interests': interests})
@@ -409,3 +411,20 @@ def _notify_students_new_challenge(challenge):
         ))
 
     send_in_background(safe_send_mass_mail, datatuple)
+
+@login_required
+@super_admin_required
+def sponsorship_list(request):
+    from challenges.models import SponsorshipInquiry
+
+    if request.method == 'POST':
+        inquiry = get_object_or_404(SponsorshipInquiry, pk=request.POST.get('inquiry_id'))
+        new_status = request.POST.get('status')
+        if new_status in ('new', 'contacted', 'closed'):
+            inquiry.status = new_status
+            inquiry.save()
+            messages.success(request, 'Sponsorship status updated.')
+        return redirect('management:sponsorship_list')
+
+    inquiries = SponsorshipInquiry.objects.select_related('employer__employer_profile')
+    return render(request, 'management/sponsorship_list.html', {'inquiries': inquiries})

@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}Opportunities — ConnectED{% endblock %}
+
+{% block content %}
+<h2 class="fw-bold mb-1">Opportunities</h2>
+<p class="text-muted mb-4">
+    Employers who showed interest in your work. Your campus admin reviewed
+    each one before forwarding it to you.
+</p>
+
+{% for interest in interests %}
+<div class="card border-0 shadow-sm mb-3">
+    <div class="card-body p-4">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+            <div>
+                <h5 class="fw-bold mb-0">{{ interest.employer.employer_profile.company_name }}</h5>
+                <small class="text-muted">
+                    {{ interest.employer.employer_profile.industry|default:"Industry not specified" }}
+                </small>
+            </div>
+            <span class="badge" style="background:#e6f4f6;color:#004756;">
+                {{ interest.get_job_type_display }}
+            </span>
+        </div>
+
+        <div class="p-3 rounded mb-3" style="background:#f8f9fa;">
+            {{ interest.message|linebreaks }}
+        </div>
+
+        <div class="d-flex flex-wrap gap-2 align-items-center">
+            {% if interest.employer.employer_profile.company_website %}
+            <a href="{{ interest.employer.employer_profile.company_website }}"
+               target="_blank" rel="noopener"
+               class="btn btn-sm btn-outline-secondary">Company website</a>
+            {% endif %}
+            <a href="mailto:{{ interest.employer.employer_profile.company_email }}"
+               class="btn btn-sm btn-outline-primary">
+                Contact: {{ interest.employer.employer_profile.company_email }}
+            </a>
+            <small class="text-muted ms-auto">Received {{ interest.created_at|date:"d M Y" }}</small>
+        </div>
+    </div>
+</div>
+{% empty %}
+<div class="card border-0 shadow-sm p-4 text-center">
+    <p class="text-muted mb-0">
+        No opportunities yet. Keep completing challenges. Employers can see
+        your portfolio, and your campus admin forwards any interest here.
+    </p>
+</div>
+{% endfor %}
+{% endblock %}

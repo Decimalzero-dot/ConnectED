@@ -230,3 +230,26 @@ class EmployerInterest(models.Model):
 
     def __str__(self):
         return f"{self.employer.employer_profile.company_name} → {self.student.username}"
+
+class SponsorshipInquiry(models.Model):
+    STATUS_CHOICES = (
+        ('new', 'New'),
+        ('contacted', 'Contacted'),
+        ('closed', 'Closed'),
+    )
+    employer = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='sponsorship_inquiries'
+    )
+    discipline_interest = models.CharField(max_length=100, blank=True)
+    budget = models.CharField(max_length=100, blank=True)
+    message = models.TextField(blank=True)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='new')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.employer.employer_profile.company_name} — {self.discipline_interest or 'any'}"
