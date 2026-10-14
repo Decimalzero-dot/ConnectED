@@ -16,14 +16,18 @@ urlpatterns = [
     path('settings/', views.settings_view, name='settings'),
     path('employer/register/', views.employer_register_view, name='employer_register'),
     path('profile/<str:username>/', views.portfolio_view, name='portfolio'),
+    path('github/connect/', views.github_connect, name='github_connect'),
+    path('github/callback/', views.github_callback, name='github_callback'),
 
 
     # Password reset 
-    path('password-reset/', 
-    method_decorator(ratelimit(key='ip', rate='3/m', method='POST', block=True), name='dispatch')(
-        CustomPasswordResetView.as_view()
-    ), 
-    name='password_reset'
+   path(
+    'password-reset/',
+    method_decorator(
+        ratelimit(key='ip', rate='3/m', method='POST', block=True),
+        name='dispatch',
+    )(CustomPasswordResetView).as_view(),
+    name='password_reset',
     ),
 
     path('password-reset/done/', PasswordResetDoneView.as_view(

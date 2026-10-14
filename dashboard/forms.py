@@ -1,9 +1,9 @@
 from django import forms
 from accounts.models import Profile
 from universities.models import University
+from accounts.github import GitHubUsernameFormMixin
 
-
-class OnboardingForm(forms.ModelForm):
+class OnboardingForm(GitHubUsernameFormMixin, forms.ModelForm):
     university = forms.ModelChoiceField(
         queryset=University.objects.filter(is_active=True),
         widget=forms.Select(attrs={'class': 'form-control'}),

@@ -1,52 +1,88 @@
 {% extends 'base.html' %}
 {% block title %}Opportunities — ConnectED{% endblock %}
+{% block page_title %}Opportunities{% endblock %}
 
 {% block content %}
-<h2 class="fw-bold mb-1">Opportunities</h2>
-<p class="text-muted mb-4">
-    Employers who showed interest in your work. Your campus admin reviewed
-    each one before forwarding it to you.
-</p>
+<div class="container-fluid px-0">
 
-{% for interest in interests %}
-<div class="card border-0 shadow-sm mb-3">
-    <div class="card-body p-4">
-        <div class="d-flex justify-content-between align-items-start mb-2">
-            <div>
-                <h5 class="fw-bold mb-0">{{ interest.employer.employer_profile.company_name }}</h5>
-                <small class="text-muted">
-                    {{ interest.employer.employer_profile.industry|default:"Industry not specified" }}
+    <div class="mb-4">
+        <h4 class="fw-bold text-dark mb-1">Opportunities</h4>
+        <p class="text-muted small mb-0" style="max-width:600px;">
+            Employers who showed interest in your work. Your campus admin reviewed
+            each one before forwarding it to you.
+        </p>
+    </div>
+
+    {% for interest in interests %}
+    <div class="card mb-3 opportunity-card" style="border-radius:14px;">
+        <div class="card-body p-4">
+
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+                <div class="d-flex align-items-center gap-3 min-w-0">
+                    <div class="d-flex align-items-center justify-content-center rounded-3 fw-bold flex-shrink-0"
+                         style="width:46px; height:46px; background:rgba(0,71,86,0.08); color:var(--brand-darkest); font-size:0.85rem;">
+                        {{ interest.employer.employer_profile.company_name|slice:":2"|upper }}
+                    </div>
+                    <div class="min-w-0">
+                        <h5 class="fw-bold text-dark mb-0 text-truncate">{{ interest.employer.employer_profile.company_name }}</h5>
+                        <small class="text-muted">
+                            <i class="bi bi-briefcase me-1"></i>{{ interest.employer.employer_profile.industry|default:"Industry not specified" }}
+                        </small>
+                    </div>
+                </div>
+                <span class="badge px-3 py-2 fw-semibold flex-shrink-0" style="background:rgba(24,143,159,0.1); color:var(--brand-primary); border-radius:8px; font-size:0.72rem;">
+                    {{ interest.get_job_type_display }}
+                </span>
+            </div>
+
+            <!-- Message -->
+            <div class="p-3 rounded-3 mb-3" style="background:rgba(0,71,86,0.04); border-left:3px solid var(--brand-primary);">
+                <small class="text-muted fw-semibold text-uppercase d-block mb-1" style="font-size:0.66rem; letter-spacing:0.5px;">
+                    <i class="bi bi-chat-quote me-1"></i>Their Message
+                </small>
+                <div class="small text-dark" style="line-height:1.7;">{{ interest.message|linebreaks }}</div>
+            </div>
+
+            <!-- Actions -->
+            <div class="d-flex flex-wrap gap-2 align-items-center pt-3 border-top">
+                {% if interest.employer.employer_profile.company_website %}
+                <a href="{{ interest.employer.employer_profile.company_website }}" target="_blank" rel="noopener"
+                   class="btn btn-sm fw-semibold" style="border-radius:8px; background:rgba(0,71,86,0.07); color:var(--brand-darkest); border:none; font-size:0.78rem;">
+                    <i class="bi bi-globe2 me-1"></i>Company Website
+                </a>
+                {% endif %}
+                <a href="mailto:{{ interest.employer.employer_profile.company_email }}"
+                   class="btn btn-sm btn-primary fw-semibold text-white" style="border-radius:8px; font-size:0.78rem;">
+                    <i class="bi bi-envelope me-1"></i>Contact: {{ interest.employer.employer_profile.company_email }}
+                </a>
+                <small class="text-muted ms-auto" style="font-size:0.72rem;">
+                    <i class="bi bi-clock me-1"></i>Received {{ interest.created_at|date:"d M Y" }}
                 </small>
             </div>
-            <span class="badge" style="background:#e6f4f6;color:#004756;">
-                {{ interest.get_job_type_display }}
-            </span>
-        </div>
 
-        <div class="p-3 rounded mb-3" style="background:#f8f9fa;">
-            {{ interest.message|linebreaks }}
-        </div>
-
-        <div class="d-flex flex-wrap gap-2 align-items-center">
-            {% if interest.employer.employer_profile.company_website %}
-            <a href="{{ interest.employer.employer_profile.company_website }}"
-               target="_blank" rel="noopener"
-               class="btn btn-sm btn-outline-secondary">Company website</a>
-            {% endif %}
-            <a href="mailto:{{ interest.employer.employer_profile.company_email }}"
-               class="btn btn-sm btn-outline-primary">
-                Contact: {{ interest.employer.employer_profile.company_email }}
-            </a>
-            <small class="text-muted ms-auto">Received {{ interest.created_at|date:"d M Y" }}</small>
         </div>
     </div>
+    {% empty %}
+    <div class="card" style="border-radius:14px;">
+        <div class="card-body text-center py-5 px-4">
+            <i class="bi bi-envelope-open d-block mb-3" style="font-size:2.5rem; color:var(--brand-light);"></i>
+            <p class="fw-semibold text-dark mb-1">No opportunities yet</p>
+            <p class="text-muted small mb-3" style="max-width:420px; margin:0 auto; line-height:1.6;">
+                Keep completing challenges. Employers can see your portfolio,
+                and your campus admin forwards any interest here.
+            </p>
+            <a href="{% url 'challenges:list' %}" class="btn btn-primary btn-sm text-white fw-semibold px-4" style="border-radius:8px;">
+                <i class="bi bi-play-fill me-1"></i>Browse Challenges
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+
 </div>
-{% empty %}
-<div class="card border-0 shadow-sm p-4 text-center">
-    <p class="text-muted mb-0">
-        No opportunities yet. Keep completing challenges. Employers can see
-        your portfolio, and your campus admin forwards any interest here.
-    </p>
-</div>
-{% endfor %}
+
+<style>
+.opportunity-card { transition: transform 0.15s ease, box-shadow 0.15s ease; }
+.opportunity-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,71,86,0.1); }
+</style>
 {% endblock %}

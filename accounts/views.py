@@ -17,7 +17,10 @@ from .settings_forms import (
     AppearanceSettingsForm, NotificationSettingsForm,
     PasswordChangeSettingsForm, EmployerProfileForm
 )
-
+import secrets
+import requests
+from urllib.parse import urlencode
+from django.conf import settings
 
 @ratelimit(key='ip', rate='3/m', method='POST', block=True)
 def register_view(request):
@@ -334,3 +337,75 @@ def employer_register_view(request):
         'accounts/employer_register.html',
         {'form': form},
     )
+@login_required
+def github_connect(request):
+    academic_url = f"{reverse('accounts:settings')}?tab=academic"
+    if request.user.user_type != 'student' or not settings.GITHUB_CLIENT_ID:
+        messages.error(request, 'GitHub sign-in is not available.')
+        return redirect(academic_url)
+
+    state = secrets.token_urlsafe(32)
+    request.session['github_oauth_state'] = state
+    params = {
+        'client_id': settings.GITHUB_CLIENT_ID,
+        'redirect_uri': f"{settings.SITE_URL}{reverse('accounts:github_callback')}",
+        'state': state,
+        'allow_signup': 'false',
+    }
+    return redirect(f"https://github.com/login/oauth/authorize?{urlencode(params)}")
+
+
+@login_required
+def github_callback(request):
+    academic_url = f"{reverse('accounts:settings')}?tab=academic"
+
+    # CSRF protection: the state we sent must come back unchanged
+    expected = request.session.pop('github_oauth_state', None)
+    returned = request.GET.get('state', '')
+    if not expected or not secrets.compare_digest(expected, returned):
+        messages.error(request, 'GitHub sign-in could not be verified. Please try again.')
+        return redirect(academic_url)
+
+    code = request.GET.get('code')
+    if not code:  # student clicked "Cancel" on GitHub
+        messages.info(request, 'GitHub connection was cancelled.')
+        return redirect(academic_url)
+
+    try:
+        token = requests.post(
+            'https://github.com/login/oauth/access_token',
+            data={
+                'client_id': settings.GITHUB_CLIENT_ID,
+                'client_secret': settings.GITHUB_CLIENT_SECRET,
+                'code': code,
+                'redirect_uri': f"{settings.SITE_URL}{reverse('accounts:github_callback')}",
+            },
+            headers={'Accept': 'application/json'},
+            timeout=10,
+        ).json().get('access_token')
+        if not token:
+            raise ValueError('no access token')
+
+        gh = requests.get(
+            'https://api.github.com/user',
+            headers={'Authorization': f'Bearer {token}',
+                     'Accept': 'application/vnd.github+json'},
+            timeout=10,
+        ).json()
+        gh_id, gh_login = gh['id'], gh['login']
+    except (requests.RequestException, ValueError, KeyError):
+        messages.error(request, 'Could not complete GitHub sign-in. Please try again.')
+        return redirect(academic_url)
+
+    profile, _ = Profile.objects.get_or_create(user=request.user)
+
+    if Profile.objects.filter(github_id=gh_id).exclude(pk=profile.pk).exists():
+        messages.error(request, f'@{gh_login} is already linked to another ConnectED account.')
+        return redirect(academic_url)
+
+    profile.github_id = gh_id
+    profile.github_username = gh_login
+    profile.github_verified = True
+    profile.save()
+    messages.success(request, f'GitHub account @{gh_login} verified.')
+    return redirect(academic_url)

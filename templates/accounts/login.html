@@ -64,6 +64,12 @@
                     {% endif %}
                 </div>
 
+                <div class="text-end mb-3" style="margin-top:-0.5rem;">
+                    <a href="{% url 'accounts:password_reset' %}" class="small fw-semibold" style="color:var(--brand-primary); text-decoration:none;">
+                        Forgot password?
+                    </a>
+                </div>
+
                 <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold text-white mb-3" style="border-radius:8px; font-size:0.95rem;">
                     Sign In <i class="bi bi-arrow-right ms-1"></i>
                 </button>
@@ -73,8 +79,8 @@
                     <a href="{% url 'accounts:register' %}" class="fw-semibold" style="color:var(--brand-primary);">Create one</a>
                 </p><br>
                 <p class="text-muted small mt-3">
-    <a href="{% url 'accounts:employer_register' %}">Register as employer</a>
-</p>
+                    <a href="{% url 'accounts:employer_register' %}">Register as employer</a>
+                </p>
             </form>
         </div>
     </div>

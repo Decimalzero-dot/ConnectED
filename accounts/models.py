@@ -88,6 +88,8 @@ class Profile(models.Model):
         default=True,
         help_text="If enabled, your portfolio is visible to employers and the public."
     )
+    github_id = models.BigIntegerField(null=True, blank=True, unique=True)
+    github_verified = models.BooleanField(default=False)
 
 class Meta:
     constraints = [

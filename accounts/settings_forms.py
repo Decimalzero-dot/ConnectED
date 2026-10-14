@@ -1,8 +1,8 @@
 from django import forms
 from .models import User, Profile, EmployerProfile
+from .github import GitHubUsernameFormMixin
 
-
-class AccountSettingsForm(forms.ModelForm):
+class AccountSettingsForm(GitHubUsernameFormMixin, forms.ModelForm):
     """Username, email, profile photo"""
     class Meta:
         model = User

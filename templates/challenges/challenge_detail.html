@@ -173,6 +173,9 @@
                                 {{ form.github_url }}
                                 <div class="form-text text-muted" style="font-size:0.72rem;">Link to your GitHub repo with code and README.</div>
                                 {% if form.github_url.errors %}<div class="text-danger small mt-1">{{ form.github_url.errors|striptags }}</div>{% endif %}
+                                {% if form.github_url.errors %}
+                                <div class="text-danger small mt-1">{{ form.github_url.errors|striptags }}</div>
+                                {% endif %}
                             </div>
                             {% endif %}
 

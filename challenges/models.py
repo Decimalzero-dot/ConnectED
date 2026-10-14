@@ -143,6 +143,8 @@ class Submission(models.Model):
     feedback = models.TextField(blank=True)
     submitted_at = models.DateTimeField(auto_now_add=True)
     reviewed_at = models.DateTimeField(null=True, blank=True)
+    github_verified = models.BooleanField(default=False)
+    github_check_summary = models.CharField(max_length=255, blank=True)
 
     class Meta:
         ordering = ['-submitted_at']

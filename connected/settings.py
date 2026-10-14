@@ -91,6 +91,10 @@ EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 EMAIL_TIMEOUT = 10  # don't let a slow mail server hang the request
 DEFAULT_FROM_EMAIL = f'ConnectED <{EMAIL_HOST_USER}>'
 
+GITHUB_CLIENT_ID = os.getenv('GITHUB_CLIENT_ID', '')
+GITHUB_CLIENT_SECRET = os.getenv('GITHUB_CLIENT_SECRET', '')
+GITHUB_API_TOKEN = os.getenv('GITHUB_API_TOKEN', '')
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',

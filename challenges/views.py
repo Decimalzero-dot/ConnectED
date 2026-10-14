@@ -14,6 +14,7 @@ from .utils import validate_submission_file
 from notifications.models import Notification
 from django.core.mail import send_mail
 from django.conf import settings as django_settings
+from accounts.github import verify_repo
 
 User = get_user_model()
 
@@ -120,7 +121,45 @@ def challenge_detail(request, pk):
                     except ValidationError as e:
                         file_errors.extend(e.messages)
 
-                if not file_errors:
+
+                # ── GitHub verification ──
+                if submission.github_url:
+                    profile = request.user.profile
+
+                    # Require the student to connect their GitHub account
+                    if not profile.github_verified or not profile.github_id:
+                        form.add_error(
+                            'github_url',
+                            'Connect your GitHub account in Settings before '
+                            'submitting a repository.'
+                        )
+                    else:
+                        gh_user = profile.github_username
+
+                        status, msg, canonical = verify_repo(
+                            submission.github_url,
+                            gh_user
+                        )
+
+                        if status == 'fail':
+                            form.add_error('github_url', msg)
+
+                        elif status == 'ok':
+                            submission.github_url = canonical
+                            submission.github_verified = True
+                            submission.github_check_summary = msg
+
+                        else:
+                            # GitHub is unavailable; allow submission,
+                            # but explicitly mark it as unverified.
+                            submission.github_verified = False
+                            submission.github_check_summary = (
+                                'Not verified: GitHub could not be reached '
+                                'at submission time.'
+                            )
+
+                # Save only if validation passed
+                if not file_errors and not form.errors:   
                     submission.save()
 
                     for f in validated_files:
