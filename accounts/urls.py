@@ -18,7 +18,7 @@ urlpatterns = [
     path('profile/<str:username>/', views.portfolio_view, name='portfolio'),
     path('github/connect/', views.github_connect, name='github_connect'),
     path('github/callback/', views.github_callback, name='github_callback'),
-
+    path('toggle-dark-mode/', views.toggle_dark_mode, name='toggle_dark_mode'),
 
     # Password reset 
    path(

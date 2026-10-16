@@ -11,7 +11,8 @@ from .forms import UserRegistrationForm, UserLoginForm, StudentProfileForm, Admi
 from notifications.models import Notification
 from django.core.mail import send_mail
 from django.conf import settings as django_settings
-from django.http import Http404
+from django.http import Http404, JsonResponse
+from django.views.decorators.http import require_POST
 from .settings_forms import (
     AccountSettingsForm, AcademicSettingsForm,
     AppearanceSettingsForm, NotificationSettingsForm,
@@ -263,6 +264,14 @@ def portfolio_view(request, username):
         ),
     }
     return render(request, 'accounts/portfolio.html', context)
+
+@login_required
+@require_POST
+def toggle_dark_mode(request):
+    profile, _ = Profile.objects.get_or_create(user=request.user)
+    profile.dark_mode = not profile.dark_mode
+    profile.save(update_fields=['dark_mode'])
+    return JsonResponse({'dark_mode': profile.dark_mode})
 
 @ratelimit(key='ip', rate='3/m', method='POST', block=True)
 def employer_register_view(request):

@@ -23,7 +23,7 @@
     <!-- Mobile header -->
     <header class="mobile-header d-md-none">
         <a href="{% url 'core:landing' %}" class="text-white text-decoration-none">
-                <img src="{% static 'images/logo.svg' %}" alt="ConnectED" style="height:50px; width:auto;">
+                <img src="{% static 'images/logo.svg' %}" alt="ConnectED" style="height:28px; width:auto;">
         </a>
         <button id="mobile-sidebar-toggle" class="btn btn-outline-light btn-sm" type="button" aria-label="Toggle navigation">
             <i class="bi bi-list fs-5"></i>
@@ -37,7 +37,7 @@
         ================================================================ -->
         <nav class="sidebar">
             <a href="{% url 'core:landing' %}" class="sidebar-brand">
-                <img src="{% static 'images/logo.svg' %}" alt="ConnectED" style="height:60px; width:auto;">
+                <img src="{% static 'images/logo.svg' %}" alt="ConnectED" style="height:32px; width:auto;">
             </a>
 
             <ul class="sidebar-menu mt-3">
@@ -84,17 +84,6 @@
                 <li><a href="{% url 'dashboard:leaderboard' %}" class="sidebar-link">
                     <i class="bi bi-bar-chart-line sidebar-icon"></i>Leaderboard
                 </a></li>
-                {% if user.user_type == 'student' %}
-                <li><a href="{% url 'accounts:portfolio' user.username %}" class="sidebar-link">
-                    <i class="bi bi-person-circle sidebar-icon"></i>My Portfolio
-                </a></li>
-                {% endif %}
-
-                {% if user.user_type == 'student' %}
-                <li><a href="{% url 'dashboard:opportunities' %}" class="sidebar-link">
-                    <i class="bi bi-briefcase sidebar-icon"></i>Opportunities
-                </a></li>
-                {% endif %}
 
                 {% if user.user_type == 'campus_admin' or user.user_type == 'super_admin' %}
                 <li><a href="{% url 'challenges:review_queue' %}" class="sidebar-link">
@@ -106,7 +95,7 @@
                 <li><a href="{% url 'accounts:settings' %}" class="sidebar-link">
                     <i class="bi bi-gear sidebar-icon"></i>Settings
                 </a></li>
-                <li><a href="{% url 'dashboard:messages' %}" class="sidebar-link">
+                <li><a href="#" class="sidebar-link">
                     <i class="bi bi-chat-dots sidebar-icon"></i>Messages
                 </a></li>
                 <li><a href="{% url 'notifications:list' %}" class="sidebar-link d-flex justify-content-between align-items-center">
@@ -145,9 +134,8 @@
                 <li><a href="{% url 'management:admin_list' %}" class="sidebar-link">
                     <i class="bi bi-shield-check sidebar-icon"></i>Admins
                 </a></li>
-                
-                <li><a href="{% url 'management:sponsorship_list' %}" class="sidebar-link">
-                    <i class="bi bi-cash-coin sidebar-icon"></i>Sponsorship Inquiries
+                <li><a href="{% url 'management:all_students' %}" class="sidebar-link">
+                    <i class="bi bi-person-lines-fill sidebar-icon"></i>All Students
                 </a></li>
                 <li><a href="{% url 'management:employer_list' %}" class="sidebar-link">
                     <i class="bi bi-buildings sidebar-icon"></i>Employers
@@ -202,6 +190,11 @@
                     <span class="topbar-page-title">{% block page_title %}{% endblock %}</span>
                 </div>
                 <div class="topbar-right">
+
+                    <!-- Dark mode toggle -->
+                    <button type="button" id="dark-mode-toggle" class="topbar-icon-btn border-0" title="Toggle dark mode" aria-label="Toggle dark mode">
+                        <i class="bi {% if user.profile.dark_mode %}bi-sun{% else %}bi-moon-stars{% endif %}" id="dark-mode-icon"></i>
+                    </button>
 
                     <!-- Notifications bell -->
                     <a href="{% url 'notifications:list' %}" class="topbar-icon-btn position-relative" title="Notifications">
@@ -265,7 +258,7 @@
     <nav class="navbar navbar-dark" style="background-color: var(--brand-darkest);">
         <div class="container">
             <a class="navbar-brand" href="{% url 'core:landing' %}">
-                <img src="{% static 'images/logo.svg' %}" alt="ConnectED" style="height:60px; width:auto;">
+                <img src="{% static 'images/logo.svg' %}" alt="ConnectED" style="height:30px; width:auto;">
             </a>
             <div>
                 <a class="btn btn-outline-light btn-sm me-2" href="{% url 'accounts:login' %}">Login</a>
@@ -289,6 +282,35 @@
 {% endif %}
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% if user.is_authenticated %}
+<script>
+(function () {
+    const btn  = document.getElementById('dark-mode-toggle');
+    const icon = document.getElementById('dark-mode-icon');
+    if (!btn) return;
+
+    btn.addEventListener('click', function () {
+        const root = document.documentElement;
+        const goingDark = !root.classList.contains('dark-mode');
+
+        // Apply instantly
+        root.classList.toggle('dark-mode', goingDark);
+        icon.className = 'bi ' + (goingDark ? 'bi-sun' : 'bi-moon-stars');
+
+        // Save in the background; revert if it fails
+        fetch("{% url 'accounts:toggle_dark_mode' %}", {
+            method: 'POST',
+            headers: { 'X-CSRFToken': '{{ csrf_token }}' },
+        }).then(function (r) {
+            if (!r.ok) throw new Error('save failed');
+        }).catch(function () {
+            root.classList.toggle('dark-mode', !goingDark);
+            icon.className = 'bi ' + (!goingDark ? 'bi-sun' : 'bi-moon-stars');
+        });
+    });
+})();
+</script>
+{% endif %}
 <script src="{% static 'js/main.js' %}"></script>
 </body>
 </html>
