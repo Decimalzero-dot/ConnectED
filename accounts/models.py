@@ -83,6 +83,7 @@ class Profile(models.Model):
         blank=True,
         help_text="Used for notifications if different from your login email"
     )
+    google_sub = models.CharField(max_length=255, null=True, blank=True, unique=True)
     onboarding_complete = models.BooleanField(default=False)
     portfolio_public = models.BooleanField(
         default=True,

@@ -11,6 +11,18 @@ class UserRegistrationForm(UserCreationForm):
             'placeholder': 'Your university email'
         })
     )
+    def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+
+            self.fields['password1'].widget.attrs.update({
+                'class': 'form-control',
+                'placeholder': 'Create password',
+            })
+
+            self.fields['password2'].widget.attrs.update({
+                'class': 'form-control',
+                'placeholder': 'Confirm password',
+            })
 
     class Meta:
         model = User
@@ -96,6 +108,7 @@ class EmployerRegistrationForm(UserCreationForm):
             'placeholder': 'Company email'
         })
     )
+
     company_name = forms.CharField(
         max_length=200,
         widget=forms.TextInput(attrs={
@@ -103,6 +116,7 @@ class EmployerRegistrationForm(UserCreationForm):
             'placeholder': 'Company name'
         })
     )
+
     company_website = forms.URLField(
         required=False,
         widget=forms.URLInput(attrs={
@@ -110,6 +124,7 @@ class EmployerRegistrationForm(UserCreationForm):
             'placeholder': 'https://yourcompany.com'
         })
     )
+
     industry = forms.CharField(
         required=False,
         widget=forms.TextInput(attrs={
@@ -126,4 +141,22 @@ class EmployerRegistrationForm(UserCreationForm):
                 'class': 'form-control',
                 'placeholder': 'Username'
             }),
-        }        
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields['password1'].widget.attrs.update({
+            'class': 'form-control',
+            'placeholder': 'Create password',
+        })
+
+        self.fields['password2'].widget.attrs.update({
+            'class': 'form-control',
+            'placeholder': 'Confirm password',
+        })
+
+        self.fields['username'].widget.attrs.update({
+            'class': 'form-control',
+            'placeholder': 'Username',
+        })

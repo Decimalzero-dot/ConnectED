@@ -95,6 +95,9 @@ GITHUB_CLIENT_ID = os.getenv('GITHUB_CLIENT_ID', '')
 GITHUB_CLIENT_SECRET = os.getenv('GITHUB_CLIENT_SECRET', '')
 GITHUB_API_TOKEN = os.getenv('GITHUB_API_TOKEN', '')
 
+GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID', '')
+GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET', '')
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
@@ -110,7 +113,7 @@ AUTH_USER_MODEL = 'accounts.User'
 
 ROOT_URLCONF = 'connected.urls'
 
-SITE_URL = os.getenv('SITE_URL', 'http://127.0.0.1:8000')
+SITE_URL = os.getenv('SITE_URL', 'http://127.0.0.1:8000').rstrip("/")
 SITE_ID = 2
 
 AUTHENTICATION_BACKENDS = [
