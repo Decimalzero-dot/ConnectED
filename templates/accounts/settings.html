@@ -349,14 +349,14 @@
                             {% if profile.github_verified %}
                                 <span class="badge bg-success">Verified</span>
                                 Connected as <strong>@{{ profile.github_username }}</strong>
-                                <a href="{% url 'accounts:github_connect' %}" class="small ms-2">Reconnect</a>
+                                <a href="{% url 'accounts:github_connect' %}" class="small ms-2" data-oauth-popup>Reconnect</a>
                                 <div class="form-text">Renamed your GitHub account? Reconnect to refresh it.</div>
                             {% else %}
                                 <p class="mb-2 small text-muted">
                                     Connect your GitHub account to prove the username is yours. Verified
                                     accounts carry more weight with reviewers and employers.
                                 </p>
-                                <a href="{% url 'accounts:github_connect' %}" class="btn btn-sm btn-dark">Connect GitHub</a>
+                                <a href="{% url 'accounts:github_connect' %}" class="btn btn-sm btn-dark" data-oauth-popup>Connect GitHub</a>
                             {% endif %}
                         </div>
 

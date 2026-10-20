@@ -129,7 +129,7 @@
           if (el.type === 'checkbox') el.checked = v;
           else if (el.type === 'radio') el.checked = (el.value === v);
           else if (el.tagName === 'SELECT') { if (el.selectedIndex <= 0) el.value = v; }
-          else if (!el.value) el.value = v;   // never overwrite what the server rendered
+          else if (!el.value) el.value = v;   
         });
       }
     } catch (e) {}
@@ -150,5 +150,50 @@
     form.addEventListener('change', save);
     document.addEventListener('visibilitychange', function () { if (document.hidden) saveNow(); });
     window.addEventListener('pagehide', saveNow);   // fires right as they switch apps
+  });
+})();
+
+/* OAuth popup: open a small window, update this page when it finishes */
+(function () {
+  var seen = 0;
+  function toast(msg, ok) {
+    var t = document.createElement('div');
+    t.textContent = msg; t.setAttribute('role', 'status');
+    t.style.cssText = 'position:fixed;left:50%;bottom:1.5rem;transform:translateX(-50%);z-index:2000;' +
+      'padding:.7rem 1.1rem;border-radius:.5rem;color:#fff;font-weight:600;max-width:90vw;' +
+      'box-shadow:0 8px 24px rgba(0,0,0,.25);background:' + (ok ? '#107d79' : '#b3261e');
+    document.body.appendChild(t);
+    setTimeout(function () { t.remove(); }, 4000);
+  }
+  function handle(d) {
+    if (!d || d.type !== 'oauth-done') return;
+    var now = Date.now();
+    if (now - seen < 3000) return;            // both channels deliver; act once
+    seen = now;
+    toast(d.message, d.ok);
+    if (!d.ok) return;
+    var locks = document.querySelectorAll('fieldset[data-oauth-lock]');
+    if (locks.length) {                        // challenge page: unlock in place, keep typed text and files
+      locks.forEach(function (f) { f.disabled = false; });
+      document.querySelectorAll('[data-oauth-gate]').forEach(function (el) { el.remove(); });
+    } else {
+      setTimeout(function () { location.reload(); }, 800);
+    }
+  }
+  window.addEventListener('message', function (e) { if (e.origin === window.location.origin) handle(e.data); });
+  var bc = ('BroadcastChannel' in window) ? new BroadcastChannel('connected-oauth') : null;
+  if (bc) bc.onmessage = function (e) { handle(e.data); };
+
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest('a[data-oauth-popup]');
+    if (!a) return;
+    e.preventDefault();
+    var u = new URL(a.href, window.location.origin);
+    u.searchParams.set('popup', '1');
+    var w = 600, h = 720;
+    var win = window.open(u.toString(), 'oauth-popup', 'width=' + w + ',height=' + h +
+      ',left=' + Math.round((screen.width - w) / 2) + ',top=' + Math.round((screen.height - h) / 2));
+    if (!win) { window.location.href = a.href; return; }   // popup blocked: normal full-page flow
+    win.focus();
   });
 })();

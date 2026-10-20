@@ -22,6 +22,9 @@
                         Start building <i class="bi bi-arrow-up-right" aria-hidden="true"></i>
                     </a>
                     <a href="{% url 'accounts:login' %}" class="connected-button connected-button--ghost">Sign in</a>
+                    <p class="connected-hero__alt">
+                    By continuing you agree to our <a href="{% url 'core:privacy' %}">Privacy Policy</a>.
+                    </p>
                 </div>
 
                 <div class="connected-proof" aria-label="Platform benefits">
@@ -145,6 +148,12 @@
 
 <footer class="connected-footer">
     <div class="container">
+        <nav aria-label="Footer navigation">
+        <a href="{% url 'accounts:login' %}">Sign in</a>
+        <a href="{% url 'accounts:register' %}">Students</a>
+        <a href="{% url 'accounts:employer_register' %}">Employers</a>
+        <a href="{% url 'core:privacy' %}">Privacy Policy</a>
+        </nav>
         <div class="connected-footer__inner">
             <img src="{% static 'images/logo.svg' %}" alt="ConnectED">
             <small>© {% now "Y" %} ConnectED. Learning, Linked.</small>
