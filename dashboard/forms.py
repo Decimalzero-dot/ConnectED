@@ -24,4 +24,8 @@ class OnboardingForm(GitHubUsernameFormMixin, forms.ModelForm):
             'placeholder': 'Personal email for notifications'
             }),
         }
+        
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.fields['year_of_study'].required = True
     

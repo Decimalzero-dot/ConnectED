@@ -66,6 +66,8 @@ def login_view(request):
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
+                if request.POST.get('remember_me'):
+                    request.session.set_expiry(60 * 60 * 24 * 30) 
                 next_url = _safe_next(request)
                 if next_url:
                     return redirect(next_url)

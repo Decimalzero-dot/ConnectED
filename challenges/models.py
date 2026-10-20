@@ -82,12 +82,25 @@ class Challenge(models.Model):
     def __str__(self):
         return f"{self.title} ({self.get_difficulty_display()})"
 
-    def is_eligible_for(self, profile):
-        """Year-based eligibility only. Discipline is advisory."""
+    def eligibility(self, profile):
+        """Returns (eligible, reason). Year only; discipline never locks anyone out."""
         if not profile.year_of_study:
-            return False
-        return (profile.year_of_study >= self.min_year)
- 
+            return False, (
+                'Add your year of study in Settings → Academic Info to unlock challenges.'
+            )
+
+        if profile.year_of_study < self.min_year:
+            return False, (
+                f'This challenge is for Year {self.min_year} and above. '
+                f'You are in Year {profile.year_of_study}.'
+            )
+
+        return True, ''
+
+    def is_eligible_for(self, profile):
+        """Returns whether the profile meets the challenge's year requirement."""
+        return self.eligibility(profile)[0]
+
     def allowed_submission_types(self):
         types = []
         if self.allows_github:

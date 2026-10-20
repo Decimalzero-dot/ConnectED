@@ -84,7 +84,7 @@ def challenge_list(request):
 def challenge_detail(request, pk):
     challenge = get_object_or_404(Challenge, pk=pk, is_active=True)
     profile = request.user.profile
-    eligible = challenge.is_eligible_for(profile)
+    eligible, lock_reason = challenge.eligibility(profile)
 
     existing_submission = Submission.objects.filter(
         challenge=challenge,
@@ -208,6 +208,7 @@ def challenge_detail(request, pk):
     return render(request, 'challenges/challenge_detail.html', {
         'challenge': challenge,
         'eligible': eligible,
+        'lock_reason': lock_reason,
         'submission': existing_submission,
         'form': form,
         'file_errors': file_errors,

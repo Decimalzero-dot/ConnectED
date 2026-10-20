@@ -79,6 +79,11 @@
                     <div class="auth-field-error">{{ form.password.errors|striptags }}</div>
                     {% endif %}
                 </div>
+                
+                <div class="form-check mb-3">
+                <input type="checkbox" class="form-check-input" id="remember_me" name="remember_me">
+                <label class="form-check-label" for="remember_me">Keep me signed in on this device</label>
+                </div>
 
                 <div class="text-end mb-3" style="margin-top:-0.5rem;">
                     <a href="{% url 'accounts:password_reset' %}" class="small fw-semibold" style="color:var(--brand-primary); text-decoration:none;">
