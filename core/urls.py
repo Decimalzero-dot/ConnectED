@@ -5,6 +5,7 @@ app_name = 'core'
 
 urlpatterns = [
     path('', views.landing_view, name='landing'),
+    path('privacy/', views.privacy_view, name='privacy'),
 ]
 handler404 = 'core.views.error_404'
 handler500 = 'core.views.error_500'

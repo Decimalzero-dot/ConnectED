@@ -1,4 +1,6 @@
 from django.shortcuts import render, redirect
+from django_ratelimit.exceptions import Ratelimited
+
 
 # Create your views here.
 
@@ -17,4 +19,12 @@ def error_500(request):
 
 
 def error_403(request, exception):
+    return render(request, 'errors/403.html', status=403)
+
+def privacy_view(request):
+    return render(request, 'core/privacy.html')
+
+def error_403(request, exception=None):
+    if isinstance(exception, Ratelimited):
+        return render(request, 'errors/429.html', status=429)
     return render(request, 'errors/403.html', status=403)

@@ -50,8 +50,7 @@ urlpatterns = [
     "sitemap.xml",
     sitemap,
     {"sitemaps": sitemaps},
-    name="django.contrib.sitemaps.views.sitemap",
-),
+    name="django.contrib.sitemaps.views.sitemap",),
 ]
 
 if settings.DEBUG:

@@ -19,6 +19,8 @@ urlpatterns = [
     path('github/connect/', views.github_connect, name='github_connect'),
     path('github/callback/', views.github_callback, name='github_callback'),
     path('toggle-dark-mode/', views.toggle_dark_mode, name='toggle_dark_mode'),
+    path('google/login/', views.google_login, name='google_login'),
+    path('google/callback/', views.google_callback, name='google_callback'),
 
     # Password reset 
    path(

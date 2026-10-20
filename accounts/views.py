@@ -18,8 +18,12 @@ from .settings_forms import (
     AppearanceSettingsForm, NotificationSettingsForm,
     PasswordChangeSettingsForm, EmployerProfileForm
 )
+import re
 import secrets
 import requests
+from universities.models import University
+from .google_auth import build_auth_url, exchange_code
+from django.utils.http import url_has_allowed_host_and_scheme
 from urllib.parse import urlencode
 from django.conf import settings
 
@@ -62,6 +66,9 @@ def login_view(request):
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
+                next_url = _safe_next(request)
+                if next_url:
+                    return redirect(next_url)
                 return redirect('dashboard:home')
         messages.error(request, 'Invalid username or password.')
     else:
@@ -418,3 +425,103 @@ def github_callback(request):
     profile.save()
     messages.success(request, f'GitHub account @{gh_login} verified.')
     return redirect(academic_url)
+
+def _safe_next(request):
+    nxt = request.GET.get('next') or request.POST.get('next')
+    if nxt and url_has_allowed_host_and_scheme(
+        nxt, allowed_hosts={request.get_host()}, require_https=request.is_secure()
+    ):
+        return nxt
+    return None
+
+@ratelimit(key='ip', rate='10/m', method='GET', block=True)
+def google_login(request):
+    if request.user.is_authenticated:
+        return redirect('dashboard:home')
+    if not settings.GOOGLE_CLIENT_ID:
+        messages.error(request, 'Google sign-in is not available right now.')
+        return redirect('accounts:login')
+
+    state, nonce = secrets.token_urlsafe(32), secrets.token_urlsafe(32)
+    request.session['google_oauth'] = {'state': state, 'nonce': nonce}
+    return redirect(build_auth_url(state, nonce))
+
+
+def _google_student(claims, email, university):
+    """Returns (user, error_message). Never links into staff accounts."""
+    sub = claims['sub']
+
+    profile = Profile.objects.filter(google_sub=sub).select_related('user').first()
+    if profile:
+        return profile.user, None
+
+    matches = User.objects.filter(email__iexact=email)
+    if matches.exclude(user_type='student').exists():
+        return None, 'That email belongs to a staff account. Please log in with your password.'
+
+    user = matches.first()
+    if user:
+        # Google just proved this person owns the mailbox. Password sign-up never
+        # verified emails, so wipe any password set by whoever registered it first.
+        user.set_unusable_password()
+        user.save(update_fields=['password'])
+    else:
+        base = re.sub(r'[^A-Za-z0-9_.-]', '', email.split('@')[0])[:30] or 'student'
+        username, n = base, 1
+        while User.objects.filter(username__iexact=username).exists():
+            n += 1
+            username = f'{base}{n}'
+        user = User.objects.create_user(
+            username=username,
+            email=email,
+            first_name=claims.get('given_name', '')[:150],
+            last_name=claims.get('family_name', '')[:150],
+            user_type='student',
+        )
+
+    profile, _ = Profile.objects.get_or_create(user=user)
+    profile.university = university
+    profile.google_sub = sub
+    profile.save()
+    return user, None
+
+
+def google_callback(request):
+    saved = request.session.pop('google_oauth', None)
+    if not saved or not secrets.compare_digest(saved['state'], request.GET.get('state', '')):
+        messages.error(request, 'Google sign-in could not be verified. Please try again.')
+        return redirect('accounts:login')
+
+    code = request.GET.get('code')
+    if not code:  # student pressed Cancel on Google's screen
+        messages.info(request, 'Google sign-in was cancelled.')
+        return redirect('accounts:login')
+
+    try:
+        claims = exchange_code(code)
+    except (ValueError, requests.RequestException):
+        messages.error(request, 'Could not complete Google sign-in. Please try again.')
+        return redirect('accounts:login')
+
+    if not secrets.compare_digest(str(claims.get('nonce', '')), saved['nonce']):
+        messages.error(request, 'Google sign-in could not be verified. Please try again.')
+        return redirect('accounts:login')
+
+    email = claims['email'].lower()
+    domain = email.rsplit('@', 1)[-1]
+    university = University.objects.filter(email_domain__iexact=domain, is_active=True).first()
+    if not university:
+        messages.error(request, 'Please use your university Google account. '
+                                'That email domain is not on ConnectED yet.')
+        return redirect('accounts:login')
+
+    user, error = _google_student(claims, email, university)
+    if error:
+        messages.error(request, error)
+        return redirect('accounts:login')
+    if not user.is_active:
+        messages.error(request, 'This account has been deactivated.')
+        return redirect('accounts:login')
+
+    login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+    return redirect('dashboard:home')  # new students get sent on to onboarding

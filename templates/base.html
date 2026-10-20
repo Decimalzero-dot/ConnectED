@@ -310,6 +310,13 @@
     });
 })();
 </script>
+<script>
+document.querySelectorAll('form.js-once').forEach(f =>
+  f.addEventListener('submit', () => {
+    const b = f.querySelector('[type=submit]');
+    setTimeout(() => { b.disabled = true; b.textContent = 'Please wait...'; }, 0);
+  }));
+</script>
 {% endif %}
 <script src="{% static 'js/main.js' %}"></script>
 </body>

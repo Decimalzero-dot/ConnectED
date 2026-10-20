@@ -41,6 +41,22 @@
             {% endfor %}
             {% endif %}
 
+            <a href="{% url 'accounts:google_login' %}"
+            class="btn google-login-btn w-100 mb-3 d-flex align-items-center justify-content-center position-relative">
+                <img
+                    src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+                    alt=""
+                    width="20"
+                    height="20"
+                    class="google-icon"
+                >
+                <span>Continue with Google</span>
+            </a>
+
+            <p class="text-center text-muted small mb-3">
+                Use your university Google account, or sign up with a password below.
+            </p>
+
             <form method="post" novalidate>
                 {% csrf_token %}
 
