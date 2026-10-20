@@ -26,6 +26,16 @@ from .google_auth import build_auth_url, exchange_code
 from django.utils.http import url_has_allowed_host_and_scheme
 from urllib.parse import urlencode
 from django.conf import settings
+import logging
+
+logger = logging.getLogger(__name__)
+
+def _clean_next(request, value):
+    if value and url_has_allowed_host_and_scheme(
+        value, allowed_hosts={request.get_host()}, require_https=request.is_secure()
+    ):
+        return value
+    return None
 
 @ratelimit(key='ip', rate='3/m', method='POST', block=True)
 def register_view(request):
@@ -355,15 +365,32 @@ def employer_register_view(request):
         'accounts/employer_register.html',
         {'form': form},
     )
+
+def _github_finish(request, back, popup, ok, message):
+    if popup:   
+        return render(request, 'accounts/oauth_popup_done.html',
+                      {'ok': ok, 'message': message, 'back': back})
+    (messages.success if ok else messages.error)(request, message)
+    return redirect(back)
+
+
 @login_required
 def github_connect(request):
-    academic_url = f"{reverse('accounts:settings')}?tab=academic"
-    if request.user.user_type != 'student' or not settings.GITHUB_CLIENT_ID:
-        messages.error(request, 'GitHub sign-in is not available.')
-        return redirect(academic_url)
+    back = _clean_next(request, request.GET.get('next')) or \
+           f"{reverse('accounts:settings')}?tab=academic"
+    popup = request.GET.get('popup') == '1'
+
+    if request.user.user_type != 'student':
+        return _github_finish(request, back, popup, False,
+                              'GitHub verification is for student accounts.')
+    if not settings.GITHUB_CLIENT_ID:
+        logger.error('GITHUB_CLIENT_ID is not set; GitHub connect unavailable')
+        return _github_finish(request, back, popup, False,
+                              'GitHub verification is temporarily unavailable. '
+                              'This is on our side, not yours.')
 
     state = secrets.token_urlsafe(32)
-    request.session['github_oauth_state'] = state
+    request.session['github_oauth'] = {'state': state, 'next': back, 'popup': popup}
     params = {
         'client_id': settings.GITHUB_CLIENT_ID,
         'redirect_uri': f"{settings.SITE_URL}{reverse('accounts:github_callback')}",
@@ -375,58 +402,52 @@ def github_connect(request):
 
 @login_required
 def github_callback(request):
-    academic_url = f"{reverse('accounts:settings')}?tab=academic"
+    saved = request.session.pop('github_oauth', None) or {}
+    back = saved.get('next') or f"{reverse('accounts:settings')}?tab=academic"
+    popup = bool(saved.get('popup'))
 
-    # CSRF protection: the state we sent must come back unchanged
-    expected = request.session.pop('github_oauth_state', None)
-    returned = request.GET.get('state', '')
-    if not expected or not secrets.compare_digest(expected, returned):
-        messages.error(request, 'GitHub sign-in could not be verified. Please try again.')
-        return redirect(academic_url)
+    state_ok = bool(saved) and secrets.compare_digest(
+        saved.get('state', '').encode(), request.GET.get('state', '').encode())
+    if not state_ok:
+        return _github_finish(request, back, popup, False,
+                              'GitHub sign-in could not be verified. Please try again.')
 
     code = request.GET.get('code')
-    if not code:  # student clicked "Cancel" on GitHub
-        messages.info(request, 'GitHub connection was cancelled.')
-        return redirect(academic_url)
+    if not code:   # they pressed Cancel on GitHub
+        return _github_finish(request, back, popup, False, 'GitHub connection was cancelled.')
 
     try:
         token = requests.post(
             'https://github.com/login/oauth/access_token',
-            data={
-                'client_id': settings.GITHUB_CLIENT_ID,
-                'client_secret': settings.GITHUB_CLIENT_SECRET,
-                'code': code,
-                'redirect_uri': f"{settings.SITE_URL}{reverse('accounts:github_callback')}",
-            },
-            headers={'Accept': 'application/json'},
-            timeout=10,
+            data={'client_id': settings.GITHUB_CLIENT_ID,
+                  'client_secret': settings.GITHUB_CLIENT_SECRET,
+                  'code': code,
+                  'redirect_uri': f"{settings.SITE_URL}{reverse('accounts:github_callback')}"},
+            headers={'Accept': 'application/json'}, timeout=10,
         ).json().get('access_token')
         if not token:
             raise ValueError('no access token')
-
         gh = requests.get(
             'https://api.github.com/user',
             headers={'Authorization': f'Bearer {token}',
-                     'Accept': 'application/vnd.github+json'},
-            timeout=10,
+                     'Accept': 'application/vnd.github+json'}, timeout=10,
         ).json()
         gh_id, gh_login = gh['id'], gh['login']
     except (requests.RequestException, ValueError, KeyError):
-        messages.error(request, 'Could not complete GitHub sign-in. Please try again.')
-        return redirect(academic_url)
+        logger.exception('GitHub OAuth callback failed')
+        return _github_finish(request, back, popup, False,
+                              'Could not complete GitHub sign-in. Please try again.')
 
     profile, _ = Profile.objects.get_or_create(user=request.user)
-
     if Profile.objects.filter(github_id=gh_id).exclude(pk=profile.pk).exists():
-        messages.error(request, f'@{gh_login} is already linked to another ConnectED account.')
-        return redirect(academic_url)
+        return _github_finish(request, back, popup, False,
+                              f'@{gh_login} is already linked to another ConnectED account.')
 
     profile.github_id = gh_id
     profile.github_username = gh_login
     profile.github_verified = True
     profile.save()
-    messages.success(request, f'GitHub account @{gh_login} verified.')
-    return redirect(academic_url)
+    return _github_finish(request, back, popup, True, f'GitHub account @{gh_login} verified.')
 
 def _safe_next(request):
     nxt = request.GET.get('next') or request.POST.get('next')

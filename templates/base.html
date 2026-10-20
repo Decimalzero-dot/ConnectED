@@ -224,7 +224,8 @@
                     </a>
 
                     <!-- Logout -->
-                    <form action="{% url 'accounts:logout' %}" method="post">
+                     <form action="{% url 'accounts:logout' %}" method="post"
+                           onsubmit="Object.keys(localStorage).filter(k=>k.startsWith('draft:')).forEach(k=>localStorage.removeItem(k))">
                         {% csrf_token %}
                         <button type="submit" class="topbar-icon-btn" title="Logout">
                             <i class="bi bi-box-arrow-right"></i>

@@ -149,24 +149,36 @@
                     </div>
                     {% endif %}
 
-                    <form method="post" enctype="multipart/form-data" novalidate id="submission-form">
+                    <form method="post" enctype="multipart/form-data" data-draft="challenge-{{ challenge.pk }}" novalidate id="submission-form">
                         {% csrf_token %}
 
                         <div class="d-flex flex-column gap-3">
+                            {% if needs_github %}
+                            <div class="alert alert-warning d-flex flex-wrap align-items-center gap-2" data-oauth-gate>
+                            <div class="flex-grow-1">
+                                <strong>Confirm your GitHub account to submit a repository.</strong>
+                                One tap, and you come straight back to this page.
+                            </div>
+                            <a href="{% url 'accounts:github_connect' %}?next={{ request.path|urlencode }}"
+                                class="btn btn-dark btn-sm" data-oauth-popup>Connect GitHub</a>
+                            </div>
+                            {% endif %}
 
+                            <fieldset data-oauth-lock {% if needs_github %}disabled{% endif %}>
                             {% if challenge.allows_github %}
                             <div>
                                 <label class="form-label fw-semibold text-muted text-uppercase" style="font-size:0.7rem; letter-spacing:0.5px;">
-                                    <i class="bi bi-github me-1"></i>GitHub Repository
-                                    {% if not challenge.allows_file_upload and not challenge.allows_external_url and not challenge.allows_text %}
-                                    <span class="text-danger">*</span>
-                                    {% endif %}
+                                <i class="bi bi-github me-1"></i>GitHub Repository
+                                {% if not challenge.allows_file_upload and not challenge.allows_external_url and not challenge.allows_text %}
+                                <span class="text-danger">*</span>
+                                {% endif %}
                                 </label>
                                 {{ form.github_url }}
                                 <div class="form-text text-muted" style="font-size:0.72rem;">Link to your GitHub repo with code and README.</div>
                                 {% if form.github_url.errors %}<div class="text-danger small mt-1">{{ form.github_url.errors|striptags }}</div>{% endif %}
                             </div>
                             {% endif %}
+                            </fieldset>
 
                             {% if challenge.allows_external_url %}
                             <div>
@@ -235,7 +247,7 @@
             <!-- Existing submission -->
             <div class="card" style="border-radius:14px;">
                 <div class="card-body p-4">
-
+                    <span data-clear-draft="challenge-{{ challenge.pk }}" hidden></span>
                     <h6 class="fw-bold text-dark text-uppercase mb-3" style="font-size:0.75rem; letter-spacing:0.5px;">
                         <i class="bi bi-send-check me-2" style="color:var(--brand-primary);"></i>Your Submission
                     </h6>

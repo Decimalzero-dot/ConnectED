@@ -1,6 +1,9 @@
+from urllib.parse import urlencode
+
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
+from django.urls import reverse
 from django.utils import timezone
 from django.http import FileResponse, Http404
 from django.core.exceptions import ValidationError
@@ -124,22 +127,18 @@ def challenge_detail(request, pk):
 
                 # ── GitHub verification ──
                 if submission.github_url:
-                    profile = request.user.profile
+                    if django_settings.GITHUB_CLIENT_ID and not profile.github_verified:
+                        messages.info(request,
+                            'To submit a repository, first confirm your GitHub account. '
+                            'It takes one tap, then you come straight back here.')
+                        return redirect(
+                            f"{reverse('accounts:github_connect')}?{urlencode({'next': request.path})}")
 
-                    # Require the student to connect their GitHub account
-                    if not profile.github_verified or not profile.github_id:
-                        form.add_error(
-                            'github_url',
-                            'Connect your GitHub account in Settings before '
-                            'submitting a repository.'
-                        )
+                    gh_user = profile.github_username
+                    if not gh_user:
+                        form.add_error('github_url', 'Add your GitHub username in Settings → Academic Info.')
                     else:
-                        gh_user = profile.github_username
-
-                        status, msg, canonical = verify_repo(
-                            submission.github_url,
-                            gh_user
-                        )
+                        status, msg, canonical = verify_repo(submission.github_url, gh_user)
 
                         if status == 'fail':
                             form.add_error('github_url', msg)
@@ -212,6 +211,8 @@ def challenge_detail(request, pk):
         'submission': existing_submission,
         'form': form,
         'file_errors': file_errors,
+        'needs_github': bool(django_settings.GITHUB_CLIENT_ID
+                     and challenge.allows_github and not profile.github_verified),
     })
 
 

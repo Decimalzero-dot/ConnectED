@@ -106,3 +106,49 @@
   }
 
 })();
+(function () {
+  var PREFIX = 'draft:', TTL = 24 * 60 * 60 * 1000;
+  var skip = /^(password|file|hidden|submit|button|reset|image)$/;
+
+  document.querySelectorAll('[data-clear-draft]').forEach(function (el) {
+    try { localStorage.removeItem(PREFIX + el.dataset.clearDraft); } catch (e) {}
+  });
+
+  document.querySelectorAll('form[data-draft]').forEach(function (form) {
+    var key = PREFIX + form.dataset.draft;
+    var fields = [].filter.call(form.elements, function (el) {
+      return el.name && !skip.test(el.type) && !/password/i.test(el.name);
+    });
+
+    try {  // restore
+      var saved = JSON.parse(localStorage.getItem(key) || 'null');
+      if (saved && Date.now() - saved.t < TTL) {
+        fields.forEach(function (el) {
+          var v = saved.v[el.name];
+          if (v === undefined) return;
+          if (el.type === 'checkbox') el.checked = v;
+          else if (el.type === 'radio') el.checked = (el.value === v);
+          else if (el.tagName === 'SELECT') { if (el.selectedIndex <= 0) el.value = v; }
+          else if (!el.value) el.value = v;   // never overwrite what the server rendered
+        });
+      }
+    } catch (e) {}
+
+    function saveNow() {
+      var v = {};
+      fields.forEach(function (el) {
+        if (el.type === 'checkbox') v[el.name] = el.checked;
+        else if (el.type === 'radio') { if (el.checked) v[el.name] = el.value; }
+        else v[el.name] = el.value;
+      });
+      try { localStorage.setItem(key, JSON.stringify({ t: Date.now(), v: v })); } catch (e) {}
+    }
+    var timer;
+    function save() { clearTimeout(timer); timer = setTimeout(saveNow, 300); }
+
+    form.addEventListener('input', save);
+    form.addEventListener('change', save);
+    document.addEventListener('visibilitychange', function () { if (document.hidden) saveNow(); });
+    window.addEventListener('pagehide', saveNow);   // fires right as they switch apps
+  });
+})();

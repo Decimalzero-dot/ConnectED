@@ -182,7 +182,7 @@ LOGIN_URL = 'accounts:login'
 LOGIN_REDIRECT_URL = '/dashboard/onboarding/'  
 ACCOUNT_EMAIL_VERIFICATION = 'none'            
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
-
+SECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin-allow-popups'
 SESSION_COOKIE_AGE = 3600
 
 SESSION_SAVE_EVERY_REQUEST = True

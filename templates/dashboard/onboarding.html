@@ -28,12 +28,13 @@
         <!--Form Panel -->
         <div class="auth-panel-right">
             <h2 class="mb-3">Complete Your Profile</h2>
-<p class="text-muted mb-4">
-    Fill in your academic details so we can show you the right
-    challenges and connect you with your campus community.
-</p>
+            <p class="text-muted mb-4">
+                Fill in your academic details so we can show you the right
+                challenges and connect you with your campus community.
+            </p>
+            <span data-clear-draft="register" hidden></span>
 
-            <form method="post" novalidate>
+            <form method="post" data-draft="onboarding" novalidate>
                 {% csrf_token %}
                 {% for field in form %}
                     <div class="mb-3">
