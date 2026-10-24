@@ -60,12 +60,14 @@
                     </div>
                     {% endif %}
 
+                    {% include 'challenges/_start_here.html' %}
+
                     <!-- Objective -->
                     {% if challenge.objective %}
                     <hr class="opacity-10 my-4">
                     <div>
                         <h6 class="fw-bold text-dark text-uppercase mb-2" style="font-size:0.75rem; letter-spacing:0.5px;">
-                            <i class="bi bi-bullseye me-2" style="color:var(--brand-primary);"></i>Objective
+                            <i class="bi bi-bullseye me-2" style="color:var(--brand-primary);"></i>What you'll build
                         </h6>
                         <p class="mb-0" style="font-size:0.92rem; line-height:1.75; color:#444;">{{ challenge.objective|linebreaks }}</p>
                     </div>
@@ -76,7 +78,7 @@
                     <hr class="opacity-10 my-4">
                     <div>
                         <h6 class="fw-bold text-dark text-uppercase mb-3" style="font-size:0.75rem; letter-spacing:0.5px;">
-                            <i class="bi bi-list-check me-2" style="color:var(--brand-primary);"></i>Requirements
+                            <i class="bi bi-list-check me-2" style="color:var(--brand-primary);"></i>Your checklist
                         </h6>
                         <div class="d-flex flex-column gap-2">
                             {% for req in challenge.requirements.splitlines %}
@@ -96,7 +98,7 @@
                     <hr class="opacity-10 my-4">
                     <div>
                         <h6 class="fw-bold text-dark text-uppercase mb-3" style="font-size:0.75rem; letter-spacing:0.5px;">
-                            <i class="bi bi-tools me-2" style="color:var(--brand-primary);"></i>Expected Skills
+                            <i class="bi bi-tools me-2" style="color:var(--brand-primary);"></i>Skills you'll practise
                         </h6>
                         <div class="p-3 rounded-3" style="background:#f8fafb; border:1px solid rgba(0,0,0,0.05);">
                             <span class="text-dark small">{{ challenge.expected_skills }}</span>
@@ -124,130 +126,11 @@
                  SUBMISSION BLOCK
             ============================================================ -->
 
-            {% if eligible and not submission %}
-            <!-- Submit form -->
-            <div class="card" style="border-radius:14px;">
-                <div class="card-body p-4">
-
-                    <h6 class="fw-bold text-dark text-uppercase mb-1" style="font-size:0.75rem; letter-spacing:0.5px;">
-                        <i class="bi bi-upload me-2" style="color:var(--brand-primary);"></i>Submit Your Solution
-                    </h6>
-                    <p class="text-muted small mb-4">Submit using any of the allowed methods below.</p>
-
-                    {% if file_errors %}
-                    <div class="p-3 rounded-3 mb-4" style="background:rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.2);">
-                        <p class="fw-semibold text-danger small mb-2"><i class="bi bi-exclamation-circle me-1"></i>File errors:</p>
-                        <ul class="mb-0 text-danger small">
-                            {% for error in file_errors %}<li>{{ error }}</li>{% endfor %}
-                        </ul>
-                    </div>
-                    {% endif %}
-
-                    {% if form.non_field_errors %}
-                    <div class="p-3 rounded-3 mb-4" style="background:rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.2);">
-                        <p class="text-danger small mb-0">{{ form.non_field_errors }}</p>
-                    </div>
-                    {% endif %}
-
-                    <form method="post" enctype="multipart/form-data" data-draft="challenge-{{ challenge.pk }}" novalidate id="submission-form">
-                        {% csrf_token %}
-
-                        <div class="d-flex flex-column gap-3">
-                            {% if needs_github %}
-                            <div class="alert alert-warning d-flex flex-wrap align-items-center gap-2" data-oauth-gate>
-                            <div class="flex-grow-1">
-                                <strong>Confirm your GitHub account to submit a repository.</strong>
-                                One tap, and you come straight back to this page.
-                            </div>
-                            <a href="{% url 'accounts:github_connect' %}?next={{ request.path|urlencode }}"
-                                class="btn btn-dark btn-sm" data-oauth-popup>Connect GitHub</a>
-                            </div>
-                            {% endif %}
-
-                            <fieldset data-oauth-lock {% if needs_github %}disabled{% endif %}>
-                            {% if challenge.allows_github %}
-                            <div>
-                                <label class="form-label fw-semibold text-muted text-uppercase" style="font-size:0.7rem; letter-spacing:0.5px;">
-                                <i class="bi bi-github me-1"></i>GitHub Repository
-                                {% if not challenge.allows_file_upload and not challenge.allows_external_url and not challenge.allows_text %}
-                                <span class="text-danger">*</span>
-                                {% endif %}
-                                </label>
-                                {{ form.github_url }}
-                                <div class="form-text text-muted" style="font-size:0.72rem;">Link to your GitHub repo with code and README.</div>
-                                {% if form.github_url.errors %}<div class="text-danger small mt-1">{{ form.github_url.errors|striptags }}</div>{% endif %}
-                            </div>
-                            {% endif %}
-                            </fieldset>
-
-                            {% if challenge.allows_external_url %}
-                            <div>
-                                <label class="form-label fw-semibold text-muted text-uppercase" style="font-size:0.7rem; letter-spacing:0.5px;">
-                                    <i class="bi bi-link-45deg me-1"></i>External Link
-                                </label>
-                                {{ form.external_url }}
-                                <div class="form-text text-muted" style="font-size:0.72rem;">Figma prototype, Wokwi simulation, YouTube demo, etc.</div>
-                                {% if form.external_url.errors %}<div class="text-danger small mt-1">{{ form.external_url.errors|striptags }}</div>{% endif %}
-                            </div>
-                            {% endif %}
-
-                            {% if challenge.allows_file_upload %}
-                            <div>
-                                <label class="form-label fw-semibold text-muted text-uppercase" style="font-size:0.7rem; letter-spacing:0.5px;">
-                                    <i class="bi bi-paperclip me-1"></i>Upload Files
-                                </label>
-                                <div class="file-pick" data-file-picker
-                                     {% if not challenge.allows_github and not challenge.allows_external_url and not challenge.allows_text %}data-required{% endif %}>
-                                    <label for="uploaded_files" class="file-pick-btn mb-0">
-                                        <i class="bi bi-folder2-open me-1"></i>Choose files
-                                    </label>
-                                    <input type="file" id="uploaded_files" name="uploaded_files" multiple class="visually-hidden"
-                                           accept=".pdf,.docx,.png,.jpg,.jpeg,.ipynb,.csv,.pkt,.zip">
-                                    <span class="file-status file-status--neutral" role="status" aria-live="polite">No file chosen yet</span>
-                                </div>
-                                <div class="form-text text-muted" style="font-size:0.72rem;">{{ form.uploaded_files.help_text }}</div>
-                                {% if form.uploaded_files.errors %}<div class="text-danger small mt-1">{{ form.uploaded_files.errors|striptags }}</div>{% endif %}
-                            </div>
-                            {% endif %}
-
-                            {% if challenge.allows_text %}
-                            <div>
-                                <label class="form-label fw-semibold text-muted text-uppercase" style="font-size:0.7rem; letter-spacing:0.5px;">
-                                    <i class="bi bi-pencil me-1"></i>Written Answer
-                                </label>
-                                {{ form.text_answer }}
-                                {% if form.text_answer.errors %}<div class="text-danger small mt-1">{{ form.text_answer.errors|striptags }}</div>{% endif %}
-                            </div>
-                            {% endif %}
-
-                        </div>
-
-                        <!-- Upload progress (shown only while uploading) -->
-                        <div id="upload-progress" class="upload-progress d-none" role="status" aria-live="polite">
-                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                <span class="upload-progress-label" id="upload-progress-label">Uploading…</span>
-                                <span class="upload-progress-pct" id="upload-progress-pct">0%</span>
-                            </div>
-                            <div class="upload-progress-track">
-                                <div class="upload-progress-bar" id="upload-progress-bar" style="width:0%;"></div>
-                            </div>
-                        </div>
-
-                        <div class="mt-4 pt-3 border-top">
-                            <button type="submit" id="submit-btn" class="btn btn-primary fw-semibold text-white px-4" style="border-radius:8px;">
-                                <i class="bi bi-send me-2"></i><span id="submit-btn-text">Submit Solution</span>
-                            </button>
-                        </div>
-
-                    </form>
-                </div>
-            </div>
-
-            {% elif submission %}
+            {% if submission %}
             <!-- Existing submission -->
             <div class="card" style="border-radius:14px;">
                 <div class="card-body p-4">
-                    <span data-clear-draft="challenge-{{ challenge.pk }}" hidden></span>
+
                     <h6 class="fw-bold text-dark text-uppercase mb-3" style="font-size:0.75rem; letter-spacing:0.5px;">
                         <i class="bi bi-send-check me-2" style="color:var(--brand-primary);"></i>Your Submission
                     </h6>
@@ -335,8 +218,119 @@
                     </div>
                 </div>
             </div>
+            {% endif %}
 
-            {% else %}
+            {% if can_submit or eligible and not submission %}
+            {% if submission %}
+            <p class="text-muted small mb-2 mt-3"><i class="bi bi-arrow-repeat me-1" style="color:var(--brand-primary);"></i>Didn't pass this time? Read the feedback above, fix it, and submit again.</p>
+            {% endif %}
+            <!-- Submit form -->
+            <div class="card" style="border-radius:14px;">
+                <div class="card-body p-4">
+
+                    <h6 class="fw-bold text-dark text-uppercase mb-1" style="font-size:0.75rem; letter-spacing:0.5px;">
+                        <i class="bi bi-upload me-2" style="color:var(--brand-primary);"></i>Submit Your Solution
+                    </h6>
+                    <p class="text-muted small mb-4">Submit using any of the allowed methods below.</p>
+
+                    {% if file_errors %}
+                    <div class="p-3 rounded-3 mb-4" style="background:rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.2);">
+                        <p class="fw-semibold text-danger small mb-2"><i class="bi bi-exclamation-circle me-1"></i>File errors:</p>
+                        <ul class="mb-0 text-danger small">
+                            {% for error in file_errors %}<li>{{ error }}</li>{% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+
+                    {% if form.non_field_errors %}
+                    <div class="p-3 rounded-3 mb-4" style="background:rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.2);">
+                        <p class="text-danger small mb-0">{{ form.non_field_errors }}</p>
+                    </div>
+                    {% endif %}
+
+                    <form method="post" enctype="multipart/form-data" novalidate id="submission-form">
+                        {% csrf_token %}
+
+                        <div class="d-flex flex-column gap-3">
+
+                            {% if challenge.allows_github %}
+                            <div>
+                                <label class="form-label fw-semibold text-muted text-uppercase" style="font-size:0.7rem; letter-spacing:0.5px;">
+                                    <i class="bi bi-github me-1"></i>GitHub Repository
+                                    {% if not challenge.allows_file_upload and not challenge.allows_external_url and not challenge.allows_text %}
+                                    <span class="text-danger">*</span>
+                                    {% endif %}
+                                </label>
+                                {{ form.github_url }}
+                                <div class="form-text text-muted" style="font-size:0.72rem;">Link to your GitHub repo with code and README.</div>
+                                {% if form.github_url.errors %}<div class="text-danger small mt-1">{{ form.github_url.errors|striptags }}</div>{% endif %}
+                            </div>
+                            {% endif %}
+
+                            {% if challenge.allows_external_url %}
+                            <div>
+                                <label class="form-label fw-semibold text-muted text-uppercase" style="font-size:0.7rem; letter-spacing:0.5px;">
+                                    <i class="bi bi-link-45deg me-1"></i>External Link
+                                </label>
+                                {{ form.external_url }}
+                                <div class="form-text text-muted" style="font-size:0.72rem;">Figma prototype, Wokwi simulation, YouTube demo, etc.</div>
+                                {% if form.external_url.errors %}<div class="text-danger small mt-1">{{ form.external_url.errors|striptags }}</div>{% endif %}
+                            </div>
+                            {% endif %}
+
+                            {% if challenge.allows_file_upload %}
+                            <div>
+                                <label class="form-label fw-semibold text-muted text-uppercase" style="font-size:0.7rem; letter-spacing:0.5px;">
+                                    <i class="bi bi-paperclip me-1"></i>Upload Files
+                                </label>
+                                <div class="file-pick" data-file-picker
+                                     {% if not challenge.allows_github and not challenge.allows_external_url and not challenge.allows_text %}data-required{% endif %}>
+                                    <label for="uploaded_files" class="file-pick-btn mb-0">
+                                        <i class="bi bi-folder2-open me-1"></i>Choose files
+                                    </label>
+                                    <input type="file" id="uploaded_files" name="uploaded_files" multiple class="visually-hidden"
+                                           accept=".pdf,.docx,.png,.jpg,.jpeg,.ipynb,.csv,.pkt,.zip">
+                                    <span class="file-status file-status--neutral" role="status" aria-live="polite">No file chosen yet</span>
+                                </div>
+                                <div class="form-text text-muted" style="font-size:0.72rem;">{{ form.uploaded_files.help_text }}</div>
+                                {% if form.uploaded_files.errors %}<div class="text-danger small mt-1">{{ form.uploaded_files.errors|striptags }}</div>{% endif %}
+                            </div>
+                            {% endif %}
+
+                            {% if challenge.allows_text %}
+                            <div>
+                                <label class="form-label fw-semibold text-muted text-uppercase" style="font-size:0.7rem; letter-spacing:0.5px;">
+                                    <i class="bi bi-pencil me-1"></i>Written Answer
+                                </label>
+                                {{ form.text_answer }}
+                                {% if form.text_answer.errors %}<div class="text-danger small mt-1">{{ form.text_answer.errors|striptags }}</div>{% endif %}
+                            </div>
+                            {% endif %}
+
+                        </div>
+
+                        <!-- Upload progress (shown only while uploading) -->
+                        <div id="upload-progress" class="upload-progress d-none" role="status" aria-live="polite">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="upload-progress-label" id="upload-progress-label">Uploading…</span>
+                                <span class="upload-progress-pct" id="upload-progress-pct">0%</span>
+                            </div>
+                            <div class="upload-progress-track">
+                                <div class="upload-progress-bar" id="upload-progress-bar" style="width:0%;"></div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 pt-3 border-top">
+                            <button type="submit" id="submit-btn" class="btn btn-primary fw-semibold text-white px-4" style="border-radius:8px;">
+                                <i class="bi bi-send me-2"></i><span id="submit-btn-text">Submit Solution</span>
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+
+            {% elif not submission %}
             <!-- Not eligible -->
             <div class="p-4 rounded-3" style="background:rgba(0,0,0,0.03); border:1.5px dashed rgba(0,0,0,0.12);">
                 <div class="d-flex align-items-center gap-3">
@@ -344,7 +338,7 @@
                     <div>
                         <p class="fw-semibold text-dark mb-1">Not eligible yet</p>
                         <p class="text-muted small mb-0">
-                            {{ lock_reason }}
+                            This challenge requires <strong>{{ challenge.get_discipline_display }}</strong> discipline and at least <strong>Year {{ challenge.min_year }}</strong>.
                         </p>
                     </div>
                 </div>

@@ -21,6 +21,7 @@ urlpatterns = [
     path('toggle-dark-mode/', views.toggle_dark_mode, name='toggle_dark_mode'),
     path('google/login/', views.google_login, name='google_login'),
     path('google/callback/', views.google_callback, name='google_callback'),
+    path('tour/done/', views.tour_done, name='tour_done'),
 
     # Password reset 
    path(

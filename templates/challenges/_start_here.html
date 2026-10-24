@@ -1,0 +1,21 @@
+{% if challenge.start_here or challenge.hints %}
+<section class="start-here" aria-labelledby="start-here-title">
+  <h6 id="start-here-title">Start here{% if challenge.estimated_minutes %} <small>· about {{ challenge.estimated_minutes }} min</small>{% endif %}</h6>
+  {% with items=challenge.start_here_items %}{% if items %}
+  <ul>{% for i in items %}
+    <li>{% if i.url %}<a href="{{ i.url }}" target="_blank" rel="noopener noreferrer">{{ i.title }}</a>{% else %}{{ i.title }}{% endif %}</li>
+  {% endfor %}</ul>{% endif %}{% endwith %}
+  {% with hints=challenge.hint_list %}{% if hints %}
+  <p class="start-here__stuck">Stuck? Open a hint. Try the first one before the next.</p>
+  {% for h in hints %}<details><summary>Hint {{ forloop.counter }}</summary><p>{{ h }}</p></details>{% endfor %}
+  {% endif %}{% endwith %}
+</section>
+<style>
+ .start-here{margin:1.5rem 0;padding:1.1rem 1.3rem;border-left:4px solid #107d79;border-radius:.5rem;background:rgba(16,125,121,.09)}
+ .start-here h6{font-weight:800;margin:0 0 .6rem}.start-here small{font-weight:600;opacity:.7}
+ .start-here ul{margin:0 0 .8rem;padding-left:1.2rem}.start-here__stuck{margin:.4rem 0;font-size:.88rem;opacity:.8}
+ .start-here details{border-top:1px solid rgba(127,127,127,.25);padding:.5rem 0}
+ .start-here summary{cursor:pointer;font-weight:700}.start-here details p{margin:.4rem 0 0}
+ html.dark-mode .start-here{background:rgba(155,255,255,.07);border-left-color:#70dde9}
+</style>
+{% endif %}

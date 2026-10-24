@@ -75,6 +75,30 @@ class Challenge(models.Model):
     allows_file_upload = models.BooleanField(default=False)
     allows_external_url = models.BooleanField(default=False)
     allows_text = models.BooleanField(default=False)
+    start_here = models.TextField(blank=True,
+        help_text="Beginner on-ramp, one per line. Link: 'Title | https://...'  or a plain tip.")
+    hints = models.TextField(blank=True, help_text="One hint per line, easiest first.")
+    estimated_minutes = models.PositiveSmallIntegerField(null=True, blank=True,
+        help_text="Rough time for a beginner.")
+    guided = models.BooleanField(default=False,
+        help_text="Shows a 'Guided' badge: beginner-friendly, with a Start here section.")
+
+    def start_here_items(self):
+        items = []
+        for line in self.start_here.splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            if '|' in line:
+                title, url = [p.strip() for p in line.split('|', 1)]
+                if url.startswith(('http://', 'https://')):   # http(s) only, so no javascript: links
+                    items.append({'title': title, 'url': url})
+                    continue
+            items.append({'title': line, 'url': ''})
+        return items
+
+    def hint_list(self):
+        return [h.strip() for h in self.hints.splitlines() if h.strip()]
 
     class Meta:
         ordering = ['-created_at']

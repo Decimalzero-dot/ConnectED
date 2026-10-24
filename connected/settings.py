@@ -199,6 +199,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'notifications.context_processors.unread_count',
                 'accounts.context_processors.user_preferences',
+                'accounts.context_processors.tour_state',
             ],
         },
     },

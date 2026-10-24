@@ -4,32 +4,44 @@
 
 {% block guest_content %}
 <main class="connected-landing">
+
+    <!-- ===================== HERO ===================== -->
     <section class="connected-hero" aria-labelledby="hero-title">
         <div class="connected-hero__orb connected-hero__orb--one" aria-hidden="true"></div>
         <div class="connected-hero__orb connected-hero__orb--two" aria-hidden="true"></div>
         <div class="container connected-hero__container">
             <div class="connected-hero__copy">
-                <a class="connected-brand" href="{% url 'accounts:login' %}" aria-label="ConnectED home">
+                <a class="connected-brand" href="{% url 'core:landing' %}" aria-label="ConnectED home">
                     <img src="{% static 'images/logo.svg' %}" alt="ConnectED">
                 </a>
 
                 <p class="connected-eyebrow"><i class="bi bi-stars" aria-hidden="true"></i> Kenya’s campus-to-career network</p>
                 <h1 id="hero-title">Turn your work into <span>your next opportunity.</span></h1>
-                <p class="connected-hero__lead">Build real projects, prove your skills through GitHub, and be seen by employers looking for exceptional university talent.</p>
+                <p class="connected-hero__lead">Build real projects, prove your skills through GitHub, and let verified employers see reviewed evidence of what you can do.</p>
 
                 <div class="connected-actions" aria-label="Get started">
+                    {% if google_enabled %}
+                    <a href="{% url 'accounts:google_login' %}" class="connected-button connected-button--primary">
+                        <i class="bi bi-google" aria-hidden="true"></i> Continue with Google
+                    </a>
+                    <a href="{% url 'accounts:login' %}" class="connected-button connected-button--ghost">Sign in</a>
+                    {% else %}
                     <a href="{% url 'accounts:register' %}" class="connected-button connected-button--primary">
                         Start building <i class="bi bi-arrow-up-right" aria-hidden="true"></i>
                     </a>
                     <a href="{% url 'accounts:login' %}" class="connected-button connected-button--ghost">Sign in</a>
-                    <p class="connected-hero__alt">
-                    By continuing you agree to our <a href="{% url 'core:privacy' %}">Privacy Policy</a>.
-                    </p>
+                    {% endif %}
                 </div>
+
+                <p class="connected-hero__alt">
+                    {% if google_enabled %}Use your university Google account. Prefer email? <a href="{% url 'accounts:register' %}">Sign up here</a>.<br>{% endif %}
+                    By continuing you agree to our <a href="{% url 'core:privacy' %}">Privacy Policy</a>.
+                </p>
 
                 <div class="connected-proof" aria-label="Platform benefits">
                     <span><i class="bi bi-check2-circle" aria-hidden="true"></i> Free for students</span>
-                    <span><i class="bi bi-check2-circle" aria-hidden="true"></i> GitHub verified</span>
+                    <span><i class="bi bi-check2-circle" aria-hidden="true"></i> Built on your GitHub work</span>
+                    <a class="connected-proof__link" href="{% url 'core:explore' %}">Browse challenges <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
                 </div>
             </div>
 
@@ -44,7 +56,7 @@
                 </div>
                 <div class="connected-floating-card connected-floating-card--verified">
                     <span class="connected-floating-card__icon"><i class="bi bi-patch-check-fill"></i></span>
-                    <span><small>Project status</small><strong>Verified</strong></span>
+                    <span><small>Project status</small><strong>Reviewed</strong></span>
                 </div>
                 <div class="connected-code-card">
                     <span class="connected-code-card__dots"><i></i><i></i><i></i></span>
@@ -55,19 +67,47 @@
         <div class="connected-scroll-cue" aria-hidden="true"><span></span> Explore ConnectED</div>
     </section>
 
+    <!-- ===================== AT A GLANCE ===================== -->
     <section class="connected-intro" aria-label="ConnectED at a glance">
         <div class="container">
             <div class="connected-intro__grid">
                 <p class="connected-intro__statement">A better way for students to show what they can do — and for employers to find them.</p>
                 <div class="connected-metrics">
-                    <div><strong>6+</strong><span>discipline tracks</span></div>
-                    <div><strong>4</strong><span>skill levels</span></div>
-                    <div><strong>100%</strong><span>GitHub verified</span></div>
+                    <div><strong>{{ stats.challenges }}</strong><span>open challenges</span></div>
+                    <div><strong>{{ stats.fields }}</strong><span>fields to explore</span></div>
+                    <div>
+                        {% if stats.students >= 50 %}
+                        <strong>{{ stats.students }}</strong><span>students</span>
+                        {% else %}
+                        <strong>{{ stats.universities }}</strong><span>{{ stats.universities|pluralize:"university,universities" }} on board</span>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
+    <!-- ===================== START FREE ===================== -->
+    {% if starter %}
+    <section class="connected-section connected-section--starter" aria-labelledby="starter-title">
+        <div class="container">
+            <div class="connected-section-heading">
+                <div><p class="connected-eyebrow">Start free</p><h2 id="starter-title">Pick a first challenge.<br>No experience needed.</h2></div>
+                <p>Each one has a Start here guide, hints you can open one at a time, and written feedback from a real reviewer. Didn't pass? Try again.</p>
+            </div>
+            <div class="row g-4">
+                {% for c in starter %}
+                <div class="col-md-4">{% include 'core/_challenge_card.html' with c=c %}</div>
+                {% endfor %}
+            </div>
+            <p class="connected-section-cta">
+                <a class="connected-text-link connected-text-link--dark" href="{% url 'core:explore' %}">See all {{ stats.challenges }} challenges <i class="bi bi-arrow-right"></i></a>
+            </p>
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- ===================== FEATURES ===================== -->
     <section class="connected-section connected-section--features" aria-labelledby="what-you-get">
         <div class="container">
             <div class="connected-section-heading">
@@ -98,7 +138,7 @@
                         <span class="connected-feature-card__number">03</span>
                         <div class="connected-feature-card__icon"><i class="bi bi-briefcase-fill"></i></div>
                         <h3>Visibility with purpose</h3>
-                        <p>Meet employers where it counts: through verified work and university-mediated introductions.</p>
+                        <p>Meet employers where it counts: through reviewed work and university-mediated introductions.</p>
                         <span class="connected-feature-card__line"></span>
                     </article>
                 </div>
@@ -106,6 +146,27 @@
         </div>
     </section>
 
+    <!-- ===================== BROWSE BY FIELD ===================== -->
+    {% if tracks %}
+    <section class="connected-section connected-section--tracks" aria-labelledby="tracks-title">
+        <div class="container">
+            <div class="connected-section-heading">
+                <div><p class="connected-eyebrow">Browse by field</p><h2 id="tracks-title">Find your lane.</h2></div>
+                <p>Not sure yet? Start in any field. You can pick your specialty later.</p>
+            </div>
+            <div class="connected-tracks">
+                {% for t in tracks %}
+                <a class="connected-track" href="{% url 'core:explore' %}?field={{ t.key }}">
+                    <strong>{{ t.label }}</strong>
+                    <span>{{ t.count }} challenge{{ t.count|pluralize }}</span>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- ===================== HOW IT WORKS ===================== -->
     <section class="connected-path" aria-labelledby="path-title">
         <div class="container">
             <div class="connected-path__top">
@@ -121,6 +182,7 @@
         </div>
     </section>
 
+    <!-- ===================== EMPLOYERS ===================== -->
     <section class="connected-employers" aria-labelledby="employer-title">
         <div class="container">
             <div class="connected-employers__panel">
@@ -128,13 +190,33 @@
                 <div class="connected-employers__content">
                     <p class="connected-eyebrow">For employers</p>
                     <h2 id="employer-title">Find the people behind the potential.</h2>
-                    <p>Move beyond the CV. ConnectED gives you a focused view of emerging talent, ranked by demonstrated work and ready to contribute.</p>
+                    <p>Move beyond the CV. ConnectED gives you a focused view of emerging talent, with reviewed evidence of what each student has built.</p>
                     <a href="{% url 'accounts:employer_register' %}" class="connected-text-link">Create an employer account <i class="bi bi-arrow-right"></i></a>
                 </div>
             </div>
         </div>
     </section>
 
+    <!-- ===================== FAQ ===================== -->
+    <section class="connected-faq" aria-labelledby="faq-title">
+        <div class="container">
+            <div class="text-center">
+                <p class="connected-eyebrow" style="justify-content:center">Questions</p>
+                <h2 id="faq-title">Before you join</h2>
+            </div>
+            <div class="connected-faq__list">
+                <details><summary>Is ConnectED free?</summary><p>Yes. Students never pay to browse, attempt or submit challenges.</p></details>
+                <details><summary>Who can join?</summary><p>Students at universities on ConnectED, using their university email. If yours isn't recognised yet, let us know and we'll add it.</p></details>
+                <details><summary>I'm a complete beginner. Is this for me?</summary><p>Yes. Year 1 challenges are marked Guided: each has a Start here guide, free learning links, hints you open one at a time, and a short checklist. If a submission doesn't pass, you can try again.</p></details>
+                <details><summary>Do I need a GitHub account?</summary><p>For coding challenges, yes, and it's free. We connect it in one tap. Other challenges accept files, Figma links or written answers.</p></details>
+                <details><summary>What happens after I submit?</summary><p>A reviewer from your campus checks your work against the published assessment criteria and sends a score with written feedback you can act on.</p></details>
+                <details><summary>Who can see my work?</summary><p>Your portfolio shows completed challenges, scores and reviewer feedback. Verified employers and anyone with your link can see it, and you can switch it to private anytime in Settings.</p></details>
+                <details><summary>How do employers reach me?</summary><p>They can't see your email or phone. They send a request to your campus admin, who decides whether to forward it to you.</p></details>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================== FINAL CTA ===================== -->
     <section class="connected-final" aria-labelledby="final-title">
         <div class="container text-center">
             <p class="connected-eyebrow">Your future has a first step</p>
@@ -146,135 +228,6 @@
     </section>
 </main>
 
-<footer class="connected-footer">
-    <div class="container connected-footer__inner">
-        <div class="connected-footer__brand">
-            <img src="{% static 'images/logo.svg' %}" alt="ConnectED">
-        </div>
-
-        <small>© {% now "Y" %} ConnectED. Learning, Linked.</small>
-
-        <nav aria-label="Footer navigation">
-            <a href="{% url 'accounts:login' %}">Sign in</a>
-            <a href="{% url 'accounts:register' %}">Students</a>
-            <a href="{% url 'accounts:employer_register' %}">Employers</a>
-            <a href="{% url 'core:privacy' %}">Privacy Policy</a>
-        </nav>
-    </div>
-</footer>
-
-<style>
-.connected-landing { --ink: #102b35; --muted: #61727a; --mint: #b7f4d8; --teal: #107d79; --teal-deep: #07504f; --paper: #f7f8f4; --line: rgba(16,43,53,.13); color: var(--ink); background: var(--paper); font-family: inherit; overflow: hidden; }
-.connected-landing *, .connected-footer * { box-sizing: border-box; }
-.connected-hero { min-height: min(800px, 92vh); position: relative; isolation: isolate; display: flex; align-items: center; background: #eaf3ed; overflow: hidden; }
-.connected-hero::before { content: ''; position: absolute; inset: 0; z-index: -2; background-image: linear-gradient(rgba(16,43,53,.045) 1px, transparent 1px), linear-gradient(90deg, rgba(16,43,53,.045) 1px, transparent 1px); background-size: 42px 42px; mask-image: linear-gradient(90deg, #000 25%, transparent 76%); }
-.connected-hero__container { width: 100%; display: grid; grid-template-columns: minmax(0, .96fr) minmax(390px, .84fr); gap: clamp(2rem, 7vw, 7rem); align-items: center; padding-top: 4.5rem; padding-bottom: 4.5rem; }
-.connected-hero__copy { max-width: 650px; }
-.connected-brand { display: inline-block; margin-bottom: clamp(3rem, 8vh, 6.5rem); }
-.connected-brand img { width: 350px; height: auto; }
-.connected-eyebrow { display: flex; align-items: center; gap: .45rem; color: var(--teal); font-size: .74rem; font-weight: 800; text-transform: uppercase; letter-spacing: .13em; margin: 0 0 1rem; }
-.connected-hero h1, .connected-section h2, .connected-path h2, .connected-employers h2, .connected-final h2 { font-weight: 800; letter-spacing: -.055em; line-height: .99; margin: 0; }
-.connected-hero h1 { font-size: clamp(3.15rem, 5.2vw, 5.25rem); max-width: 670px; }
-.connected-hero h1 span { color: var(--teal); display: block; }
-.connected-hero__lead { color: var(--muted); font-size: 1.08rem; line-height: 1.7; max-width: 545px; margin: 1.55rem 0 2rem; }
-.connected-actions { display: flex; gap: .8rem; flex-wrap: wrap; }
-.connected-button { min-height: 52px; display: inline-flex; align-items: center; justify-content: center; gap: .7rem; padding: .8rem 1.3rem; border: 1px solid transparent; border-radius: .45rem; font-size: .92rem; font-weight: 750; text-decoration: none; transition: transform .2s ease, box-shadow .2s ease, background .2s ease; }
-.connected-button:hover { transform: translateY(-2px); }
-.connected-button--primary { background: var(--teal); color: #fff !important; box-shadow: 0 10px 22px rgba(16,125,121,.2); }
-.connected-button--primary:hover { background: var(--teal-deep); box-shadow: 0 13px 28px rgba(16,125,121,.28); }
-.connected-button--ghost { color: var(--ink) !important; border-color: var(--line); background: rgba(255,255,255,.35); }
-.connected-button--ghost:hover { background: #fff; }
-.connected-proof { display: flex; gap: 1.25rem; flex-wrap: wrap; margin-top: 1.6rem; color: #52646a; font-size: .78rem; font-weight: 650; }
-.connected-proof i { color: var(--teal); margin-right: .25rem; }
-.connected-hero__visual { position: relative; min-height: 530px; }
-.connected-hero__image-wrap { position: absolute; width: min(100%, 470px); height: 510px; right: 0; top: 10px; border-radius: 180px 180px 16px 16px; overflow: hidden; box-shadow: 22px 26px 0 rgba(16,125,121,.12); }
-.connected-hero__image-wrap img { width: 100%; height: 100%; object-fit: cover; object-position: center; }
-.connected-hero__image-shade { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 52%, rgba(7,80,79,.36)); }
-.connected-code-card, .connected-floating-card { position: absolute; background: rgba(255,255,255,.94); box-shadow: 0 14px 35px rgba(16,43,53,.14); backdrop-filter: blur(8px); }
-.connected-code-card { left: -1.2rem; bottom: 1.8rem; padding: 1rem 1.2rem; min-width: 218px; border-radius: .5rem; border-left: 3px solid var(--mint); font-size: .84rem; line-height: 1.7; color: #65747a; }
-.connected-code-card__dots { display: flex; gap: .24rem; margin-bottom: .6rem; }.connected-code-card__dots i { width: 6px; height: 6px; border-radius: 50%; background: #d6dfdb; }.connected-code-card em { font-style: normal; color: #a2535b; }.connected-code-card b { color: var(--teal); font-weight: 700; }
-.connected-floating-card { display: flex; gap: .7rem; align-items: center; padding: .72rem .9rem; border-radius: .5rem; }.connected-floating-card small { display:block; color:#748188; font-size:.65rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; }.connected-floating-card strong { display:block; font-size:.87rem; color:var(--ink); }.connected-floating-card__icon { display:grid; place-items:center; width:32px; height:32px; color:var(--teal); background:rgba(183,244,216,.5); border-radius:50%; }.connected-floating-card--rank { left:-2.7rem; top:115px; }.connected-floating-card--verified { right:-1rem; bottom:106px; }
-.connected-hero__orb { position: absolute; z-index: -1; border-radius: 50%; filter: blur(1px); }.connected-hero__orb--one { width: 370px; height: 370px; left: -220px; bottom: -195px; background: #c4f1d8; }.connected-hero__orb--two { width: 190px; height: 190px; right: 5%; top: -95px; border: 1px solid rgba(16,125,121,.22); }
-.connected-scroll-cue { position:absolute; bottom:1.7rem; left:max(1rem, calc((100% - 1140px)/2)); display:flex; align-items:center; gap:.6rem; color:#718079; font-size:.67rem; letter-spacing:.12em; text-transform:uppercase; font-weight:800; }.connected-scroll-cue span { height:1px; width:33px; background:currentColor; }
-.connected-intro { background: var(--ink); color: #fff; padding: 2.8rem 0; }.connected-intro__grid { display:grid; grid-template-columns: .9fr 1.1fr; align-items:center; gap:3rem; }.connected-intro__statement { font-size:1.2rem; line-height:1.4; font-weight:650; letter-spacing:-.025em; margin:0; max-width:420px; }.connected-metrics { display:grid; grid-template-columns:repeat(3,1fr); border-left:1px solid rgba(255,255,255,.13); }.connected-metrics div { padding:0 1.4rem; border-right:1px solid rgba(255,255,255,.13); }.connected-metrics strong { display:block; color:var(--mint); font-size:1.75rem; letter-spacing:-.06em; line-height:1; }.connected-metrics span { color:rgba(255,255,255,.58); font-size:.68rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
-.connected-section { padding: clamp(5rem, 9vw, 8rem) 0; }.connected-section--features { background:#fff; }.connected-section-heading, .connected-path__top { display:flex; align-items:end; justify-content:space-between; gap:2rem; margin-bottom:3.2rem; }.connected-section h2, .connected-path h2, .connected-employers h2, .connected-final h2 { font-size:clamp(2.2rem, 4vw, 3.8rem); }.connected-section-heading > p, .connected-path__top > p { margin:0 0 .3rem; max-width:350px; color:var(--muted); line-height:1.65; font-size:.96rem; }
-.connected-feature-card { position:relative; min-height:310px; height:100%; padding:2rem; background:#f3f7f3; border:1px solid #e3ebe4; border-radius:.65rem; overflow:hidden; transition:transform .2s ease, box-shadow .2s ease; }.connected-feature-card:hover { transform:translateY(-5px); box-shadow:0 16px 32px rgba(16,43,53,.09); }.connected-feature-card--dark { color:#fff; background:var(--teal-deep); border-color:var(--teal-deep); }.connected-feature-card__number { position:absolute; top:1.5rem; right:1.5rem; font-size:.68rem; font-weight:800; color:rgba(16,43,53,.35); }.connected-feature-card--dark .connected-feature-card__number { color:rgba(255,255,255,.45); }.connected-feature-card__icon { display:grid; place-items:center; width:48px; height:48px; border-radius:50%; background:#d8f5e5; color:var(--teal); font-size:1.2rem; }.connected-feature-card--dark .connected-feature-card__icon { background:rgba(183,244,216,.16); color:var(--mint); }.connected-feature-card h3 { font-size:1.2rem; letter-spacing:-.03em; margin:2rem 0 .7rem; font-weight:750; }.connected-feature-card p { color:var(--muted); line-height:1.65; font-size:.9rem; margin:0; max-width:300px; }.connected-feature-card--dark p { color:rgba(255,255,255,.7); }.connected-feature-card__line { position:absolute; left:2rem; bottom:1.8rem; height:2px; width:42px; background:var(--teal); }.connected-feature-card--dark .connected-feature-card__line { background:var(--mint); }
-.connected-path { padding:clamp(5rem, 9vw, 8rem) 0; background:#eaf3ed; }.connected-steps { list-style:none; padding:0; margin:0; display:grid; grid-template-columns:repeat(4,1fr); position:relative; gap:1.5rem; }.connected-steps::before { content:''; position:absolute; top:46px; left:7%; right:7%; height:1px; background:rgba(16,43,53,.18); }.connected-steps li { position:relative; }.connected-steps__index { display:block; font-size:.68rem; color:var(--teal); font-weight:800; letter-spacing:.12em; margin-bottom:.7rem; }.connected-steps__icon { position:relative; z-index:1; display:grid; place-items:center; width:48px; height:48px; border:1px solid rgba(16,43,53,.16); color:var(--teal); background:#eaf3ed; border-radius:50%; font-size:1.15rem; }.connected-steps h3 { margin:1.35rem 0 .5rem; font-size:1rem; font-weight:800; letter-spacing:-.025em; }.connected-steps p { color:var(--muted); margin:0; max-width:220px; font-size:.85rem; line-height:1.6; }
-.connected-employers { padding:clamp(4rem, 8vw, 7rem) 0; background:#fff; }.connected-employers__panel { display:grid; grid-template-columns:.92fr 1.08fr; min-height:430px; background:var(--ink); color:white; overflow:hidden; border-radius:.75rem; }.connected-employers__image { position:relative; }.connected-employers__image::after { content:''; position:absolute; inset:0; background:linear-gradient(90deg, transparent, rgba(16,43,53,.52)); }.connected-employers__image img { width:100%; height:100%; object-fit:cover; }.connected-employers__content { padding:clamp(2.5rem, 6vw, 5.5rem); display:flex; flex-direction:column; justify-content:center; }.connected-employers__content .connected-eyebrow { color:var(--mint); }.connected-employers__content p:not(.connected-eyebrow) { color:rgba(255,255,255,.69); line-height:1.7; max-width:460px; margin:1.3rem 0 1.8rem; }.connected-text-link { color:#fff !important; text-decoration:none; font-size:.88rem; font-weight:750; }.connected-text-link i { margin-left:.35rem; transition:transform .2s ease; }.connected-text-link:hover i { transform:translateX(4px); }
-.connected-final { padding:clamp(5rem, 10vw, 8rem) 0; background:#d8f5e5; }.connected-final .connected-eyebrow { justify-content:center; }.connected-final h2 { max-width:640px; margin:auto; }.connected-final > .container > p:not(.connected-eyebrow) { color:var(--muted); margin:1.2rem auto 1.8rem; max-width:500px; line-height:1.65; }.connected-final small { display:block; color:#61727a; margin-top:1.1rem; }.connected-final small a { color:var(--teal); font-weight:750; }
-.connected-button:focus-visible, .connected-text-link:focus-visible, .connected-footer a:focus-visible, .connected-brand:focus-visible { outline:3px solid var(--mint); outline-offset:4px; }
-.connected-footer {
-    background: #000;
-    color: #fff;
-    padding: 1.5rem 0;
-    width: 100%;
-    position: relative;
-    clear: both;
-}
-
-.connected-footer__inner {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 1.25rem;
-}
-
-.connected-footer__brand {
-    display: inline-flex;
-    align-items: center;
-    flex-shrink: 0;
-}
-
-.connected-footer img {
-    display: block;
-    width: 100px;
-    height: auto;
-    filter: brightness(0) invert(1);
-}
-
-.connected-footer small {
-    color: #bdbdbd;
-    font-size: 0.8rem;
-}
-
-.connected-footer nav {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 1.25rem;
-}
-
-.connected-footer nav a {
-    color: #e0e0e0;
-    font-size: 0.8rem;
-    text-decoration: none;
-    transition: color 0.2s ease;
-}
-
-.connected-footer nav a:hover {
-    color: #fff;
-    text-decoration: underline;
-}
-
-.connected-footer a:focus-visible {
-    outline: 2px solid #70dde9;
-    outline-offset: 4px;
-}
-
-@media (max-width: 767.98px) {
-    .connected-footer__inner {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
-    }
-
-    .connected-footer nav {
-        gap: 0.75rem 1rem;
-    }
-}
-@media (max-width: 991.98px) { .connected-hero { min-height:auto; }.connected-hero__container { grid-template-columns:1fr; padding-top:3rem; }.connected-brand { margin-bottom:3.2rem; }.connected-hero__copy { max-width:680px; }.connected-hero__visual { width:min(100%,620px); min-height:480px; margin:0 auto; }.connected-hero__image-wrap { right:7%; }.connected-scroll-cue { display:none; }.connected-intro__grid { grid-template-columns:1fr; gap:2rem; }.connected-metrics { max-width:680px; }.connected-steps { grid-template-columns:repeat(2,1fr); row-gap:3rem; }.connected-steps::before { display:none; }.connected-steps p { max-width:280px; }.connected-employers__panel { grid-template-columns:1fr; }.connected-employers__image { height:260px; }.connected-employers__image::after { background:linear-gradient(180deg, transparent, rgba(16,43,53,.55)); } }
-@media (max-width: 575.98px) { .connected-hero__container { padding-top:2rem; padding-bottom:3.5rem; }.connected-brand { margin-bottom:2.6rem; }.connected-hero h1 { font-size:clamp(2.75rem, 13vw, 4rem); }.connected-hero__lead { font-size:1rem; }.connected-actions { display:grid; grid-template-columns:1fr; }.connected-button { width:100%; }.connected-hero__visual { min-height:375px; margin-top:.5rem; }.connected-hero__image-wrap { width:83%; height:360px; border-radius:120px 120px 12px 12px; right:0; }.connected-floating-card--rank { left:0; top:78px; }.connected-floating-card--verified { right:-.2rem; bottom:55px; }.connected-code-card { left:0; bottom:0; min-width:190px; padding:.8rem 1rem; }.connected-intro { padding:2.3rem 0; }.connected-intro__statement { font-size:1.08rem; }.connected-metrics { grid-template-columns:1fr; gap:1rem; border-left:0; }.connected-metrics div { padding:0; border-right:0; display:flex; align-items:baseline; gap:.65rem; }.connected-metrics strong { font-size:1.45rem; }.connected-section-heading, .connected-path__top { display:block; margin-bottom:2.2rem; }.connected-section-heading > p, .connected-path__top > p { margin-top:1rem; }.connected-feature-card { min-height:270px; }.connected-steps { grid-template-columns:1fr; gap:2.4rem; }.connected-steps li { display:grid; grid-template-columns:60px 1fr; column-gap:1rem; }.connected-steps__index { grid-column:1; }.connected-steps__icon { grid-column:1; grid-row:2 / span 2; }.connected-steps h3, .connected-steps p { grid-column:2; }.connected-steps h3 { margin:.15rem 0 .45rem; }.connected-employers__image { height:205px; }.connected-employers__content { padding:2.5rem 1.5rem; }.connected-footer__inner { flex-wrap:wrap; }.connected-footer small { order:3; width:100%; }.connected-footer nav { gap:.8rem; } }
-@media (prefers-reduced-motion: reduce) { .connected-landing *, .connected-footer * { transition:none !important; scroll-behavior:auto !important; } }
-</style>
+{% include 'core/_footer.html' %}
+{% include 'core/_landing_styles.html' %}
 {% endblock %}

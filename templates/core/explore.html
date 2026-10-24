@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Explore challenges — ConnectED{% endblock %}
+
+{% block guest_content %}
+<div class="connected-landing">
+  <section class="connected-explore"><div class="container">
+    <p class="connected-eyebrow">Free for students</p>
+    <h1>Explore what you can build</h1>
+    <p class="connected-explore__lead">Browse every open challenge. Create a free account when you're ready to submit one.</p>
+
+    <div class="connected-filters" aria-label="Filter challenges">
+      <div>
+        <a class="connected-pill {% if not field %}is-active{% endif %}" href="?{% if level %}level={{ level }}{% endif %}">All fields</a>
+        {% for key, label in fields %}
+        <a class="connected-pill {% if field == key %}is-active{% endif %}" href="?field={{ key }}{% if level %}&amp;level={{ level }}{% endif %}">{{ label }}</a>
+        {% endfor %}
+      </div>
+      <div>
+        <a class="connected-pill {% if not level %}is-active{% endif %}" href="?{% if field %}field={{ field }}{% endif %}">All levels</a>
+        {% for key, label in levels %}
+        <a class="connected-pill {% if level == key %}is-active{% endif %}" href="?{% if field %}field={{ field }}&amp;{% endif %}level={{ key }}">{{ label }}</a>
+        {% endfor %}
+      </div>
+    </div>
+
+    <p class="connected-muted">{{ challenges|length }} challenge{{ challenges|length|pluralize }}</p>
+    <div class="row g-4">
+      {% for c in challenges %}
+      <div class="col-md-6 col-lg-4">{% include 'core/_challenge_card.html' with c=c %}</div>
+      {% empty %}
+      <p class="connected-muted">Nothing matches those filters yet. <a href="{% url 'core:explore' %}">Clear filters</a></p>
+      {% endfor %}
+    </div>
+  </div></section>
+  {% include 'core/_footer.html' %}
+</div>
+{% include 'core/_landing_styles.html' %}
+{% endblock %}

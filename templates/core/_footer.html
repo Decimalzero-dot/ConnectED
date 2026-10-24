@@ -1,0 +1,18 @@
+{% load static %}
+<footer class="connected-footer">
+    <div class="container connected-footer__inner">
+        <div class="connected-footer__brand">
+            <img src="{% static 'images/logo.svg' %}" alt="ConnectED">
+        </div>
+
+        <small>© {% now "Y" %} ConnectED. Learning, Linked.</small>
+
+        <nav aria-label="Footer navigation">
+            <a href="{% url 'accounts:login' %}">Sign in</a>
+            <a href="{% url 'accounts:register' %}">Students</a>
+            <a href="{% url 'accounts:employer_register' %}">Employers</a>
+            <a href="{% url 'core:explore' %}">Explore</a>
+            <a href="{% url 'core:privacy' %}">Privacy Policy</a>
+        </nav>
+    </div>
+</footer>

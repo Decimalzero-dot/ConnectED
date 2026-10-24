@@ -21,6 +21,7 @@ class User(AbstractUser):
         ('employer', 'Employer'),
     )
     user_type = models.CharField(max_length=20, choices=USER_TYPE_CHOICES, default='student')
+    tour_version_seen = models.PositiveSmallIntegerField(default=0)
     profile_image = models.ImageField(
             upload_to='profiles/',
             blank=True,
@@ -68,7 +69,7 @@ class Profile(models.Model):
         ('ai_ml', 'AI / Machine Learning'),
     )
 
-    user = models.OneToOneField('User', on_delete=models.CASCADE, related_name='profile')
+    user = models.OneToOneField('User', on_delete=models.CASCADE, related_name='profile',)
     university = models.ForeignKey(University, on_delete=models.SET_NULL, null=True, blank=True, related_name='students')
     year_of_study = models.PositiveSmallIntegerField(choices=YEAR_CHOICES, null=True, blank=True)
     discipline = models.CharField(max_length=20, choices=DISCIPLINE_CHOICES, null=True, blank=True)

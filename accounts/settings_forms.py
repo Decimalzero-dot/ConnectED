@@ -6,9 +6,11 @@ class AccountSettingsForm(GitHubUsernameFormMixin, forms.ModelForm):
     """Username, email, profile photo"""
     class Meta:
         model = User
-        fields = ('username', 'email', 'profile_image')
+        fields = ('username', 'first_name', 'last_name', 'email', 'profile_image')
         widgets = {
             'username': forms.TextInput(attrs={'class': 'form-control'}),
+            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
             'profile_image': forms.FileInput(attrs={'class': 'form-control'}),
         }

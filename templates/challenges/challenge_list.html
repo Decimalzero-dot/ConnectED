@@ -44,11 +44,11 @@
     {% for item in challenge_data %}
 
         <div class="col-md-6 mb-3">
-
+            
             <div class="card h-100">
 
                 <div class="card-body">
-
+{% if item.challenge.guided %}<span class="badge bg-warning text-dark">Guided</span>{% endif %}
                     <div class="d-flex justify-content-between">
 
                         <h5 class="card-title">

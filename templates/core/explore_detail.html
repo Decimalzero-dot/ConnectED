@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}{{ challenge.title }} — ConnectED{% endblock %}
+
+{% block guest_content %}
+<div class="connected-landing">
+  <section class="connected-explore"><div class="container">
+    <a class="connected-text-link connected-text-link--dark" href="{% url 'core:explore' %}"><i class="bi bi-arrow-left"></i> All challenges</a>
+    <div class="row g-5 mt-1">
+      <div class="col-lg-8">
+        <div class="connected-course-card__top mb-2">
+          <span class="connected-chip connected-chip--free">Free</span>
+          {% if challenge.guided %}<span class="connected-chip connected-chip--guided">Guided</span>{% endif %}
+        </div>
+        <h1>{{ challenge.title }}</h1>
+        <p class="connected-muted">{{ challenge.get_discipline_display }} · {{ challenge.get_difficulty_display }} · {{ challenge.points }} points{% if challenge.estimated_minutes %} · about {{ challenge.estimated_minutes }} min{% endif %}{% if challenge.deadline %} · due {{ challenge.deadline|date:"d M Y" }}{% endif %}</p>
+
+        {{ challenge.description|linebreaks }}
+
+        {% include 'challenges/_start_here.html' %}
+
+        {% if challenge.objective %}<h2>What you'll build</h2>{{ challenge.objective|linebreaks }}{% endif %}
+        {% if challenge.requirements %}
+        <h2>Your checklist</h2>
+        <ul>{% for r in challenge.requirements.splitlines %}{% if r.strip %}<li>{{ r }}</li>{% endif %}{% endfor %}</ul>
+        {% endif %}
+        {% if challenge.expected_skills %}<h2>Skills you'll practise</h2><p>{{ challenge.expected_skills }}</p>{% endif %}
+        {% if challenge.assessment_criteria %}<h2>How it's assessed</h2>{{ challenge.assessment_criteria|linebreaks }}{% endif %}
+      </div>
+
+      <aside class="col-lg-4">
+        <div class="connected-brief__cta">
+          <h2>Ready to try it?</h2>
+          <p class="connected-muted">Open to students in Year {{ challenge.min_year }} and above. Every submission gets written feedback from a reviewer.</p>
+          <a class="connected-button connected-button--primary" href="{% url 'accounts:register' %}">Create a free account</a>
+          <a class="connected-button connected-button--ghost" href="{% url 'accounts:login' %}">Sign in</a>
+        </div>
+      </aside>
+    </div>
+  </div></section>
+  {% include 'core/_footer.html' %}
+</div>
+{% include 'core/_landing_styles.html' %}
+{% endblock %}

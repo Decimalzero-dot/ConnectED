@@ -1,0 +1,9 @@
+<a class="connected-course-card" href="{% url 'core:explore_detail' c.pk %}">
+  <span class="connected-course-card__top">
+    <span class="connected-chip connected-chip--free">Free</span>
+    {% if c.guided %}<span class="connected-chip connected-chip--guided">Guided</span>{% endif %}
+  </span>
+  <h3>{{ c.title }}</h3>
+  <p>{{ c.description|truncatewords:18 }}</p>
+  <span class="connected-course-card__meta">{{ c.get_discipline_display }} · {{ c.get_difficulty_display }}{% if c.estimated_minutes %} · ~{{ c.estimated_minutes }} min{% endif %} · {{ c.points }} pts</span>
+</a>

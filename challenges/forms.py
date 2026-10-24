@@ -12,7 +12,8 @@ class ChallengeForm(forms.ModelForm):
             'discipline', 'track', 'difficulty', 'min_year', 'points',
             'deadline', 'is_active',
             'allows_github', 'allows_file_upload',
-            'allows_external_url', 'allows_text'
+            'allows_external_url', 'allows_text',
+            'start_here', 'hints', 'estimated_minutes', 'guided'
         )
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control'}),
@@ -46,7 +47,13 @@ class ChallengeForm(forms.ModelForm):
             'deadline': forms.DateTimeInput(attrs={
                 'class': 'form-control', 'type': 'datetime-local'
             }),
-        }
+            'start_here': forms.Textarea(attrs={'class': 'form-control', 'rows': 4,
+                'placeholder': 'One per line. Link: Title | https://...   or a plain tip'}),
+            'hints': forms.Textarea(attrs={'class': 'form-control', 'rows': 4,
+                'placeholder': 'One hint per line, easiest first'}),
+            'estimated_minutes': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'e.g. 30'}),
+            'guided': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            }
 
 class MultipleFileInput(forms.ClearableFileInput):
     allow_multiple_selected = True

@@ -18,6 +18,7 @@ from .settings_forms import (
     AppearanceSettingsForm, NotificationSettingsForm,
     PasswordChangeSettingsForm, EmployerProfileForm
 )
+from .context_processors import TOUR_VERSION
 import re
 import secrets
 import requests
@@ -260,7 +261,10 @@ def portfolio_view(request, username):
     ).select_related('challenge').order_by('-reviewed_at')
 
     # Stats
-    total_points = sum(s.score or s.challenge.points for s in passed_submissions)
+    total_points = sum(
+    s.score if s.score is not None else s.challenge.points
+    for s in passed_submissions
+    )
     disciplines_covered = list(
         passed_submissions.values_list(
             'challenge__discipline', flat=True
@@ -548,3 +552,10 @@ def google_callback(request):
 
     login(request, user, backend='django.contrib.auth.backends.ModelBackend')
     return redirect('dashboard:home')  # new students get sent on to onboarding
+@login_required
+@require_POST
+def tour_done(request):
+    if request.user.tour_version_seen < TOUR_VERSION:
+        request.user.tour_version_seen = TOUR_VERSION
+        request.user.save(update_fields=['tour_version_seen'])
+    return JsonResponse({'ok': True})

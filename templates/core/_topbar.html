@@ -1,0 +1,6 @@
+{% load static %}
+<header class="connected-topbar"><div class="container connected-topbar__inner">
+  <a href="{% url 'core:landing' %}" aria-label="ConnectED home"><img src="{% static 'images/logo.svg' %}" alt="ConnectED"></a>
+  <nav><a href="{% url 'accounts:login' %}">Sign in</a>
+       <a class="connected-button connected-button--primary" href="{% url 'accounts:register' %}">Join free</a></nav>
+</div></header>

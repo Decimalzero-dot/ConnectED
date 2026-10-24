@@ -1,103 +1,183 @@
 {% extends 'base.html' %}
-{% block title %}Review Submission — ConnectED{% endblock %}
+{% block title %}Review: {{ challenge.title }} — ConnectED{% endblock %}
 {% block page_title %}Review Submission{% endblock %}
 
 {% block content %}
 <div class="container-fluid px-0">
 
-    <a href="{% url 'challenges:review_queue' %}" class="d-inline-flex align-items-center gap-2 text-muted text-decoration-none mb-4 fw-semibold" style="font-size:0.85rem;">
+    <a href="{% url 'challenges:review_queue' %}" class="d-inline-flex align-items-center gap-2 text-muted text-decoration-none mb-3 fw-semibold" style="font-size:0.85rem;">
         <i class="bi bi-arrow-left"></i> Back to Queue
     </a>
 
+    {% if submission.status != 'pending' %}
+    <div class="d-flex align-items-start gap-3 p-3 rounded-3 mb-3" style="background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.3);">
+        <i class="bi bi-exclamation-triangle-fill flex-shrink-0 mt-1" style="color:#d97706;"></i>
+        <p class="mb-0 small" style="color:#b45309; line-height:1.6;">
+            Already marked <strong>{{ submission.get_status_display }}</strong>.
+            Submitting again replaces that result and notifies the student again.
+        </p>
+    </div>
+    {% endif %}
+
     <div class="row g-3">
 
-        <!-- ================================================================
-             LEFT — Submission details
-        ================================================================ -->
-        <div class="col-lg-8">
+        <!-- =================================================================
+             LEFT — what the student was asked to do (sticky on desktop)
+        ================================================================== -->
+        <div class="col-lg-5">
+            <div class="card mb-0 review-brief" style="border-radius:14px;">
+                <div class="card-body p-4">
+
+                    <p class="fw-bold text-uppercase mb-1" style="font-size:0.68rem; letter-spacing:0.12em; color:var(--brand-primary);">
+                        <i class="bi bi-journal-text me-1"></i>The challenge
+                    </p>
+                    <h5 class="fw-bold text-dark mb-2">{{ challenge.title }}</h5>
+
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+                        <span class="badge px-2 py-1 fw-semibold" style="background:rgba(0,71,86,0.08); color:var(--brand-darkest); border-radius:6px; font-size:0.7rem;">
+                            <i class="bi bi-cpu me-1"></i>{{ challenge.get_discipline_display }}
+                        </span>
+                        <span class="badge px-2 py-1 fw-semibold" style="background:rgba(0,71,86,0.08); color:var(--brand-darkest); border-radius:6px; font-size:0.7rem;">
+                            <i class="bi bi-bar-chart me-1"></i>{{ challenge.get_difficulty_display }}
+                        </span>
+                        <span class="badge px-2 py-1 fw-semibold" style="background:rgba(0,71,86,0.08); color:var(--brand-darkest); border-radius:6px; font-size:0.7rem;">
+                            <i class="bi bi-star me-1"></i>{{ challenge.points }} pts
+                        </span>
+                        <span class="badge px-2 py-1 fw-semibold" style="background:rgba(0,71,86,0.08); color:var(--brand-darkest); border-radius:6px; font-size:0.7rem;">
+                            Year {{ challenge.min_year }}+
+                        </span>
+                    </div>
+
+                    <div class="small text-dark" style="line-height:1.7;">{{ challenge.description|linebreaks }}</div>
+
+                    {% if challenge.objective %}
+                    <hr class="opacity-10 my-3">
+                    <h6 class="fw-bold text-dark text-uppercase mb-2" style="font-size:0.72rem; letter-spacing:0.5px;">
+                        <i class="bi bi-bullseye me-2" style="color:var(--brand-primary);"></i>What they were to build
+                    </h6>
+                    <div class="small text-dark" style="line-height:1.7;">{{ challenge.objective|linebreaks }}</div>
+                    {% endif %}
+
+                    {% if challenge.requirements %}
+                    <hr class="opacity-10 my-3">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <h6 class="fw-bold text-dark text-uppercase mb-0" style="font-size:0.72rem; letter-spacing:0.5px;">
+                            <i class="bi bi-list-check me-2" style="color:var(--brand-primary);"></i>Checklist
+                        </h6>
+                        <span class="badge px-2 py-1 fw-semibold" id="check-progress" style="background:rgba(0,71,86,0.08); color:var(--brand-darkest); border-radius:6px; font-size:0.68rem;">0 checked</span>
+                    </div>
+                    <p class="text-muted mb-2" style="font-size:0.72rem;">Tick each item as you verify it. This is only a reading aid and isn't saved.</p>
+                    <div class="d-flex flex-column gap-1" id="review-checklist">
+                        {% for r in challenge.requirements.splitlines %}{% if r.strip %}
+                        <label class="review-check d-flex align-items-start gap-2 p-2 rounded-3" for="req{{ forloop.counter }}">
+                            <input type="checkbox" id="req{{ forloop.counter }}" class="mt-1" style="accent-color:var(--brand-primary);">
+                            <span class="small text-dark" style="line-height:1.5;">{{ r }}</span>
+                        </label>
+                        {% endif %}{% endfor %}
+                    </div>
+                    {% endif %}
+
+                    {% if challenge.expected_skills %}
+                    <hr class="opacity-10 my-3">
+                    <h6 class="fw-bold text-dark text-uppercase mb-2" style="font-size:0.72rem; letter-spacing:0.5px;">
+                        <i class="bi bi-tools me-2" style="color:var(--brand-primary);"></i>Skills assessed
+                    </h6>
+                    <p class="small text-dark mb-0">{{ challenge.expected_skills }}</p>
+                    {% endif %}
+
+                    {% if challenge.submission_instructions %}
+                    <hr class="opacity-10 my-3">
+                    <h6 class="fw-bold text-dark text-uppercase mb-2" style="font-size:0.72rem; letter-spacing:0.5px;">
+                        <i class="bi bi-send me-2" style="color:var(--brand-primary);"></i>What they were told to submit
+                    </h6>
+                    <div class="small text-dark" style="line-height:1.7;">{{ challenge.submission_instructions|linebreaks }}</div>
+                    {% endif %}
+
+                    {% if challenge.assessment_criteria %}
+                    <div class="p-3 rounded-3 mt-3" style="background:rgba(0,71,86,0.06); border-left:4px solid var(--brand-primary);">
+                        <h6 class="fw-bold text-dark text-uppercase mb-2" style="font-size:0.72rem; letter-spacing:0.5px;">
+                            <i class="bi bi-clipboard-data me-2" style="color:var(--brand-primary);"></i>Assessment criteria
+                        </h6>
+                        <div class="small text-dark" style="line-height:1.7;">{{ challenge.assessment_criteria|linebreaks }}</div>
+                    </div>
+                    {% endif %}
+
+                </div>
+            </div>
+        </div>
+
+        <!-- =================================================================
+             RIGHT — the work, then the decision
+        ================================================================== -->
+        <div class="col-lg-7">
+
+            <!-- Submission -->
             <div class="card mb-3" style="border-radius:14px;">
                 <div class="card-body p-4">
 
-                    <!-- Header -->
-                    <h4 class="fw-bold text-dark mb-1">{{ submission.challenge.title }}</h4>
-                    <div class="d-flex align-items-center gap-2 flex-wrap mb-3">
-                        <span class="text-muted small">
-                            <i class="bi bi-person me-1"></i>{{ submission.student.username }}
-                        </span>
-                        <span class="text-muted small">·</span>
-                        <span class="text-muted small">
-                            <i class="bi bi-building me-1"></i>{{ submission.student.profile.university.name|default:"—" }}
-                        </span>
-                        <span class="text-muted small">·</span>
-                        <span class="text-muted small">
-                            <i class="bi bi-clock me-1"></i>{{ submission.submitted_at|date:"d M Y, H:i" }}
-                        </span>
+                    <p class="fw-bold text-uppercase mb-2" style="font-size:0.68rem; letter-spacing:0.12em; color:var(--brand-primary);">
+                        <i class="bi bi-send-check me-1"></i>The submission
+                    </p>
+
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="d-flex align-items-center justify-content-center rounded-circle fw-bold flex-shrink-0"
+                             style="width:46px; height:46px; background:rgba(0,71,86,0.1); color:var(--brand-darkest); font-size:0.85rem; border:2px solid var(--brand-light);">
+                            {{ student.username|slice:":2"|upper }}
+                        </div>
+                        <div class="min-w-0">
+                            {% url 'accounts:portfolio' student.username as portfolio_url %}
+                            <h6 class="fw-bold text-dark mb-0">
+                                {% if portfolio_url %}
+                                <a href="{{ portfolio_url }}" class="text-decoration-none" style="color:inherit;" target="_blank" rel="noopener">
+                                    {{ student.get_full_name|default:student.username }} <i class="bi bi-box-arrow-up-right" style="font-size:0.7rem; color:var(--brand-primary);"></i>
+                                </a>
+                                {% else %}{{ student.get_full_name|default:student.username }}{% endif %}
+                            </h6>
+                            <small class="text-muted">
+                                {{ student.profile.university.name|default:"—" }} · Attempt {{ attempt_no }} · {{ submission.submitted_at|date:"d M Y, H:i" }}
+                            </small>
+                        </div>
                     </div>
 
-                    <!-- Challenge meta pills -->
-                    <div class="d-flex flex-wrap gap-2 mb-4">
-                        <span class="badge px-2 py-1 fw-semibold" style="background:rgba(0,71,86,0.08); color:var(--brand-darkest); border-radius:6px; font-size:0.7rem;">
-                            <i class="bi bi-cpu me-1"></i>{{ submission.challenge.get_discipline_display }}
-                        </span>
-                        <span class="badge px-2 py-1 fw-semibold" style="background:rgba(0,71,86,0.08); color:var(--brand-darkest); border-radius:6px; font-size:0.7rem;">
-                            <i class="bi bi-bar-chart me-1"></i>{{ submission.challenge.get_difficulty_display }}
-                        </span>
-                        <span class="badge px-2 py-1 fw-semibold" style="background:rgba(0,71,86,0.08); color:var(--brand-darkest); border-radius:6px; font-size:0.7rem;">
-                            <i class="bi bi-star me-1"></i>{{ submission.challenge.points }} pts max
-                        </span>
-                    </div>
-
-                    <hr class="opacity-10">
-
-                    <!-- Submission content -->
-                    <div class="d-flex flex-column gap-3 mt-3">
+                    <div class="d-flex flex-column gap-3">
 
                         {% if submission.github_url %}
-                        <p>
-                            <strong>GitHub:</strong>
-                            <a href="{{ submission.github_url }}" target="_blank" rel="noopener">{{ submission.github_url }}</a>
-                            {% if submission.github_verified %}
-                                <span class="badge bg-success">Verified</span>
-                            {% else %}
-                                <span class="badge bg-warning text-dark">Not verified</span>
-                            {% endif %}
-                        </p>
-                        {% if submission.github_check_summary %}
-                        <p class="small text-muted">{{ submission.github_check_summary }}</p>
-                        {% endif %}
+                        <div class="p-3 rounded-3" style="background:#f8fafb; border:1px solid rgba(0,0,0,0.05);">
+                            <div class="d-flex align-items-center justify-content-between gap-2 mb-1">
+                                <small class="text-muted fw-semibold text-uppercase" style="font-size:0.66rem; letter-spacing:0.5px;"><i class="bi bi-github me-1"></i>GitHub repository</small>
+                                {% if submission.github_verified %}
+                                <span class="badge px-2 py-1 fw-semibold" style="background:rgba(16,185,129,0.1); color:#059669; border-radius:6px; font-size:0.66rem;"><i class="bi bi-patch-check-fill me-1"></i>Verified</span>
+                                {% else %}
+                                <span class="badge px-2 py-1 fw-semibold" style="background:rgba(245,158,11,0.1); color:#d97706; border-radius:6px; font-size:0.66rem;">Not verified</span>
+                                {% endif %}
+                            </div>
+                            <a href="{{ submission.github_url }}" target="_blank" rel="noopener noreferrer" class="fw-semibold small" style="color:var(--brand-primary); word-break:break-all;">{{ submission.github_url }}</a>
+                            {% if submission.github_check_summary %}<div class="text-muted mt-1" style="font-size:0.75rem;">{{ submission.github_check_summary }}</div>{% endif %}
+                        </div>
                         {% endif %}
 
                         {% if submission.external_url %}
-                        <div class="d-flex align-items-center gap-3 p-3 rounded-3" style="background:#f8fafb; border:1px solid rgba(0,0,0,0.05);">
-                            <i class="bi bi-link-45deg flex-shrink-0" style="font-size:1.2rem; color:#333;"></i>
-                            <div>
-                                <small class="text-muted d-block" style="font-size:0.68rem;">External Link</small>
-                                <a href="{{ submission.external_url }}" target="_blank" rel="noopener" class="fw-semibold small" style="color:var(--brand-primary);">
-                                    {{ submission.external_url }}
-                                </a>
-                            </div>
+                        <div class="p-3 rounded-3" style="background:#f8fafb; border:1px solid rgba(0,0,0,0.05);">
+                            <small class="text-muted fw-semibold text-uppercase d-block mb-1" style="font-size:0.66rem; letter-spacing:0.5px;"><i class="bi bi-link-45deg me-1"></i>External link</small>
+                            <a href="{{ submission.external_url }}" target="_blank" rel="noopener noreferrer" class="fw-semibold small" style="color:var(--brand-primary); word-break:break-all;">{{ submission.external_url }}</a>
                         </div>
                         {% endif %}
 
                         {% if submission.text_answer %}
                         <div class="p-3 rounded-3" style="background:#f8fafb; border:1px solid rgba(0,0,0,0.05);">
-                            <small class="text-muted fw-semibold text-uppercase d-block mb-2" style="font-size:0.68rem; letter-spacing:0.5px;">Written Answer</small>
-                            <p class="mb-0 small text-dark" style="line-height:1.7;">{{ submission.text_answer|linebreaks }}</p>
+                            <small class="text-muted fw-semibold text-uppercase d-block mb-2" style="font-size:0.66rem; letter-spacing:0.5px;"><i class="bi bi-pencil me-1"></i>Written answer</small>
+                            <div class="small text-dark" style="line-height:1.7;">{{ submission.text_answer|linebreaks }}</div>
                         </div>
                         {% endif %}
 
                         {% if submission.files.all %}
                         <div class="p-3 rounded-3" style="background:#f8fafb; border:1px solid rgba(0,0,0,0.05);">
-                            <small class="text-muted fw-semibold text-uppercase d-block mb-2" style="font-size:0.68rem; letter-spacing:0.5px;">
-                                <i class="bi bi-paperclip me-1"></i>Uploaded Files
-                            </small>
+                            <small class="text-muted fw-semibold text-uppercase d-block mb-2" style="font-size:0.66rem; letter-spacing:0.5px;"><i class="bi bi-paperclip me-1"></i>Files</small>
                             <div class="d-flex flex-column gap-2">
                                 {% for f in submission.files.all %}
                                 <div class="d-flex align-items-center gap-2">
-                                    <i class="bi bi-file-earmark" style="color:var(--brand-primary); font-size:0.85rem;"></i>
-                                    <a href="{% url 'challenges:serve_file' f.pk %}" class="small fw-semibold" style="color:var(--brand-primary);">
-                                        {{ f.original_filename }}
-                                    </a>
+                                    <i class="bi bi-file-earmark" style="color:var(--brand-primary);"></i>
+                                    <a href="{% url 'challenges:serve_file' f.pk %}" class="small fw-semibold" style="color:var(--brand-primary);">{{ f.original_filename }}</a>
                                     <small class="text-muted">({{ f.file_size|filesizeformat }})</small>
                                 </div>
                                 {% endfor %}
@@ -105,169 +185,101 @@
                         </div>
                         {% endif %}
 
+                        {% if previous %}
+                        <details class="review-earlier">
+                            <summary class="fw-semibold small"><i class="bi bi-clock-history me-1" style="color:var(--brand-primary);"></i>Earlier attempts ({{ previous|length }})</summary>
+                            {% for p in previous %}
+                            <div class="p-3 rounded-3 mt-2" style="background:rgba(0,71,86,0.04); border:1px solid rgba(0,71,86,0.1);">
+                                <div class="small fw-semibold text-dark">{{ p.submitted_at|date:"d M Y" }} · {{ p.get_status_display }}</div>
+                                {% if p.feedback %}<div class="text-muted small mt-1" style="line-height:1.6;">{{ p.feedback|linebreaksbr }}</div>{% endif %}
+                            </div>
+                            {% endfor %}
+                        </details>
+                        {% endif %}
+
                     </div>
                 </div>
             </div>
 
-            <!-- ============================================================
-                 REVIEW DECISION CARD
-            ============================================================ -->
-            {% if submission.challenge.assessment_criteria %}
-            <div class="card border-0 shadow-sm mb-3">
+            <!-- Decision -->
+            <div class="card mb-0" style="border-radius:14px;">
                 <div class="card-body p-4">
-                    <h6 class="fw-bold mb-2" style="color: #006a7a;">Assessment Criteria</h6>
-                    <p class="text-muted small mb-0">
-                        Use the criteria below when scoring and writing feedback.
-                    </p>
-                    <div class="mt-2">{{ submission.challenge.assessment_criteria|linebreaks }}</div>
-                </div>
-            </div>
-            {% endif %}
-            <div class="card" style="border-radius:14px;">
-                <div class="card-body p-4">
-
                     <h6 class="fw-bold text-dark text-uppercase mb-1" style="font-size:0.75rem; letter-spacing:0.5px;">
-                        <i class="bi bi-clipboard-check me-2" style="color:var(--brand-primary);"></i>Review Decision
+                        <i class="bi bi-clipboard-check me-2" style="color:var(--brand-primary);"></i>Your decision
                     </h6>
-                    <p class="text-muted small mb-4">Your feedback is sent to the student after you submit.</p>
+                    <p class="text-muted small mb-4">The student reads your feedback and can try again, so be specific and kind.</p>
 
                     <form method="post" novalidate>
                         {% csrf_token %}
 
-                        <!-- Score -->
                         <div class="mb-3">
-                            <label class="form-label fw-semibold text-muted text-uppercase" style="font-size:0.7rem; letter-spacing:0.5px;">
-                                Score (out of {{ submission.challenge.points }} points)
+                            <label for="score" class="form-label fw-semibold text-muted text-uppercase" style="font-size:0.7rem; letter-spacing:0.5px;">
+                                Score <span class="text-lowercase fw-normal">(0–{{ challenge.points }}, optional)</span>
                             </label>
-                            <input type="number" name="score" class="form-control"
-                                   min="0" max="{{ submission.challenge.points }}"
-                                   placeholder="Leave blank to skip scoring"
-                                   style="border-radius:8px;">
-                            <div class="form-text text-muted" style="font-size:0.72rem;">Optional — only fill if you want to give a partial score.</div>
+                            <input type="number" id="score" name="score" class="form-control" style="max-width:160px; border-radius:8px;"
+                                   min="0" max="{{ challenge.points }}" value="{{ form_score }}">
                         </div>
 
-                        <!-- Feedback -->
                         <div class="mb-4">
-                            <label class="form-label fw-semibold text-muted text-uppercase" style="font-size:0.7rem; letter-spacing:0.5px;">
-                                Feedback <span class="text-danger">*</span>
-                            </label>
-                            <textarea
-                                name="feedback"
-                                class="form-control"
-                                rows="6"
-                                minlength="80"
-                                placeholder="Write specific feedback the student can act on (minimum 80 characters).
-                            What did they do well? What needs improvement? Reference the assessment criteria above."
-                            >{{ submission.feedback }}</textarea>
-                            <div class="form-text text-muted">
-                                Be specific — vague feedback like "good job" is not useful.
-                                Reference what the student did or didn't demonstrate.
+                            <div class="d-flex justify-content-between align-items-end">
+                                <label for="feedback" class="form-label fw-semibold text-muted text-uppercase" style="font-size:0.7rem; letter-spacing:0.5px;">
+                                    Feedback <span class="text-danger">*</span>
+                                </label>
+                                <small id="fb-count" class="fw-semibold text-muted" style="font-size:0.72rem;">0 / 80 minimum</small>
                             </div>
-                            feedback = request.POST.get('feedback', '')
-                                if len(feedback.strip()) < 80:
-                                    messages.error(request, 'Feedback must be at least 80 characters. Be specific.')
-                                    return render(request, 'challenges/review_submission.html', {
-                                        'submission': submission,
-                                    })
-                        </div>
-                        
-
-                        <!-- Decision buttons -->
-                        <div class="pt-3 border-top d-flex gap-2 flex-wrap">
-                            <button type="submit" name="decision" value="passed"
-                                    class="btn fw-semibold text-white px-4 py-2"
-                                    style="background:#10b981; border:none; border-radius:8px;">
-                                <i class="bi bi-check-circle me-2"></i>Mark Passed
-                            </button>
-                            <button type="submit" name="decision" value="failed"
-                                    class="btn fw-semibold text-white px-4 py-2"
-                                    style="background:#ef4444; border:none; border-radius:8px;">
-                                <i class="bi bi-x-circle me-2"></i>Mark Failed
-                            </button>
+                            <textarea id="feedback" name="feedback" class="form-control" rows="6" minlength="80" required
+                                      style="border-radius:8px;"
+                                      placeholder="What worked. What to fix. What to try next.">{{ form_feedback }}</textarea>
+                            <div class="form-text text-muted" style="font-size:0.72rem;">Refer to the assessment criteria on the left.</div>
                         </div>
 
+                        <div class="pt-3 border-top d-flex flex-wrap gap-2">
+                            <button type="submit" name="decision" value="passed" class="btn fw-semibold text-white px-4 py-2" style="background:#10b981; border:none; border-radius:8px;">
+                                <i class="bi bi-check-circle me-2"></i>Pass
+                            </button>
+                            <button type="submit" name="decision" value="failed" class="btn fw-semibold px-4 py-2" style="background:transparent; color:#dc2626; border:1.5px solid #ef4444; border-radius:8px;">
+                                <i class="bi bi-arrow-repeat me-2"></i>Not passed yet
+                            </button>
+                        </div>
                     </form>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- ================================================================
-             RIGHT — Student + challenge quick info
-        ================================================================ -->
-        <div class="col-lg-4">
-
-            <!-- Student info -->
-            <div class="card mb-3" style="border-radius:14px;">
-                <div class="card-body p-4">
-                    <h6 class="fw-bold text-dark text-uppercase mb-3" style="font-size:0.75rem; letter-spacing:0.5px;">
-                        <i class="bi bi-person me-2" style="color:var(--brand-primary);"></i>Student
-                    </h6>
-                    <div class="d-flex align-items-center gap-3 mb-3">
-                        <div class="d-flex align-items-center justify-content-center rounded-circle fw-bold flex-shrink-0"
-                             style="width:44px; height:44px; background:rgba(0,71,86,0.1); color:var(--brand-darkest); font-size:0.85rem; border:2px solid var(--brand-light);">
-                            {{ submission.student.username|slice:":2"|upper }}
-                        </div>
-                        <div>
-                            <span class="fw-bold text-dark d-block">{{ submission.student.username }}</span>
-                            <small class="text-muted">{{ submission.student.email }}</small>
-                        </div>
-                    </div>
-                    <div class="d-flex flex-column gap-2">
-                        <div>
-                            <small class="text-muted d-block" style="font-size:0.68rem;">University</small>
-                            <span class="fw-semibold text-dark small">{{ submission.student.profile.university.name|default:"—" }}</span>
-                        </div>
-                        <div>
-                            <small class="text-muted d-block" style="font-size:0.68rem;">Discipline</small>
-                            <span class="fw-semibold text-dark small">{{ submission.student.profile.get_discipline_display|default:"—" }}</span>
-                        </div>
-                        <div>
-                            <small class="text-muted d-block" style="font-size:0.68rem;">Year</small>
-                            <span class="fw-semibold text-dark small">{{ submission.student.profile.get_year_of_study_display|default:"—" }}</span>
-                        </div>
-                        {% if submission.student.profile.github_username %}
-                        <div>
-                            <small class="text-muted d-block" style="font-size:0.68rem;">GitHub</small>
-                            <a href="https://github.com/{{ submission.student.profile.github_username }}" target="_blank" rel="noopener" class="fw-semibold small" style="color:var(--brand-primary);">
-                                <i class="bi bi-github me-1"></i>{{ submission.student.profile.github_username }}
-                            </a>
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-
-            <!-- Challenge quick info -->
-            <div class="card" style="border-radius:14px;">
-                <div class="card-body p-4">
-                    <h6 class="fw-bold text-dark text-uppercase mb-3" style="font-size:0.75rem; letter-spacing:0.5px;">
-                        Challenge Info
-                    </h6>
-                    <div class="d-flex flex-column gap-2">
-                        <div>
-                            <small class="text-muted d-block" style="font-size:0.68rem;">Points Available</small>
-                            <span class="fw-bold" style="color:var(--brand-primary); font-size:1.1rem;">{{ submission.challenge.points }} pts</span>
-                        </div>
-                        <div>
-                            <small class="text-muted d-block" style="font-size:0.68rem;">Difficulty</small>
-                            <span class="fw-semibold text-dark small">{{ submission.challenge.get_difficulty_display }}</span>
-                        </div>
-                        <div>
-                            <small class="text-muted d-block" style="font-size:0.68rem;">Current Status</small>
-                            {% if submission.status == 'passed' %}
-                            <span class="badge px-2 py-1 fw-semibold" style="background:rgba(16,185,129,0.1); color:#059669; border-radius:6px; font-size:0.7rem;">Passed</span>
-                            {% elif submission.status == 'failed' %}
-                            <span class="badge px-2 py-1 fw-semibold" style="background:rgba(239,68,68,0.1); color:#dc2626; border-radius:6px; font-size:0.7rem;">Failed</span>
-                            {% else %}
-                            <span class="badge px-2 py-1 fw-semibold" style="background:rgba(245,158,11,0.1); color:#d97706; border-radius:6px; font-size:0.7rem;">Pending</span>
-                            {% endif %}
-                        </div>
-                    </div>
                 </div>
             </div>
 
         </div>
     </div>
 </div>
+
+<style>
+.review-brief { position: sticky; top: 80px; max-height: calc(100vh - 100px); overflow-y: auto; }
+@media (max-width: 991.98px) { .review-brief { position: static; max-height: none; } }
+.review-check { cursor: pointer; transition: background .15s ease; }
+.review-check:hover { background: rgba(66,182,198,0.1); }
+.review-earlier summary { cursor: pointer; list-style: none; }
+.review-earlier summary::-webkit-details-marker { display: none; }
+html.dark-mode .review-check:hover { background: rgba(255,255,255,0.06); }
+</style>
+
+<script>
+(function () {
+  // Checklist progress (reading aid only)
+  var boxes = document.querySelectorAll('#review-checklist input[type=checkbox]');
+  var prog = document.getElementById('check-progress');
+  function updateChecks() {
+    if (!prog) return;
+    var n = 0; boxes.forEach(function (b) { if (b.checked) n++; });
+    prog.textContent = n + ' of ' + boxes.length + ' checked';
+  }
+  boxes.forEach(function (b) { b.addEventListener('change', updateChecks); });
+  updateChecks();
+
+  // Feedback character counter
+  var fb = document.getElementById('feedback'), cnt = document.getElementById('fb-count');
+  function updateCount() {
+    var n = fb.value.trim().length;
+    cnt.textContent = n + ' / 80 minimum';
+    cnt.style.color = n >= 80 ? '#20a464' : '';
+  }
+  if (fb && cnt) { fb.addEventListener('input', updateCount); updateCount(); }
+})();
+</script>
 {% endblock %}

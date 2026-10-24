@@ -26,7 +26,7 @@
                         <div class="row g-3 mb-4">
                             {% for field in form %}
                             {% if field.name not in "allows_github,allows_file_upload,allows_external_url,allows_text" %}
-                            <div class="{% if field.field.widget.input_type == 'textarea' %}col-12{% else %}col-md-6{% endif %}">
+                            <div class="{% if field.widget_type == 'textarea' or field.widget_type == 'checkbox' %}col-12{% else %}col-md-6{% endif %}">
                                 <label class="form-label fw-semibold text-muted text-uppercase" style="font-size:0.7rem; letter-spacing:0.5px;">
                                     {{ field.label }}{% if field.field.required %} *{% endif %}
                                 </label>

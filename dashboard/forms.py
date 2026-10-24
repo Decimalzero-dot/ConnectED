@@ -9,6 +9,19 @@ class OnboardingForm(GitHubUsernameFormMixin, forms.ModelForm):
         widget=forms.Select(attrs={'class': 'form-control'}),
         empty_label="Select your university"
     )
+    first_name = forms.CharField(max_length=150, widget=forms.TextInput(
+        attrs={'class': 'form-control', 'autocomplete': 'given-name'}))
+    last_name = forms.CharField(max_length=150, widget=forms.TextInput(
+        attrs={'class': 'form-control', 'autocomplete': 'family-name'}))
+
+    def __init__(self, *args, user=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['year_of_study'].required = True
+        if user is not None:   # Google sign-in already filled these
+            self.fields['first_name'].initial = user.first_name
+            self.fields['last_name'].initial = user.last_name
+        self.order_fields(['first_name', 'last_name', 'year_of_study',
+                           'github_username', 'reg_number', 'personal_email'])
 
     class Meta:
         model = Profile

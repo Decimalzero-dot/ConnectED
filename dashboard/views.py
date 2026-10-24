@@ -7,6 +7,7 @@ from .forms import OnboardingForm
 from challenges.models import Submission, Challenge
 from accounts.models import Profile, EmployerProfile, User
 from django.urls import reverse
+from django.db.models.functions import Coalesce
 
 
 @login_required
@@ -70,7 +71,7 @@ def home_stats_api(request):
     pending     = submissions.filter(status='pending').count()
     failed      = submissions.filter(status='failed').count()
     total_points = submissions.filter(status='passed').aggregate(
-        pts=Sum('challenge__points')
+        pts=Sum(Coalesce('score', 'challenge__points'))
     )['pts'] or 0
 
     # Last 5 submissions for the activity feed
@@ -176,7 +177,8 @@ def leaderboard_view(request):
             'student__profile__reg_number',
         )
         .annotate(
-            total_points=Sum('challenge__points'),
+            total_points=Sum(Coalesce('score', 'challenge__points')
+            ),
             challenges_completed=Count('id')
         )
         .order_by('-total_points')
@@ -226,15 +228,18 @@ def onboarding_view(request):
         return redirect('dashboard:home')
 
     if request.method == 'POST':
-        form = OnboardingForm(request.POST, instance=profile)
+        form = OnboardingForm(request.POST, instance=profile, user=request.user)
         if form.is_valid():
             profile = form.save(commit=False)
+            request.user.first_name = form.cleaned_data['first_name'].strip()
+            request.user.last_name = form.cleaned_data['last_name'].strip()
+            request.user.save(update_fields=['first_name', 'last_name'])
             profile.onboarding_complete = True
             profile.save()
             messages.success(request, 'Welcome to ConnectED!')
             return redirect('dashboard:home')
     else:
-        form = OnboardingForm(instance=profile)
+        form = OnboardingForm(instance=profile, user=request.user)
 
     return render(request, 'dashboard/onboarding.html', {
         'form': form,
@@ -260,7 +265,8 @@ def employer_leaderboard_view(request):
             'student__profile__github_username',
         )
         .annotate(
-            total_points=Sum('challenge__points'),
+            total_points=Sum(Coalesce('score', 'challenge__points')
+            ),
             challenges_completed=Count('id')
         )
         .order_by('-total_points')

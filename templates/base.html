@@ -224,8 +224,7 @@
                     </a>
 
                     <!-- Logout -->
-                     <form action="{% url 'accounts:logout' %}" method="post"
-                           onsubmit="Object.keys(localStorage).filter(k=>k.startsWith('draft:')).forEach(k=>localStorage.removeItem(k))">
+                    <form action="{% url 'accounts:logout' %}" method="post">
                         {% csrf_token %}
                         <button type="submit" class="topbar-icon-btn" title="Logout">
                             <i class="bi bi-box-arrow-right"></i>
@@ -311,14 +310,18 @@
     });
 })();
 </script>
-<script>
-document.querySelectorAll('form.js-once').forEach(f =>
-  f.addEventListener('submit', () => {
-    const b = f.querySelector('[type=submit]');
-    setTimeout(() => { b.disabled = true; b.textContent = 'Please wait...'; }, 0);
-  }));
-</script>
 {% endif %}
 <script src="{% static 'js/main.js' %}"></script>
+{% if user.is_authenticated %}
+{% url 'accounts:tour_done' as tour_done_url %}
+{% if tour_done_url %}
+<div id="cx-tour" hidden
+     data-role="{{ user.user_type }}"
+     data-auto="{% if show_tour %}1{% else %}0{% endif %}"
+     data-done-url="{{ tour_done_url }}"
+     data-csrf="{{ csrf_token }}"></div>
+<script src="{% static 'js/tour.js' %}" defer></script>
+{% endif %}
+{% endif %}
 </body>
 </html>

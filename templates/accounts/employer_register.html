@@ -16,7 +16,7 @@
             <div style="position:absolute; inset:0; background: linear-gradient(135deg, rgba(0,71,86,0.85) 0%, rgba(0,106,122,0.65) 100%);"></div>
             <div class="position-relative d-flex flex-column justify-content-between h-100 p-5 text-white">
                 <img src="{% static 'images/logo.svg' %}" alt="ConnectED" style="height:60px; width:auto;">
-            <div>
+                <div>
                     <h2 class="fw-bold mb-2" style="font-size:2rem; line-height:1.2;">
                         Hire from the<br>top of the pipeline.
                     </h2>
@@ -42,50 +42,40 @@
             {% endfor %}
             {% endif %}
 
+            <form method="post" novalidate>
+                {% csrf_token %}
 
+                {% for field in form %}
+                <div class="mb-3">
+                    <label for="{{ field.id_for_label }}"
+                           class="form-label fw-semibold text-muted text-uppercase"
+                           style="font-size:0.7rem; letter-spacing:0.5px;">
+                        {{ field.label }}
+                    </label>
 
-<form method="post" novalidate>
-    {% csrf_token %}
+                    {% if field.name == "password1" or field.name == "password2" %}
+                    <div class="password-wrapper">
+                        {{ field }}
+                        <button type="button" class="password-toggle" tabindex="-1" aria-label="Toggle password visibility">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
+                    {% else %}
+                    {{ field }}
+                    {% endif %}
 
-    {% for field in form %}
-    <div class="mb-3">
-        <label for="{{ field.id_for_label }}"
-               class="form-label fw-semibold text-muted text-uppercase"
-               style="font-size:0.7rem; letter-spacing:0.5px;">
-            {{ field.label }}
-        </label>
+                    {% if field.errors %}
+                    <div class="text-danger small mt-1">{{ field.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+                {% endfor %}
 
-
-{% if field.name == "password1" or field.name == "password2" %}
-    <div class="password-wrapper">
-        {{ field }}
-        <button type="button"
-                class="password-toggle"
-                tabindex="-1"
-                aria-label="Toggle password visibility">
-            <i class="bi bi-eye"></i>
-        </button>
-    </div>
-{% else %}
-    {{ field }}
-{% endif %}
-
-
-        {% if field.errors %}
-        <div class="text-danger small mt-1">
-            {{ field.errors|striptags }}
-        </div>
-        {% endif %}
-    </div>
-    {% endfor %}
-
-    <button type="submit"
-            class="btn btn-primary w-100 py-2 fw-semibold text-white mt-2"
-            style="border-radius:8px;">
-        <i class="bi bi-send me-2"></i>Submit for Review
-    </button>
-</form>
-
+                <button type="submit"
+                        class="btn btn-primary w-100 py-2 fw-semibold text-white mt-2"
+                        style="border-radius:8px;">
+                    <i class="bi bi-send me-2"></i>Submit for Review
+                </button>
+            </form>
 
             <div class="mt-4 pt-3 border-top d-flex flex-column gap-2">
                 <p class="text-muted small mb-0">
@@ -105,5 +95,38 @@
 .auth-alert { padding:0.75rem 1rem; border-radius:8px; font-size:0.875rem; font-weight:500; }
 .auth-alert-error, .auth-alert-danger { background:#fef2f2; color:#dc2626; border:1px solid #fecaca; }
 .auth-alert-success { background:#f0fdf4; color:#16a34a; border:1px solid #bbf7d0; }
+.auth-alert-warning { background:#fffbeb; color:#d97706; border:1px solid #fde68a; }
+
+.password-wrapper { position: relative; }
+.password-wrapper input { padding-right: 2.75rem; }
+.password-toggle {
+    position: absolute;
+    top: 50%; right: 0.75rem;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #888;
+    cursor: pointer;
+    padding: 0;
+    font-size: 1rem;
+    line-height: 1;
+}
+.password-toggle:hover { color: var(--brand-primary); }
 </style>
+
+<script>
+document.querySelectorAll('.password-toggle').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+        var input = this.closest('.password-wrapper').querySelector('input');
+        var icon  = this.querySelector('i');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.replace('bi-eye', 'bi-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.replace('bi-eye-slash', 'bi-eye');
+        }
+    });
+});
+</script>
 {% endblock %}

@@ -18,6 +18,7 @@ from notifications.models import Notification
 from django.core.mail import send_mail
 from django.conf import settings as django_settings
 from accounts.github import verify_repo
+from urllib.parse import urlencode
 
 User = get_user_model()
 
@@ -87,35 +88,58 @@ def challenge_list(request):
 def challenge_detail(request, pk):
     challenge = get_object_or_404(Challenge, pk=pk, is_active=True)
     profile = request.user.profile
-    eligible, lock_reason = challenge.eligibility(profile)
 
-    existing_submission = Submission.objects.filter(
-        challenge=challenge,
-        student=request.user
-    ).prefetch_related('files').first()
+    eligible = challenge.is_eligible_for(profile)
+    lock_reason = ''
+    if not eligible:
+        lock_reason = (
+            'Add your year of study in Settings → Academic Info to unlock challenges.'
+            if not profile.year_of_study else
+            f'This challenge is for Year {challenge.min_year} and above. '
+            f'You are in Year {profile.year_of_study}.'
+        )
+
+    # Their most recent attempt (pending, passed or failed)
+    latest = (Submission.objects
+              .filter(challenge=challenge, student=request.user)
+              .order_by('-submitted_at')
+              .prefetch_related('files')
+              .first())
+
+    # Can submit if: eligible AND (never tried OR last try failed)
+    can_submit = eligible and (latest is None or latest.status == 'failed')
+
+    needs_github = bool(
+        django_settings.GITHUB_CLIENT_ID
+        and challenge.allows_github
+        and not profile.github_verified
+    )
 
     form = None
     file_errors = []
 
-    if eligible and not existing_submission and request.method == 'POST':
+    if can_submit and request.method == 'POST':
         form = SubmissionForm(request.POST, request.FILES)
         if form.is_valid():
             submission = form.save(commit=False)
             submission.challenge = challenge
             submission.student = request.user
-
             files = request.FILES.getlist('uploaded_files')
 
-            # At least one submission method required
-            if not any([
-                submission.github_url,
-                submission.external_url,
-                submission.text_answer,
-                files
-            ]):
+            # Ignore any method this challenge doesn't allow (the form hides them, but POSTs can be edited)
+            if not challenge.allows_github:
+                submission.github_url = ''
+            if not challenge.allows_external_url:
+                submission.external_url = ''
+            if not challenge.allows_text:
+                submission.text_answer = ''
+            if not challenge.allows_file_upload:
+                files = []
+
+            if not any([submission.github_url, submission.external_url,
+                        submission.text_answer, files]):
                 form.add_error(None, 'Please provide at least one submission method.')
             else:
-                # Validate files before saving anything
                 validated_files = []
                 for f in files:
                     try:
@@ -124,97 +148,72 @@ def challenge_detail(request, pk):
                     except ValidationError as e:
                         file_errors.extend(e.messages)
 
-
-                # ── GitHub verification ──
                 if submission.github_url:
-                    if django_settings.GITHUB_CLIENT_ID and not profile.github_verified:
+                    if needs_github:
                         messages.info(request,
                             'To submit a repository, first confirm your GitHub account. '
                             'It takes one tap, then you come straight back here.')
                         return redirect(
                             f"{reverse('accounts:github_connect')}?{urlencode({'next': request.path})}")
 
-                    gh_user = profile.github_username
-                    if not gh_user:
-                        form.add_error('github_url', 'Add your GitHub username in Settings → Academic Info.')
+                    if not profile.github_username:
+                        form.add_error('github_url',
+                            'Add your GitHub username in Settings → Academic Info.')
                     else:
-                        status, msg, canonical = verify_repo(submission.github_url, gh_user)
-
+                        status, msg, canonical = verify_repo(
+                            submission.github_url, profile.github_username)
                         if status == 'fail':
                             form.add_error('github_url', msg)
-
                         elif status == 'ok':
                             submission.github_url = canonical
                             submission.github_verified = True
                             submission.github_check_summary = msg
-
-                        else:
-                            # GitHub is unavailable; allow submission,
-                            # but explicitly mark it as unverified.
-                            submission.github_verified = False
+                        else:  # GitHub unreachable: don't punish the student
                             submission.github_check_summary = (
-                                'Not verified: GitHub could not be reached '
-                                'at submission time.'
-                            )
+                                'Not verified: GitHub could not be reached at submission time.')
 
-                # Save only if validation passed
-                if not file_errors and not form.errors:   
+                if not file_errors and not form.errors:
                     submission.save()
-
                     for f in validated_files:
                         SubmissionFile.objects.create(
-                            submission=submission,
-                            file=f,
-                            original_filename=f.name,
-                            file_size=f.size
-                        )
+                            submission=submission, file=f,
+                            original_filename=f.name, file_size=f.size)
 
-                    # Notify campus admins
                     campus_admins = User.objects.filter(
-                        user_type='campus_admin',
-                        profile__university=request.user.profile.university
-                    )
+                        user_type='campus_admin', profile__university=profile.university)
                     for admin in campus_admins:
                         Notification.objects.create(
                             recipient=admin,
-                            message=(
-                                f'{request.user.username} submitted '
-                                f'"{challenge.title}" — awaiting review.'
-                            ),
+                            message=f'{request.user.username} submitted "{challenge.title}": awaiting review.',
                             notification_type='general',
-                            link=f'/challenges/review/{submission.pk}/'
-                        )
-
-                    admin_emails = [a.email for a in campus_admins if a.email]
-                    if admin_emails:
-                        safe_send_mail(
-                            subject=f'ConnectED — New Submission: {challenge.title}',
-                            message=(
-                                f'A student has submitted a solution for "{challenge.title}".\n\n'
-                                f'Student: {request.user.username}\n'
-                                f'University: {request.user.profile.university}\n\n'
-                                f'Review it at: /challenges/review/{submission.pk}/'
-                            ),
-                            recipient_list=admin_emails,
-                        )
+                            link=f'/challenges/review/{submission.pk}/')
+                    safe_send_mail(
+                        subject=f'ConnectED — New Submission: {challenge.title}',
+                        message=(f'{request.user.username} submitted "{challenge.title}".\n\n'
+                                 f'Review it: {django_settings.SITE_URL}/challenges/review/{submission.pk}/'),
+                        recipient_list=[a.email for a in campus_admins])
 
                     messages.success(request, 'Submission received! Awaiting review.')
                     return redirect('challenges:detail', pk=challenge.pk)
 
-    elif eligible and not existing_submission:
-        form = SubmissionForm()
+    elif can_submit:
+        initial = {}
+        if latest:  # retry after a fail: start from what they sent last time
+            initial = {'github_url': latest.github_url,
+                       'external_url': latest.external_url,
+                       'text_answer': latest.text_answer}
+        form = SubmissionForm(initial=initial)
 
     return render(request, 'challenges/challenge_detail.html', {
         'challenge': challenge,
         'eligible': eligible,
         'lock_reason': lock_reason,
-        'submission': existing_submission,
+        'submission': latest,
+        'can_submit': can_submit,
         'form': form,
         'file_errors': file_errors,
-        'needs_github': bool(django_settings.GITHUB_CLIENT_ID
-                     and challenge.allows_github and not profile.github_verified),
+        'needs_github': needs_github,
     })
-
 
 # ─── File Serving ─────────────────────────────────────────────────────────────
 
@@ -294,79 +293,88 @@ def review_queue(request):
 @login_required
 @user_passes_test(is_reviewer)
 def review_submission(request, pk):
-    submission = get_object_or_404(Submission, pk=pk)
+    submission = get_object_or_404(
+        Submission.objects
+        .select_related('challenge', 'student__profile__university')
+        .prefetch_related('files'),
+        pk=pk)
+    challenge = submission.challenge
+    student = submission.student
 
-    if request.user.user_type == 'campus_admin':
-        if submission.student.profile.university != request.user.profile.university:
-            messages.error(request, 'You can only review submissions from your campus.')
-            return redirect('challenges:review_queue')
+    if request.user.user_type == 'campus_admin' and \
+            student.profile.university != request.user.profile.university:
+        messages.error(request, 'You can only review submissions from your own campus.')
+        return redirect('challenges:review_queue')
+
+    # Earlier attempts by this student on this challenge (they can retry after a fail)
+    previous = list(Submission.objects
+                    .filter(challenge=challenge, student=student,
+                            submitted_at__lt=submission.submitted_at)
+                    .order_by('submitted_at'))
+
+    form_score = submission.score if submission.score is not None else ''
+    form_feedback = submission.feedback
 
     if request.method == 'POST':
+        form_score = request.POST.get('score', '').strip()
+        form_feedback = request.POST.get('feedback', '').strip()
         decision = request.POST.get('decision')
-        feedback = request.POST.get('feedback', '')
-        score = request.POST.get('score')
 
-        if decision in ('passed', 'failed'):
+        errors, score = [], None
+        if decision not in ('passed', 'failed'):
+            errors.append('Choose Pass or Not passed yet.')
+        if len(form_feedback) < 80:
+            errors.append('Feedback needs at least 80 characters: say what worked and what to fix.')
+        if form_score:
+            try:
+                score = int(form_score)
+                if not 0 <= score <= challenge.points:
+                    errors.append(f'Score must be between 0 and {challenge.points}.')
+            except ValueError:
+                errors.append('Score must be a whole number.')
+
+        if not errors:
             submission.status = decision
-            submission.feedback = feedback
+            submission.feedback = form_feedback
+            submission.score = score
             submission.reviewed_at = timezone.now()
-            if score:
-                try:
-                    submission.score = int(score)
-                except ValueError:
-                    pass
             submission.save()
 
-            # In-platform notification
+            label = 'passed' if decision == 'passed' else 'not passed yet'
             Notification.objects.create(
-                recipient=submission.student,
-                message=(
-                    f'Your submission for "{submission.challenge.title}" '
-                    f'was marked {decision}.'
-                    + (
-                        f' Score: {submission.score}/{submission.challenge.points}'
-                        if submission.score else ''
-                    )
-                ),
+                recipient=student,
+                message=(f'Your submission for "{challenge.title}" was marked {label}.'
+                         + (f' Score: {score}/{challenge.points}.' if score is not None else '')),
                 notification_type='submission_reviewed',
-                link=f'/challenges/{submission.challenge.pk}/'
-            )
+                link=f'/challenges/{challenge.pk}/')
 
-            # Email notification
-            if submission.student.profile.notify_on_review:
-                recipient_email = (
-                    submission.student.profile.personal_email or
-                    submission.student.email
-                )
-                if recipient_email:
-                    safe_send_mail(
-                        subject=(
-                            f'ConnectED — Submission {decision.title()}: '
-                            f'{submission.challenge.title}'
-                        ),
-                        message=(
-                            f'Hi {submission.student.username},\n\n'
-                            f'Your submission for "{submission.challenge.title}" '
-                            f'has been marked {decision.upper()}.\n\n'
-                            + (
-                                f'Score: {submission.score}/{submission.challenge.points} points\n\n'
-                                if submission.score else ''
-                            )
-                            + (
-                                f'Feedback:\n{feedback}\n\n'
-                                if feedback else ''
-                            )
-                            + f'View your submission: /challenges/{submission.challenge.pk}/\n\n'
-                            f'Keep building — The ConnectED Team'
-                        ),
-                        recipient_list=[recipient_email],
-                    )
+            profile = student.profile
+            to = profile.personal_email or student.email
+            if profile.notify_on_review and to:
+                site = django_settings.SITE_URL
+                safe_send_mail(
+                    subject=f'ConnectED — {challenge.title}: {label}',
+                    message=(
+                        f'Hi {student.first_name or student.username},\n\n'
+                        f'Your submission for "{challenge.title}" was marked {label}.\n'
+                        + (f'Score: {score}/{challenge.points}\n' if score is not None else '')
+                        + f'\nFeedback:\n{form_feedback}\n\n'
+                        + (f'Fix it and submit again: {site}/challenges/{challenge.pk}/\n\n'
+                           if decision == 'failed' else
+                           f'See it on your portfolio: {site}/accounts/profile/{student.username}/\n\n')
+                        + 'The ConnectED Team'),
+                    recipient_list=[to])
 
-            messages.success(request, f'Submission marked as {decision}.')
+            messages.success(request, f'Marked {label}. {student.username} has been notified.')
             return redirect('challenges:review_queue')
 
+        for e in errors:
+            messages.error(request, e)
+
     return render(request, 'challenges/review_submission.html', {
-        'submission': submission,
+        'submission': submission, 'challenge': challenge, 'student': student,
+        'previous': previous, 'attempt_no': len(previous) + 1,
+        'form_score': form_score, 'form_feedback': form_feedback,
     })
 
 
