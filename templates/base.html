@@ -85,6 +85,15 @@
                     <i class="bi bi-bar-chart-line sidebar-icon"></i>Leaderboard
                 </a></li>
 
+                {% if user.user_type == 'student' %}
+                {% url 'accounts:portfolio' user.username as my_portfolio_url %}
+                {% if my_portfolio_url %}
+                <li><a href="{{ my_portfolio_url }}" class="sidebar-link" data-tour="portfolio">
+                    <i class="bi bi-folder2-open sidebar-icon"></i>My Portfolio
+                </a></li>
+                {% endif %}
+                {% endif %}
+
                 {% if user.user_type == 'campus_admin' or user.user_type == 'super_admin' %}
                 <li><a href="{% url 'challenges:review_queue' %}" class="sidebar-link">
                     <i class="bi bi-clipboard-check sidebar-icon"></i>Review Queue
