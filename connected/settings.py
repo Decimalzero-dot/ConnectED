@@ -83,13 +83,19 @@ EMAIL_BACKEND = os.getenv(
     'EMAIL_BACKEND',
     'django.core.mail.backends.smtp.EmailBackend'
 )
-EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
-EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
-EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
+# EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
+# EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
+# EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
-EMAIL_TIMEOUT = 10  # don't let a slow mail server hang the request
+# EMAIL_TIMEOUT = 10  # don't let a slow mail server hang the request
 DEFAULT_FROM_EMAIL = f'ConnectED <{EMAIL_HOST_USER}>'
+
+RESEND_API_KEY = os.getenv('RESEND_API_KEY', '')
+EMAIL_BACKEND = ('notifications.backends.ResendEmailBackend' if RESEND_API_KEY
+                 else 'django.core.mail.backends.console.EmailBackend')  # no key: emails print to the log
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'ConnectED <hello@connected.co.ke>')
+SEND_BROADCAST_EMAILS = os.getenv('SEND_BROADCAST_EMAILS', 'False') == 'True'
 
 GITHUB_CLIENT_ID = os.getenv('GITHUB_CLIENT_ID', '')
 GITHUB_CLIENT_SECRET = os.getenv('GITHUB_CLIENT_SECRET', '')
@@ -108,6 +114,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
+    'core.middleware.CanonicalHostMiddleware',
 ]
 AUTH_USER_MODEL = 'accounts.User'
 
@@ -120,6 +127,9 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
+
+CANONICAL_HOST = 'connected.co.ke'
+REDIRECT_HOSTS = {'www.connected.co.ke', 'connected-production-505e.up.railway.app'}
 
 # Security headers
 SECURE_BROWSER_XSS_FILTER = True

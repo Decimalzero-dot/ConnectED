@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from accounts.models import Profile
+from notifications.events import employer_decision, interest_forwarded, employer_decision
 from universities.models import University
 from challenges.models import Challenge, Submission
 from django.core.mail import send_mail, send_mass_mail
@@ -282,14 +283,13 @@ def verify_employer(request, pk):
 
     if request.method == 'POST':
         action = request.POST.get('action')
-        if action == 'verify':
+        if action == 'verify' and not employer_profile.is_verified:
             employer_profile.is_verified = True
             employer_profile.save()
-            messages.success(
-                request,
-                f'{employer_profile.company_name} verified successfully.'
-            )
+            employer_decision(employer_profile, True)
+            messages.success(request, f'{employer_profile.company_name} verified successfully.')
         elif action == 'reject':
+            employer_decision(employer_profile, False)   # send before the account is deleted
             employer_profile.user.delete()
             messages.success(request, 'Employer account rejected and removed.')
             return redirect('management:employer_list')
@@ -319,16 +319,7 @@ def employer_interests(request):
         if interest.status == 'pending':
             interest.status = 'forwarded'
             interest.save()
-            Notification.objects.create(
-                recipient=interest.student,
-                message=(
-                    f'{interest.employer.employer_profile.company_name} has expressed '
-                    f'interest in you for a {interest.get_job_type_display()} '
-                    f'opportunity. Tap to view the details.'
-                ),
-                notification_type='general',
-                link='/dashboard/opportunities/',
-            )
+            interest_forwarded(interest)
             messages.success(request, 'Interest forwarded to student.')
         else:
             messages.info(request, 'This interest was already forwarded.')
@@ -379,6 +370,8 @@ def _notify_students_new_challenge(challenge):
         )
         for s in students
     ])
+    if not django_settings.SEND_BROADCAST_EMAILS:
+      return   # in-app only; keep the email quota for the important ones
 
     # Emails: built here, sent in the background
     url = f'{django_settings.SITE_URL}/challenges/{challenge.pk}/'

@@ -6,6 +6,8 @@ from django.contrib.auth.views import PasswordResetView, PasswordResetConfirmVie
 from django.urls import reverse_lazy, reverse
 from django.db import IntegrityError
 from django_ratelimit.decorators import ratelimit
+
+from notifications.events import employer_needs_verification
 from .models import User, Profile, EmployerProfile
 from .forms import UserRegistrationForm, UserLoginForm, StudentProfileForm, AdminProfileForm, EmployerRegistrationForm
 from notifications.models import Notification
@@ -93,12 +95,18 @@ def login_view(request):
 def handler429(request, exception=None):
     return render(request, 'errors/429.html', status=429)
 
-
 class CustomPasswordResetView(PasswordResetView):
     template_name = 'accounts/password_reset.html'
     email_template_name = 'accounts/password_reset_email.html'
     subject_template_name = 'accounts/password_reset_subject.txt'
     success_url = reverse_lazy('accounts:password_reset_done')
+
+    def form_valid(self, form):
+        try:
+            return super().form_valid(form)
+        except Exception:
+            logger.exception('Password reset email failed')
+            return redirect(self.success_url)   # same page as success, so it doesn't leak which emails exist
 
 
 class CustomPasswordResetConfirmView(PasswordResetConfirmView):
@@ -354,6 +362,9 @@ def employer_register_view(request):
                     'Account created. Please wait for admin verification '
                     'before you can access the platform.',
                 )
+                emp = EmployerProfile.objects.create(
+                    user=user, company_name=..., company_email=..., company_website=..., industry=..., is_verified=False)
+                employer_needs_verification(emp)
                 return redirect('accounts:login')
 
             except IntegrityError:

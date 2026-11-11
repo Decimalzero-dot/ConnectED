@@ -1,3 +1,4 @@
+/* ConnectED guided tour: no dependencies. Steps are matched by sidebar link addresses. */
 (function () {
   'use strict';
   var root = document.getElementById('cx-tour');
@@ -18,6 +19,7 @@
       { sel: 'a[href="/dashboard/"]', title: 'Home', text: 'Your starting point: your progress and shortcuts.' },
       { sel: 'a[href="/challenges/"]', title: 'Challenges', text: 'Practical tasks at your level. Try the ones marked Guided first: each has a Start here guide and hints you can open one at a time.' },
       { sel: 'a[href="/dashboard/leaderboard/"]', title: 'Leaderboard', text: 'Points come from work a reviewer has passed. Focus on learning and the ranking follows.' },
+      { sel: 'a[data-tour="portfolio"]', optional: true, title: 'My Portfolio', text: 'This is the page employers see: your passed challenges, scores and reviewer feedback. You choose in Settings whether it is public.' },
       NOTIFS,
       settings('Connect GitHub, set your year and details, choose which emails you get, and replay this tour any time from the Account tab.')
     ],

@@ -8,6 +8,7 @@ from django.utils import timezone
 from django.http import FileResponse, Http404
 from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
+from notifications.events import employer_interest, sponsorship_enquiry
 from notifications.utils import safe_send_mail
 
 from connected import settings
@@ -401,39 +402,7 @@ def express_interest(request, student_id):
             interest.employer = request.user
             interest.student = student
             interest.save()
-
-            campus_admins = User.objects.filter(
-                user_type='campus_admin',
-                profile__university=student.profile.university
-            ).select_related('profile')
-
-            admin_emails = [a.email for a in campus_admins if a.email]
-            if admin_emails:
-                safe_send_mail(
-                    subject=f'ConnectED — Employer Interest in {student.username}',
-                    message=(
-                        f'An employer has expressed interest in one of your students.\n\n'
-                        f'Student: {student.username} ({student.email})\n'
-                        f'Company: {request.user.employer_profile.company_name}\n'
-                        f'Contact: {request.user.employer_profile.company_email}\n'
-                        f'Opportunity: {interest.get_job_type_display()}\n\n'
-                        f'Message:\n{interest.message}\n\n'
-                        f'Review at: /management/employer-interests/'
-                    ),
-                    recipient_list=admin_emails,
-                )
-
-            for admin in campus_admins:
-                Notification.objects.create(
-                    recipient=admin,
-                    message=(
-                        f'{request.user.employer_profile.company_name} expressed '
-                        f'interest in {student.username} '
-                        f'({interest.get_job_type_display()})'
-                    ),
-                    notification_type='general',
-                    link='/management/employer-interests/'
-                )
+            employer_interest(interest)
 
             messages.success(
                 request,
@@ -467,29 +436,7 @@ def sponsor_challenge_view(request):
             budget=request.POST.get('budget', '')[:100],
             message=request.POST.get('message', ''),
         )
-
-        super_admins = User.objects.filter(user_type='super_admin')
-        for sa in super_admins:
-            Notification.objects.create(
-                recipient=sa,
-                message=f'{company} wants to sponsor a challenge '
-                        f'({inquiry.discipline_interest or "any discipline"}).',
-                notification_type='general',
-                link='/management/sponsorships/',
-            )
-
-        safe_send_mail(
-            subject='ConnectED — Sponsorship Interest',
-            message=(
-                f'{company} is interested in sponsoring a challenge.\n\n'
-                f'Contact: {request.user.employer_profile.company_email}\n'
-                f'Discipline: {inquiry.discipline_interest or "Open"}\n'
-                f'Budget: {inquiry.budget or "Not stated"}\n\n'
-                f'Message:\n{inquiry.message}\n\n'
-                f'Manage it: {django_settings.SITE_URL}/management/sponsorships/'
-            ),
-            recipient_list=[sa.email for sa in super_admins],
-        )
+        sponsorship_enquiry(inquiry)
 
         messages.success(
             request,
